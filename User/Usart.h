@@ -186,6 +186,5 @@ void Usart1_Init_op(u32 bd);
 #define RS485_2_TX_Active()      RS485_2_DIR_R_PORT->BSRR=RS485_2_DIR_PIN_RE;RS485_2_DIR_D_PORT->BSRR=RS485_2_DIR_PIN_DE
 
 
-
 #endif
 

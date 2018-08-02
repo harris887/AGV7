@@ -54,6 +54,9 @@ void SysTick_IrqHandler(void)
     if(MOTO_485COMM_Timeout) MOTO_485COMM_Timeout--;
     if(MOTO_READ_RPM_Timeout[0]) MOTO_READ_RPM_Timeout[0]--;
     if(MOTO_READ_RPM_Timeout[1]) MOTO_READ_RPM_Timeout[1]--;    
+    if(DIDO_COMM_Timeout) DIDO_COMM_Timeout--;
+    if(DIDO_READ_LIGHT_Timeout) DIDO_READ_LIGHT_Timeout--;
+    if(WK2124_Timeout) WK2124_Timeout--;
     
     I_RollAd-=(I_RollAd>>8);
     I_RollAd+=AD_Roller;

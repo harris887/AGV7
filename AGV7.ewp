@@ -1748,6 +1748,12 @@
       <name>$PROJ_DIR$\User\Delay.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\User\DIDO.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\User\DIDO.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\User\init.c</name>
     </file>
     <file>

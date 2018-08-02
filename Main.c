@@ -28,7 +28,7 @@ int main(void)
   Usart5_Init();
   LASER_INFOR_Init();
   CAN1_Init(CAN_BOUND_250, CAN_Mode_Normal);
-  //WK2124_Init();
+  WK2124_Init();
   GetFlashModBusData(&MOD_BUS_Reg);
   SetBeep(3,100,200);//test use
   
@@ -39,7 +39,7 @@ int main(void)
   while(1)
   {
     UART_Task();
-    //MODBUS_READ_SERSOR_BOARD_TASK();
+    MODBUS_READ_SERSOR_BOARD_TASK();
     //CHECK_BUTTON_TASK();
     //CheckBatteryVolt_TASK();
     //JOYSTICK_SCAN_TASK();
@@ -49,13 +49,15 @@ int main(void)
     
     //AGV_RUN_Task();
     //MOTO_FaultCheck_TASK();
-    //READ_RFID_BLOCK_Task();
+    READ_RFID_BLOCK_Task();
     //MOD_BUS_REG_MODIFY_Check();
     
     MOTO_SPEED_CONTROL_TASK();
-    //VOICE_PLAY_TASK();
+    VOICE_PLAY_TASK();
     //Check_UltraSonic_TASK();
-    //Laser_Task();
+    Laser_Task();
+    Check_DIDO_TASK();
+    WK2124_TransTask();
     
     TimeoutJump();
     FeedDog();     

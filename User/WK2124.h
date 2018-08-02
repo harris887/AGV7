@@ -1,11 +1,42 @@
 #ifndef _wk2124_h_
 #define _wk2124_h_
 
-#define WK2124_CS_PIN   GPIO_Pin_4
-#define WK2124_CS_PORT  GPIOA
+#define WK2124_CS_PIN   GPIO_Pin_12
+#define WK2124_CS_PORT  GPIOB
 
 #define WK2124_CS_LOW()  WK2124_CS_PORT->BRR=WK2124_CS_PIN
 #define WK2124_CS_HIGH()  WK2124_CS_PORT->BSRR=WK2124_CS_PIN
+
+
+#define RS485_3_DIR_PIN_RE       GPIO_Pin_6
+#define RS485_3_DIR_R_PORT       GPIOA
+#define RS485_3_DIR_PIN_DE       GPIO_Pin_5
+#define RS485_3_DIR_D_PORT       GPIOA
+#define RS485_3_RX_Active()      RS485_3_DIR_R_PORT->BRR=RS485_3_DIR_PIN_RE;RS485_3_DIR_D_PORT->BRR=RS485_3_DIR_PIN_DE
+#define RS485_3_TX_Active()      RS485_3_DIR_R_PORT->BSRR=RS485_3_DIR_PIN_RE;RS485_3_DIR_D_PORT->BSRR=RS485_3_DIR_PIN_DE
+
+#define RS485_4_DIR_PIN_RE       GPIO_Pin_4
+#define RS485_4_DIR_R_PORT       GPIOC
+#define RS485_4_DIR_PIN_DE       GPIO_Pin_7
+#define RS485_4_DIR_D_PORT       GPIOA
+#define RS485_4_RX_Active()      RS485_4_DIR_R_PORT->BRR=RS485_4_DIR_PIN_RE;RS485_4_DIR_D_PORT->BRR=RS485_4_DIR_PIN_DE
+#define RS485_4_TX_Active()      RS485_4_DIR_R_PORT->BSRR=RS485_4_DIR_PIN_RE;RS485_4_DIR_D_PORT->BSRR=RS485_4_DIR_PIN_DE
+
+
+#define BMS_RS485_TX_ACTIVE       RS485_4_TX_Active
+#define BMS_RS485_RX_ACTIVE       RS485_4_RX_Active
+
+#define HALL_RS485_TX_ACTIVE       RS485_3_TX_Active
+#define HALL_RS485_RX_ACTIVE       RS485_3_RX_Active
+
+typedef enum
+{
+  CH_DIDO = 0,
+  CH_VOICE ,
+  CH_HALL ,
+  CH_BMS,
+  WK_CH_NUM
+}WK2124_CH;
 
 //===========================================================
 //wkxxxx  Global rigister address defines
@@ -127,6 +158,7 @@
 
 
 //===========================================================
+extern u16 WK2124_Timeout; 
 
 extern void WK2124_Init(void);
 extern void FillUartTxBuf_NEx(u8* pData,u8 num,u8 U_0_3);

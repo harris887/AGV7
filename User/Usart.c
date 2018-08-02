@@ -80,18 +80,6 @@ void Usart1_Init(void)
   GPIO_InitTypeDef GPIO_InitStructure;
   USART_InitTypeDef USART_InitStructure;  
   
-  //RS485,RX/TX切换引进
-  GPIO_InitStructure.GPIO_Pin = RS485_2_DIR_PIN_RE;		  
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_Init(RS485_2_DIR_R_PORT, &GPIO_InitStructure); 
-  
-  GPIO_InitStructure.GPIO_Pin = RS485_2_DIR_PIN_DE;		  
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_Init(RS485_2_DIR_D_PORT, &GPIO_InitStructure);   
-  RS485_2_RX_Active();  
-  
   /* 配置 USART1 Tx (PA.09) 为复用推挽输出 */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -278,6 +266,18 @@ void Usart5_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
   USART_InitTypeDef USART_InitStructure; 
+  
+  //RS485,RX/TX切换引进
+  GPIO_InitStructure.GPIO_Pin = RS485_2_DIR_PIN_RE;		  
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(RS485_2_DIR_R_PORT, &GPIO_InitStructure); 
+  
+  GPIO_InitStructure.GPIO_Pin = RS485_2_DIR_PIN_DE;		  
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(RS485_2_DIR_D_PORT, &GPIO_InitStructure);   
+  RS485_2_RX_Active();    
   
   /* 配置 USART5 Tx (PC.12) 为复用推挽输出 */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
@@ -491,7 +491,6 @@ void UART_Task(void)
   
   if(UART3_Oprx.InIndex!=UART3_Oprx.OutIndex)
   {
-    //Analysis_Receive_From_ModeBusSlaveDev(UART3_Oprx.Buf[UART3_Oprx.OutIndex++]);
     Analysis_Receive_From_RFID(UART3_Oprx.Buf[UART3_Oprx.OutIndex++]);
   }
   
@@ -523,11 +522,6 @@ void UART_Task(void)
     if(RfidMachineState)
     {
       RfidMachineState=0;//重新数据同步
-    }
-    
-    if(HallSensorMachineState) 
-    {
-      HallSensorMachineState=0;//重新数据同步
     }
   }
   

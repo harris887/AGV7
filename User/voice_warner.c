@@ -1,10 +1,10 @@
 #include "user_inc.h"
 #include "string.h"
 
-#define VOICE_COM         5 //使用UART5
+#define VOICE_COM             CH_VOICE 
 
 #define VOICE_MODULE_V0       0
-#define VOICE_MODULE_V1       0
+#define VOICE_MODULE_V1       1
 #define VOICE_MODULE_VERSION  VOICE_MODULE_V1 //0-老版需要停止，1-新版不需要停止
 
 #define MAX_VOICE_VOLUME      0x1c
@@ -80,7 +80,8 @@ void PLAY_Voice(u8 index,u8 volume)
   }
   voice_data_buf[5] = tmp;
   
-  FillUartTxBufN(voice_data_buf,sizeof(VOICE_SELECT),VOICE_COM);
+  FillUartTxBuf_NEx(voice_data_buf, sizeof(VOICE_SELECT), VOICE_COM);
+  //FillUartTxBufN(voice_data_buf,sizeof(VOICE_SELECT),VOICE_COM);
   //FillUartTxBufN(voice_data_buf,sizeof(VOICE_SELECT),1); //debug
 }
 

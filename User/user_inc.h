@@ -28,6 +28,7 @@
 #include "voice_warner.h"
 #include "can.h"
 #include "moto_monitor.h"
+#include "DIDO.h"
 
 #define MODBUS_PARA_REFLUSH_FLASH_ENABLE  1//µ÷ÊÔ½×¶Î²»²ÁFLASH
 

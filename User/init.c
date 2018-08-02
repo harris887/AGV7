@@ -72,8 +72,7 @@ void RCC_Configuration(void)
                          | RCC_APB2Periph_USART1 
                          | RCC_APB2Periph_ADC1 
                          | RCC_APB2Periph_TIM1 
-                         | RCC_APB2Periph_TIM8
-                         | RCC_APB2Periph_SPI1 , ENABLE);
+                         | RCC_APB2Periph_TIM8 , ENABLE);
 
   /*使能定时器的时钟*/
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2
@@ -84,6 +83,7 @@ void RCC_Configuration(void)
                          | RCC_APB1Periph_USART2
                          | RCC_APB1Periph_USART3
                          | RCC_APB1Periph_UART4
+                         | RCC_APB1Periph_SPI2  
                          | RCC_APB1Periph_UART5, ENABLE);
 
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1,ENABLE);

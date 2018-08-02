@@ -3,7 +3,7 @@
 #include "stdlib.h"
 
 #define HALL_SENSOR_PRINTF_DEBUG  0
-#define HALL_COMM_ENUM            3   // USART3
+#define HALL_COMM_ENUM            CH_HALL   
 
 //本设备的寄存器
 #define MOD_BUS_REG_START_ADDR  0x0000
@@ -167,7 +167,7 @@ void MODBUS_READ_SERSOR_BOARD_TASK(void)
   {
   case 0:
     {
-      RS485_1_TX_Active();
+      HALL_RS485_TX_ACTIVE();
       modebus_timeout=MODBUS_TIME_OUT_MS;
       modebus_hall_tx_pro++;
     }
@@ -186,7 +186,8 @@ void MODBUS_READ_SERSOR_BOARD_TASK(void)
         temp_buf[6]=cal_crc&0xFF;
         temp_buf[7]=cal_crc>>8;   
         
-        FillUartTxBufN((u8*)temp_buf,sizeof(MODBUS_READ_SENSOR_DATA1),HALL_COMM_ENUM);
+        //FillUartTxBufN((u8*)temp_buf,sizeof(MODBUS_READ_SENSOR_DATA1),HALL_COMM_ENUM);
+        FillUartTxBuf_NEx((u8*)temp_buf, sizeof(MODBUS_READ_SENSOR_DATA1), HALL_COMM_ENUM);
         modebus_hall_tx_pro++;
       }
     }
@@ -210,7 +211,7 @@ void MODBUS_READ_SERSOR_BOARD_TASK(void)
     {
       if(Modebus_tx_rx_change_delay==0)
       {
-        RS485_1_RX_Active();
+        HALL_RS485_RX_ACTIVE();
         modebus_hall_tx_pro++;
       }
     }
