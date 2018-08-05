@@ -9,8 +9,8 @@
 #define BUZZER_OFF    0
 #define BUZZER_A_PORT   GPIOC
 #define BUZZER_A_PIN    GPIO_Pin_5
-#define BUZZER_B_PORT   GPIOE
-#define BUZZER_B_PIN    GPIO_Pin_6
+//#define BUZZER_B_PORT   GPIOE
+//#define BUZZER_B_PIN    GPIO_Pin_6
 
 #define RELAY_1_PIN     GPIO_Pin_7 
 #define RELAY_2_PIN     GPIO_Pin_15

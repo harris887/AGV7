@@ -1,17 +1,18 @@
-#include "can.h"
+#include "user_inc.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
 
 extern u16 g_can_defbound;
 
-
+#define DEFAULT_LASER_BEEP_TIMEOUT  200
 // Ω” ’” œ‰
 CanRxMsg g_CAN_RxData[MAX_CAN_RX_INFOR_NUM];
 u8 CAN_INFOR_IN_Index = 0;
 u8 CAN_INFOR_OUT_Index = 0;
 u32 CAN_RX_IntNum = 0;
 u32 LaserTimeout = 0;
+u16 LaserBeepTimeout = DEFAULT_LASER_BEEP_TIMEOUT;
 u8 LaserSelect = LASER_NUM;
 u16 laser_width_cm = 70;
 u16 laser_deep_cm = 200;
@@ -372,17 +373,22 @@ void Laser_Task()
       }
       break;      
     }
-    
+  }
+  
 #if (1)
+  if(LaserBeepTimeout == 0)
+  {
+    LaserBeepTimeout = DEFAULT_LASER_BEEP_TIMEOUT;
     for(i = 0; i < LASER_NUM; i++)
     {
       if((LASER_Infor[i].state & 0x2) && (LASER_Infor[i].is_things))
       {
-        printf("Laser %d: angle = %d, distance = %d\n", i, LASER_Infor[i].angle, LASER_Infor[i].distance);
+        SetBeep(1, 100, 50);
+        //printf("Laser %d: angle = %d, distance = %d\n", i, LASER_Infor[i].angle, LASER_Infor[i].distance);
       }
     }
-#endif
   }
+#endif  
 }
 
 void Set_LASER(u32 id, u8 on_off, u8 width_cm, u16 deep_cm)

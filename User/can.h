@@ -32,6 +32,7 @@ typedef struct
 #define LASER_NUM   2
 extern LASER_INFOR LASER_Infor[LASER_NUM];
 extern u32 LaserTimeout;
+extern u16 LaserBeepTimeout;
 /*************************************************
 Function: CAN1_Init
 Description: CAN≥ı ºªØ

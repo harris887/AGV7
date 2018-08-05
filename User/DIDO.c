@@ -5,12 +5,12 @@
 #define DIDO_MODULE_BORCAST_ADDR          254
 #define DEFAULT_DIDO_COMM_TIME_OUT        12
 #define DEFAULT_DIDO_READ_LIGHT_TIME_OUT  100
+#define DEFAULT_DIDO_ENABLE_TIME_OUT      1000
 #define DI_IM_STOP_MASK                   0x1
 #define DI_TOUCH_MASK                     0x2
 
-u16 DIDO_COMM_Timeout = DEFAULT_DIDO_COMM_TIME_OUT;
+u16 DIDO_COMM_Timeout = DEFAULT_DIDO_ENABLE_TIME_OUT;
 u16 DIDO_READ_LIGHT_Timeout = DEFAULT_DIDO_READ_LIGHT_TIME_OUT;
-//u16 DIDO_ENABLE_Timeout = 800;
 
 u8 DIDO_RelayStatus=0;
 u8 DIDO_RelayRefresh=0xFF;//0xFF
@@ -168,19 +168,6 @@ void Analysis_Receive_From_Dido(u8 data,MODBUS_SAMPLE* pMODBUS, DIDO_INPUT_STATU
 
 void Check_DIDO_TASK(void)
 {
-  /*
-  // 启动DIDO的电源
-  if(DIDO_ENABLE_Timeout==0)
-  {
-    static u8 DIDO_Enable = 0;
-    if(DIDO_Enable==0)
-    {
-      DIDO_Enable = 1;
-      Relay_status |= 0x20;
-      SetRelay(RELAY_SPOWER_Index, RELAY_ON); //RELAY_ON RELAY_OFF
-    }
-  }
-  */
   
   // 通讯
   if(DIDO_COMM_Timeout==0)
@@ -192,7 +179,7 @@ void Check_DIDO_TASK(void)
     {
       DIDO_COMM_Timeout = DEFAULT_DIDO_COMM_TIME_OUT;
       DIDO_READ_LIGHT_Timeout = DEFAULT_DIDO_READ_LIGHT_TIME_OUT;
-      FillUartTxBufN((u8*)DEFAULT_DIDO_LIGHT_GET,sizeof(DEFAULT_DIDO_LIGHT_GET),DIDO_UART_PORT);
+      FillUartTxBuf_NEx((u8*)DEFAULT_DIDO_LIGHT_GET,sizeof(DEFAULT_DIDO_LIGHT_GET),DIDO_UART_PORT);
       return;
     }
     
@@ -217,7 +204,6 @@ void Check_DIDO_TASK(void)
           cal_crc = ModBus_CRC16_Calculate(t_buf,sizeof(DEFAULT_DIDO_RELAY_SET)-2);
           t_buf[sizeof(DEFAULT_DIDO_RELAY_SET)-2] = cal_crc&0xFF;
           t_buf[sizeof(DEFAULT_DIDO_RELAY_SET)-1] = cal_crc>>8;
-          //FillUartTxBufN(t_buf,sizeof(DEFAULT_DIDO_RELAY_SET),DIDO_UART_PORT);
           FillUartTxBuf_NEx(t_buf, sizeof(DEFAULT_DIDO_RELAY_SET), DIDO_UART_PORT);
           break;
         }

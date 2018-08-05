@@ -1,9 +1,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "User\user_inc.h"
 #include "stdio.h"
+#include "string.h"
+#include "stdlib.h"
 
 #define MAIN_PRINTF_DEBUG   1
 
+char test_buffer[128];
 int main(void)
 {
   RCC_Configuration();
@@ -13,12 +16,11 @@ int main(void)
   BackupAccessEnable();
   
   //MovementListInit();
-  BUTTON_Init();
+  //BUTTON_Init();
   BUZZER_Init();
-  RELAY_Init();
-  LedDispInit();
+  //RELAY_Init();
+  //LedDispInit();
   Adc_init();
-  MOTO_Init();
   SysTick_Init(1);
   REMOTE_Init();//遥控部分
   Usart1_Init();
@@ -26,10 +28,12 @@ int main(void)
   Usart3_Init();
   Usart4_Init();
   Usart5_Init();
+  GetFlashModBusData(&MOD_BUS_Reg);
+  MOTO_Init();
   LASER_INFOR_Init();
   CAN1_Init(CAN_BOUND_250, CAN_Mode_Normal);
   WK2124_Init();
-  GetFlashModBusData(&MOD_BUS_Reg);
+  
   SetBeep(3,100,200);//test use
   
 #if (MAIN_PRINTF_DEBUG)
@@ -42,19 +46,17 @@ int main(void)
     MODBUS_READ_SERSOR_BOARD_TASK();
     //CHECK_BUTTON_TASK();
     //CheckBatteryVolt_TASK();
-    //JOYSTICK_SCAN_TASK();
-    //CHECK_REMOTE_ENABLE_TASK();
+    JOYSTICK_SCAN_TASK();
+    CHECK_REMOTE_ENABLE_TASK();
     
     BEEP_TASK();
     
-    //AGV_RUN_Task();
-    //MOTO_FaultCheck_TASK();
+    AGV_RUN_Task();
     READ_RFID_BLOCK_Task();
     //MOD_BUS_REG_MODIFY_Check();
     
     MOTO_SPEED_CONTROL_TASK();
     VOICE_PLAY_TASK();
-    //Check_UltraSonic_TASK();
     Laser_Task();
     Check_DIDO_TASK();
     WK2124_TransTask();
@@ -66,6 +68,25 @@ int main(void)
     {
       //static u8 sta=0;
       debug_show=0;
+      
+      if(1)// 电机测试
+      {
+        if(USART_BYTE == 'A')
+        {
+          sprintf(test_buffer,"Speed_mmps: [ %d %d ], L_001rpm: [ %d %d ] \n",
+                  MONITOR_St[LEFT_MOTO_INDEX].real_mms, MONITOR_St[RIGHT_MOTO_INDEX].real_mms,
+                  MONITOR_St[LEFT_MOTO_INDEX].real_rpm_reg, MONITOR_St[RIGHT_MOTO_INDEX].real_rpm_reg);
+          FillUartTxBufN((u8*)test_buffer,strlen(test_buffer),1);
+        }
+        else if(USART_BYTE == 'B')
+        {
+          sprintf(test_buffer,"RT: [ %d %d ] , RRT: [ %d %d ] , TOTAL: %d \n", // , %d
+                  ReadMotoRpmTimes[LEFT_MOTO_INDEX] ,ReadMotoRpmTimes[RIGHT_MOTO_INDEX] ,
+                  MONITOR_St[LEFT_MOTO_INDEX].counter ,MONITOR_St[RIGHT_MOTO_INDEX].counter , 
+                  rx5);// MODBUS_Monitor.read_success_num
+          FillUartTxBufN((u8*)test_buffer,strlen(test_buffer),1);
+        }
+      }      
       if(0)
       //if(1)
       {

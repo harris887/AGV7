@@ -34,6 +34,7 @@ void Analysis_Receive_From_Monitor(u8 data,MODBUS_SAMPLE* pMODBUS, MONITOR_STATU
         else
         {
           pMODBUS->MachineState = 0x0B;//缓冲数据区域清零要处理，中间数据为01，误认为是要从机地址。
+          //pMODBUS->MachineState = 0;
           pMODBUS->BufIndex = 0;
         }  
       }

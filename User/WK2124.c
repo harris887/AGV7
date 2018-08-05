@@ -1,13 +1,13 @@
 #include "user_inc.h"
 
-#define DEFAULT_WK2124_INIT_DELAY 2000
-#define DEFAULT_RD_WK2124_CYCLE   20
+#define DEFAULT_WK2124_INIT_DELAY 1000
+#define DEFAULT_RD_WK2124_CYCLE   4
 u16 WK2124_Timeout = DEFAULT_WK2124_INIT_DELAY;
 u32 WK2124_BD_List[WK_CH_NUM] = {
-  38400 , // CH_DIDO
   9600  , // CH_VOICE
-  19200 , // CH_HALL
-  9600  , // CH_BMS
+  9600  , // CH_DIDO
+  9600  , // RSV
+  9600  , // RSV
 };
 
 void SPI2_MasterInit(void)
@@ -290,7 +290,7 @@ void WK2124_TransTask(void)
           {
           case CH_DIDO:
             {
-              rx_time[CH_DIDO] = 3;
+              rx_time[CH_DIDO] = 5;
               for(j = 0; j < data[0]; j++)
               {
                 Analysis_Receive_From_Dido(temp_buf[j], &MODBUS_Dido, &DIDO_INPUT_Status);
@@ -302,8 +302,10 @@ void WK2124_TransTask(void)
             
             }
             break;
+          /*  
           case CH_HALL:
             {
+              
               rx_time[CH_HALL] = 3;
               for(j = 0; j < data[0]; j++)
               {              
@@ -311,6 +313,7 @@ void WK2124_TransTask(void)
               }
             }
             break;
+          */
           case CH_BMS:
             {
               //Handle_BmsRx(temp_buf, data[0]);
@@ -318,24 +321,25 @@ void WK2124_TransTask(void)
             break;
           }
        }
-       
-       // 超时管理
-       if(rx_time[CH_DIDO] == 0)
-       {
-         if(MODBUS_Dido.MachineState)
-         {
-           MODBUS_Dido.MachineState = 0;
-         }
-       }
-       
-       if(rx_time[CH_HALL] == 0)
-       {
-         if(HallSensorMachineState) 
-         {
-           HallSensorMachineState=0;
-         }    
-       }
     }
+    
+    // 超时管理
+    if(rx_time[CH_DIDO] == 0)
+    {
+      if(MODBUS_Dido.MachineState)
+      {
+        MODBUS_Dido.MachineState = 0;
+      }
+    }
+    /*   
+    if(rx_time[CH_HALL] == 0)
+    {
+      if(HallSensorMachineState) 
+      {
+        HallSensorMachineState=0;
+      }    
+    }
+    */
   }
 }
 

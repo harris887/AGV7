@@ -3,7 +3,7 @@
 
 
 #define DEFAULT_RFID_ONLINE_TIME_IN_MS  3000
-#define U_TX_INDEX  1   //使用串口1发送
+#define U_TX_INDEX  2   //使用串口1发送
 
 #define AUTO_FOLLOW_SPEED_CONTROL_MODE_ANALOG   0 //电位器
 #define AUTO_FOLLOW_SPEED_CONTROL_MODE_DIGITAL  1 //MODBUS寄存器

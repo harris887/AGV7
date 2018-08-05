@@ -67,11 +67,11 @@ const u16 RS485_SLAVE_TX_2_RX_DELAY_List[9]=
   RS485_SLAVE_TX_2_RX_DELAY_115200_TIME
 };
 
-u16 Uart1RxTimeReload=B_2400_SILENCE_TIME;
+u16 Uart1RxTimeReload=B_9600_SILENCE_TIME;
 u16 Uart2RxTimeReload=B_9600_SILENCE_TIME;
 u16 Uart3RxTimeReload=B_9600_SILENCE_TIME;
 u16 Uart4RxTimeReload=B_9600_SILENCE_TIME;
-u16 Uart5RxTimeReload=B_9600_SILENCE_TIME;
+u16 Uart5RxTimeReload=B_19200_SILENCE_TIME;
 
 u16 RS485_SLAVE_TX_2_RX_Delay=RS485_SLAVE_TX_2_RX_DELAY_115200_TIME;
 
@@ -162,6 +162,7 @@ void Usart2_Init(void)
   
    /*允许接收中断 */
   USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+  USART_ITConfig(USART2, USART_IT_TXE, DISABLE);  
   
    /*串口1使能*/
   USART_Cmd(USART2, ENABLE);
@@ -211,9 +212,6 @@ void Usart3_Init(void)
   USART_Cmd(USART3, ENABLE);
 }
 
-
-
-
 void Usart4_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -237,7 +235,7 @@ void Usart4_Init(void)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-  /* 配置 USART3 Rx (PC.11) 为上拉输入。否则不接串口程序允许到串口就司机 */
+  /* 配置 USART4 Rx (PC.11) 为上拉输入。否则不接串口程序允许到串口就司机 */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -290,7 +288,7 @@ void Usart5_Init(void)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
   
-  USART_InitStructure.USART_BaudRate = 9600;//9600
+  USART_InitStructure.USART_BaudRate = 115200;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -360,7 +358,6 @@ void UART3_ISR(void)
     {
       USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
       UART3_Optx.Intrrupt=false;
-      Modebus_read_cmd_tx_finish=1;
     }
   }
 }
@@ -380,16 +377,21 @@ void UART4_ISR(void)
     {
       USART_ITConfig(UART4, USART_IT_TXE, DISABLE);
       UART4_Optx.Intrrupt=false;
+      
+      Modebus_read_cmd_tx_finish=1;
+  
     }
   }
 }
 
+u32 rx5 = 0;
 void UART5_ISR(void)
 {
   if(UART5->SR&USART_FLAG_RXNE)
   {
     UART5_Oprx.Buf[UART5_Oprx.InIndex++]=UART5->DR;//fill can clear flag
     Uart5RxTime=Uart5RxTimeReload;
+    rx5 += 1;
   }
   
   if((UART5->SR&USART_FLAG_TXE)&&(UART5_Optx.Intrrupt==true))
@@ -496,7 +498,7 @@ void UART_Task(void)
   
   if(UART4_Oprx.InIndex!=UART4_Oprx.OutIndex)
   {
-    
+    Analysis_Receive_From_ModeBusSlaveDev(UART4_Oprx.Buf[UART4_Oprx.OutIndex++]);
   }  
   
   if(UART5_Oprx.InIndex!=UART5_Oprx.OutIndex)
@@ -527,10 +529,19 @@ void UART_Task(void)
   
   if(Uart4RxTime==0)
   {
-
+    if(HallSensorMachineState) 
+    {
+      HallSensorMachineState=0;
+    } 
   }
   
- 
+  if(Uart5RxTime==0)
+  {
+    if(MODBUS_Monitor.MachineState)
+    {
+      MODBUS_Monitor.MachineState = 0;
+    }
+  }  
   
   //电机接口的485发送接收的转换
   switch(MOTO_RS485_RX_TX_STAUTS)

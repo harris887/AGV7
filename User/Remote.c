@@ -1,11 +1,8 @@
 #include "user_inc.h"
 #include "string.h"
 
-#define JOYSTICK_PRINTF_DEBUG 0
-#define REMOTE_OR_FOLLOWLINE_SELECT_CHANNEL 4
-#define DIRECTION_LEFT_RIGHT_CHANNEL  0
-#define DIRECTION_FORWARD_BACKWARD_CHANNEL  1
-#define SPEED_GAIN_CHANNEL  2
+#define JOYSTICK_PRINTF_DEBUG                 0
+
 
 
 u8 REMOTE_Pro=0;
@@ -15,7 +12,6 @@ u8 REMOTE_GetPulseFlag=0;
 u16 REMOTE_TimeCounter=0;
 u8 REMOTE_CHANNAL_CHANGE_Delay=0;
 u8 REMOTE_SelectFlag=0;//1-手柄遥控态ON,0-手柄遥控态OFF
-//u8 ControlMode=0;//0-自动控制，1-遥控
 REMOTE_OPTION REMOTE_OPTION_List[REMOTE_CHANNEL_NUM];
 
 void REMOTE_Init(void)
@@ -30,7 +26,6 @@ void REMOTE_Init(void)
 
     TIM_Cmd(REMOTE_COUNTER_TIMER, DISABLE);
     memset(REMOTE_OPTION_List,0,sizeof(REMOTE_OPTION_List));
-    
     PWM_Select_Port_Init();
 }
 
@@ -64,7 +59,6 @@ void PWM_Select_Port_Init(void)
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);    
-  
 }
 
 /*******************************************************************
@@ -97,16 +91,18 @@ u8 PWM_In_Data(void)
   return Read_Ctrl_PWM_in;
 }
 
-void CacluteRemoteSpeed(s16* pFourWheelSpeed)
+//计算遥控的速度，输出控制在(-1000~1000)之间
+void CacluteRemoteSpeed(s16* pWheelSpeedStep)
 {
+#define REMOTE_DEAD_THRESHOLD     50
   //支持，
   //1-前进，2-后退，3-左转，4-右转
   u8 move_mode=0;
   s32 up_down_dir,left_right_dir;
   s32 Speed_gain;
   s16 abs_speed;
-  //数据有效性检测，待添加
   
+  //数据有效性检测，待添加
   up_down_dir=-(REMOTE_OPTION_List[DIRECTION_FORWARD_BACKWARD_CHANNEL].pwm_step);//上正，下负
   left_right_dir=REMOTE_OPTION_List[DIRECTION_LEFT_RIGHT_CHANNEL].pwm_step;//左负，右正
   Speed_gain=-REMOTE_OPTION_List[SPEED_GAIN_CHANNEL].pwm_step;
@@ -117,55 +113,49 @@ void CacluteRemoteSpeed(s16* pFourWheelSpeed)
   if(left_right_dir<-400) left_right_dir=-400;
   else if(left_right_dir>400) left_right_dir=400;
   
-  //变为200~800之间
-  if(Speed_gain<-300) Speed_gain=-300;
-  else if(Speed_gain>300) Speed_gain=300;
-  Speed_gain+=500;
+  //变为400~1000之间
+  if(Speed_gain < -300) Speed_gain = -300;
+  else if(Speed_gain > 300) Speed_gain = 300;
+  Speed_gain += 700;
   
-  
-  //死区控制，并且50~350,除以3得到100级速度
-  if(up_down_dir<-50) 
+  //死区控制，并且0~350,除以3.5得到100级速度
+  if(up_down_dir < -REMOTE_DEAD_THRESHOLD) 
   {
-    up_down_dir+=50;
-    up_down_dir/=3;
-    
-    up_down_dir=(up_down_dir*Speed_gain)/100;
+    up_down_dir += REMOTE_DEAD_THRESHOLD;
+    up_down_dir = (up_down_dir*2)/7;
+    up_down_dir = (up_down_dir*Speed_gain)/100;
   }
-  else if(up_down_dir>50)
+  else if(up_down_dir > REMOTE_DEAD_THRESHOLD)
   {
-    up_down_dir-=50;
-    up_down_dir/=3;
-    
-    up_down_dir=(up_down_dir*Speed_gain)/100;
+    up_down_dir -= REMOTE_DEAD_THRESHOLD;
+    up_down_dir = (up_down_dir*2)/7;
+    up_down_dir = (up_down_dir*Speed_gain)/100;
   }
   else
   {
-    up_down_dir=0;
+    up_down_dir = 0;
   }
-  
-  //死区控制，并且50~350,除以3得到100级速度
-  if(left_right_dir<-50) 
+
+  //死区控制，并且0~350,除以3得到100级速度
+  if(left_right_dir < -REMOTE_DEAD_THRESHOLD) 
   {
-    left_right_dir+=50;
-    left_right_dir/=3;
-    
-    left_right_dir=(left_right_dir*Speed_gain)/100;
+    left_right_dir += REMOTE_DEAD_THRESHOLD;
+    left_right_dir = (left_right_dir*2)/7;
+    left_right_dir = (left_right_dir*Speed_gain)/100;
   }
-  else if(left_right_dir>50)
+  else if(left_right_dir > REMOTE_DEAD_THRESHOLD)
   {
-    left_right_dir-=50;
-    left_right_dir/=3;
-    
-    left_right_dir=(left_right_dir*Speed_gain)/100;
+    left_right_dir -= REMOTE_DEAD_THRESHOLD;
+    left_right_dir = (left_right_dir*2)/7;
+    left_right_dir = (left_right_dir*Speed_gain)/100;
   }
   else
   {
-    left_right_dir=0;
+    left_right_dir = 0;
   }  
   
 
   //前后左右
-  //if(roll_mode==0)
   if(1)
   {
     u32 a,b;
@@ -187,31 +177,32 @@ void CacluteRemoteSpeed(s16* pFourWheelSpeed)
     }
   }
 
-  
   //1--3  头
   //2--4  尾
   //1-前进，2-后退，3-左平移，4-右平移，5-顺时针转圈，6-逆时针转圈
   switch(move_mode)
   {
   case 0:
-    pFourWheelSpeed[0]=0;//左轮   
-    pFourWheelSpeed[1]=0;//右轮
+    pWheelSpeedStep[0] = 0;//左轮   
+    pWheelSpeedStep[1] = 0;//右轮
     break;
   case 1:
-    pFourWheelSpeed[0]=abs_speed;//左轮   
-    pFourWheelSpeed[1]=abs_speed;//右轮
+    pWheelSpeedStep[0] = abs_speed;//左轮   
+    pWheelSpeedStep[1] = abs_speed;//右轮
     break;
   case 2:
-    pFourWheelSpeed[0]=-abs_speed;//左轮 
-    pFourWheelSpeed[1]=-abs_speed;//右轮 
+    pWheelSpeedStep[0] = -abs_speed;//左轮 
+    pWheelSpeedStep[1] = -abs_speed;//右轮 
     break;
   case 3:
-    pFourWheelSpeed[0]=0;//左轮  -abs_speed
-    pFourWheelSpeed[1]=abs_speed;//右轮
+    abs_speed /= 2;
+    pWheelSpeedStep[0] = (s16)(abs_speed * DIFF_COFF);//左轮  -abs_speed
+    pWheelSpeedStep[1] = abs_speed;//右轮
     break;
   case 4:
-    pFourWheelSpeed[0]=abs_speed;//左轮   
-    pFourWheelSpeed[1]=0;//右轮-abs_speed
+    abs_speed /= 2;
+    pWheelSpeedStep[0] = abs_speed;//左轮   
+    pWheelSpeedStep[1] = (s16)(abs_speed * DIFF_COFF);//右轮-abs_speed
     break;
   }
 }
@@ -295,8 +286,6 @@ void JOYSTICK_SCAN_TASK(void)
   }
 }
 
-#define REMOTE_SHAKE_TIME 5
-
 //查询手柄上的遥控使能拨杆
 void CHECK_REMOTE_ENABLE_TASK(void)
 {
@@ -365,15 +354,32 @@ void CHECK_REMOTE_ENABLE_TASK(void)
   }
 }
 
-
+// 遥控任务，每100ms刷新一次
 void REMOTE_Task(void)
 {
-  //遥控控制电机部分
-  //if(ControlMode==CONTROL_MODE_REMOTE)
+  static u32 counter=0;
+  static u32 NumOfSysTickIntBk;
+  u8 active_flag = 0;
+  if(NumOfSysTickInt!=NumOfSysTickIntBk)
   {
-    CacluteRemoteSpeed(FourWheelSpeed);
+    NumOfSysTickIntBk=NumOfSysTickInt;
+    counter += 1;
+    if(counter >= REMOTE_ONCE_CYCLE_IN_MS)
+    {
+      counter = 0;
+      active_flag = 1;
+    }
+  }
+  
+  if(active_flag)
+  {
+    s16 WheelSpeedStep[2];
+    s16 rpm[2];
     
-    SetPwm(LEFT_MOTO_INDEX,FourWheelSpeed[0]);
-    SetPwm(RIGHT_MOTO_INDEX,FourWheelSpeed[1]); 
+    CacluteRemoteSpeed(WheelSpeedStep);
+    rpm[LEFT_MOTO_INDEX] = (s32)MAX_MOTO_SPEED_IN_D1RPM*(s32)WheelSpeedStep[LEFT_MOTO_INDEX]/(s32)MAX_SPEED_STEP;
+    rpm[RIGHT_MOTO_INDEX] = (s32)MAX_MOTO_SPEED_IN_D1RPM*(s32)WheelSpeedStep[RIGHT_MOTO_INDEX]/(s32)MAX_SPEED_STEP;
+    SetD1Rpm(LEFT_MOTO_INDEX, rpm[LEFT_MOTO_INDEX]);
+    SetD1Rpm(RIGHT_MOTO_INDEX, rpm[RIGHT_MOTO_INDEX]);
   }
 }

@@ -7,7 +7,7 @@
 #define MOTO_PRINTF_DEBUG               1
 #define MOTO_COMM_PORT_ENUM             5   // 使用 USART5 发送
 #define MOTO_CONTROL_CYCLE              12  // 20ms 的RS485通信周期
-#define DEFAULT_MOTO_READ_RPM_TIME_OUT  50
+#define DEFAULT_MOTO_READ_RPM_TIME_OUT  100
 u16 MOTO_485COMM_Timeout = 2000;
 s16 moto_speed_in_rpm[MOTO_NUM] = {0,0};
 u8 moto_enable_status[MOTO_NUM] = {0,0};
@@ -28,8 +28,8 @@ const u8 MODBUS_MOTO_UP_TIME_SET[8] =
 const u8 MODBUS_MOTO_DOWN_TIME_SET[8] = 
 {0x01 ,0x06 ,0x00 ,0x31 ,0x00 ,0x64 ,0x00 ,0x00};
 const u8 MODBUS_MOTO_RPM_READ[8] = 
-{0x01 ,0x03 ,0x10 ,0x2D ,0x00 ,0x01 ,0x85, 0xF6};//0x01
-//{0x01 ,0x03 ,0x10 ,0x00 ,0x00 ,0x01 ,0x85, 0xF6};//0x01
+//{0x01 ,0x03 ,0x10 ,0x2D ,0x00 ,0x01 ,0x85, 0xF6};//0x01
+{0x01 ,0x03 ,0x10 ,0x00 ,0x00 ,0x01 ,0x85, 0xF6};//0x01
 u8 moto_comm_buff[256];
 u32 ReadMotoRpmTimes[MOTO_NUM] = {0,0};
 u32 SetMotoRpmTimes[MOTO_NUM] = {0,0};
@@ -336,8 +336,8 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
       right_speed = -a;      
     }
     
-    SetPwm(LEFT_MOTO_INDEX, left_speed);
-    SetPwm(RIGHT_MOTO_INDEX, right_speed);
+    //SetPwm(LEFT_MOTO_INDEX, left_speed);
+    //SetPwm(RIGHT_MOTO_INDEX, right_speed);
     
     //PID Debug
     //sprintf(temp_buff,"%d ,%d\n",(s32)hall_value-WONDER_MID_SENSOR_INDEX, \

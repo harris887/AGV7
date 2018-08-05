@@ -388,11 +388,8 @@ void AGV_RUN_Task(void)
       else
       {
         LED_WATER_Display(300);
-        if(AGV_Delay==0)
-        {
-          AGV_Delay = 100;
-          REMOTE_Task();
-        }
+
+        REMOTE_Task();
         
         //急停按钮按下，进入急停模式
         if(BUTTON_IM_STOP_Flag)

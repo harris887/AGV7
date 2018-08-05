@@ -3,8 +3,6 @@
 
 
 
-#define MOTO_NUM                    2
-
 /*电机_驱动器相关设置*/
 #define FULL_SPEED_STEP             1000.0
 #define ROAD_RECORD_ONCE_TIME_MS    100
@@ -13,10 +11,10 @@
 #define MAX_WHEEL_RUN_LENGTH_IN_CM_PER_10MS  (max_wheel_speed*0.01)
 
 #define DEFAULT_WHEEL_DIAMETER_IN_MM  121
-#define MAX_MOTO_SPEED_IN_RPM     200 
-#define WHEEL_DIAMETER_IN_CM    (DEFAULT_WHEEL_DIAMETER_IN_MM * 0.1)//12.1  //25 20 31 22.5 ，20.3 
-#define MAX_MOTO_SPEED_IN_D1RPM  (MAX_MOTO_SPEED_IN_RPM * 10)
-#define SPEED_DOWN_RATIO        1.0        //电机齿轮箱减速比
+#define MAX_MOTO_SPEED_IN_RPM         200 //200 400
+#define WHEEL_DIAMETER_IN_CM          (DEFAULT_WHEEL_DIAMETER_IN_MM * 0.1)//12.1  //25 20 31 22.5 ，20.3 
+#define MAX_MOTO_SPEED_IN_D1RPM       (MAX_MOTO_SPEED_IN_RPM * 10)
+#define SPEED_DOWN_RATIO              1.0        //电机齿轮箱减速比
 
 
 #define MAX_SPEED_STEP    1000
@@ -25,6 +23,7 @@ typedef enum
 {
   LEFT_MOTO_INDEX=0,
   RIGHT_MOTO_INDEX,
+  MOTO_NUM
 }MOTO_INDEX_ENUM;
 
 #define PWM_CYCLE_COUNTER 10000
@@ -137,6 +136,9 @@ s32 Get_ANALOG_SD_Speed(void);
 #define FOLLOW_LINE_NOT_MIDDLE_SPEED  200 //0.2m/s
 #define MOTO_ZERO_FREE_TIME_IN_MS     2000  //电机停止后2s进入自由状态
 
+extern void SetD1Rpm(MOTO_INDEX_ENUM MOTO_SELECT,s16 d1rpm);
+
 extern u8 moto_enable_status[MOTO_NUM];
 extern float RoadLength[MOTO_NUM];
+extern u32 ReadMotoRpmTimes[MOTO_NUM];
 #endif
