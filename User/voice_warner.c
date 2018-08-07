@@ -12,7 +12,7 @@
 #define VOICE_TIME_OUT        3000
 const u8 VOICE_SELECT[7]={0x01,0x51,0x00,0x00,0x10,0x00,0x02};
 u8 voice_data_buf[7];
-u16 voice_time_out = 0;
+u16 voice_time_out = VOICE_TIME_OUT;
 u8 voice_volume = 0;
 u8 voice_index = 1;
 u16 voice_time_out_value = VOICE_TIME_OUT;
@@ -81,8 +81,6 @@ void PLAY_Voice(u8 index,u8 volume)
   voice_data_buf[5] = tmp;
   
   FillUartTxBuf_NEx(voice_data_buf, sizeof(VOICE_SELECT), VOICE_COM);
-  //FillUartTxBufN(voice_data_buf,sizeof(VOICE_SELECT),VOICE_COM);
-  //FillUartTxBufN(voice_data_buf,sizeof(VOICE_SELECT),1); //debug
 }
 
 void VOICE_PLAY_TASK(void)

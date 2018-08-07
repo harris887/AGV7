@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h> 
 
-#define DEBUG_USART USART1 //UART5 USART1
+#define DEBUG_USART     USART1 //UART5 USART1
 
 #define RS485_IDEL      0
 #define RS485_RX_ENABLE 1
@@ -168,6 +168,26 @@ void Usart2_Init(void)
   USART_Cmd(USART2, ENABLE);
 }
 
+void Usart2_Init_op(u32 bd)
+{
+  USART_InitTypeDef USART_InitStructure;  
+  
+  USART_InitStructure.USART_BaudRate = bd;
+  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+  USART_InitStructure.USART_Parity = USART_Parity_No;
+  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+   /* 按结构体配置某个串口 */
+  USART_Init(USART2, &USART_InitStructure);
+  
+   /*允许接收中断 */
+  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+  
+   /*串口1使能*/
+  USART_Cmd(USART2, ENABLE);
+}
 
 void Usart3_Init(void)
 {

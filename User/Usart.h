@@ -167,6 +167,7 @@ void UART4_ISR(void);
 void UART5_ISR(void);
 void Usart4_Init_op(u32 bd);
 void Usart1_Init_op(u32 bd);
+void Usart2_Init_op(u32 bd);
 
 
 

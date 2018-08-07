@@ -1156,8 +1156,8 @@ void MOD_BUS_REG_MODIFY_Check(void)
         if(MOD_BUS_Reg.COMM_BD<MOD_BUS_BD_LIST_LENGTH)
         {
           //Usart4_Init_op(MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
-          Usart1_Init_op(MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
-          RS485_SLAVE_TX_2_RX_Delay=RS485_SLAVE_TX_2_RX_DELAY_List[MOD_BUS_Reg.COMM_BD];
+          Usart2_Init_op(MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
+          //RS485_SLAVE_TX_2_RX_Delay=RS485_SLAVE_TX_2_RX_DELAY_List[MOD_BUS_Reg.COMM_BD];
           //printf("MOD BUS SPEED PARA %ld,N,8,1\r\n",MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
         }
       }

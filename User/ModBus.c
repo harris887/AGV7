@@ -187,7 +187,6 @@ void MODBUS_READ_SERSOR_BOARD_TASK(void)
         temp_buf[7]=cal_crc>>8;   
         
         FillUartTxBufN((u8*)temp_buf,sizeof(MODBUS_READ_SENSOR_DATA1),HALL_COMM_ENUM);
-        //FillUartTxBuf_NEx((u8*)temp_buf, sizeof(MODBUS_READ_SENSOR_DATA1), HALL_COMM_ENUM);
         modebus_hall_tx_pro++;
       }
     }

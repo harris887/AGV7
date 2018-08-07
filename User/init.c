@@ -256,7 +256,7 @@ LOAD_MOD_BUS_DATA:
       //ÅäÖÃMODBUS ²¨ÌØÂÊ
       if(pMOD_BUS_Reg->COMM_BD<MOD_BUS_BD_LIST_LENGTH)
       {
-        Usart1_Init_op(MOD_BUS_BD_LIST[pMOD_BUS_Reg->COMM_BD]);
+        Usart2_Init_op(MOD_BUS_BD_LIST[pMOD_BUS_Reg->COMM_BD]);
         //printf("MOD BUS SPEED PARA %ld,N,8,1\r\n",MOD_BUS_BD_LIST[pMOD_BUS_Reg->COMM_BD]);
       }
     }
