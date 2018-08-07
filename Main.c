@@ -6,7 +6,7 @@
 
 #define MAIN_PRINTF_DEBUG   1
 
-char test_buffer[128];
+char test_buffer[256];
 int main(void)
 {
   RCC_Configuration();
@@ -83,8 +83,25 @@ int main(void)
           sprintf(test_buffer,"RT: [ %d %d ] , RRT: [ %d %d ] , TOTAL: %d \n", // , %d
                   ReadMotoRpmTimes[LEFT_MOTO_INDEX] ,ReadMotoRpmTimes[RIGHT_MOTO_INDEX] ,
                   MONITOR_St[LEFT_MOTO_INDEX].counter ,MONITOR_St[RIGHT_MOTO_INDEX].counter , 
-                  rx5);// MODBUS_Monitor.read_success_num
+                  MODBUS_Monitor.read_success_num);// rx5
           FillUartTxBufN((u8*)test_buffer,strlen(test_buffer),1);
+        }
+        else if(USART_BYTE == 'C')
+        {
+          u8 bff[32];
+          u8* bf;
+          USART_BYTE = 0;
+          memcpy(bff, UART5_Oprx.Buf, 32); 
+          
+          bf = bff;
+          sprintf(test_buffer,"%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X \n",
+                  bf[0], bf[1], bf[2], bf[3], bf[4], bf[5], bf[6], bf[7], bf[8], bf[9], bf[10], bf[11], bf[12], bf[13], bf[14], bf[15]);
+          FillUartTxBufN((u8*)test_buffer, strlen(test_buffer), 1);
+          
+          bf = bff + 16;
+          sprintf(test_buffer,"%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X \n",
+                  bf[0], bf[1], bf[2], bf[3], bf[4], bf[5], bf[6], bf[7], bf[8], bf[9], bf[10], bf[11], bf[12], bf[13], bf[14], bf[15]);
+          FillUartTxBufN((u8*)test_buffer, strlen(test_buffer), 1);
         }
       }      
       if(0)
@@ -116,9 +133,10 @@ int main(void)
       }
       
       
-      if(0)
+      if(USART_BYTE == 'R')
       {
-        printf("RFID_ReadBlockSuccessTimes %d\n",RFID_ReadBlockSuccessTimes);
+        //USART_BYTE = 0;
+        printf("RFID_ReadBlockSuccessTimes %d , rx = %d\n", RFID_ReadBlockSuccessTimes, rx3);
       }
       
       if(USART_BYTE == 'U')

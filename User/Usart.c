@@ -214,7 +214,7 @@ void Usart3_Init(void)
         - 无硬件……
         - 发送和接受两个使能
   */
-  USART_InitStructure.USART_BaudRate = 9600;//19200 , 19200
+  USART_InitStructure.USART_BaudRate = 115200;//19200 , 19200 9600
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -364,12 +364,14 @@ void UART2_ISR(void)
   }
 }
 
+u32 rx3 = 0;
 void UART3_ISR(void)
 {
   if(USART3->SR&USART_FLAG_RXNE)
   {
     UART3_Oprx.Buf[UART3_Oprx.InIndex++]=USART3->DR;//fill can clear flag
     Uart3RxTime=Uart3RxTimeReload;
+    rx3 += 1;
   }
   if((USART3->SR&USART_FLAG_TXE)&&(UART3_Optx.Intrrupt==true))
   {
@@ -404,14 +406,14 @@ void UART4_ISR(void)
   }
 }
 
-u32 rx5 = 0;
+//u32 rx5 = 0;
 void UART5_ISR(void)
 {
   if(UART5->SR&USART_FLAG_RXNE)
   {
     UART5_Oprx.Buf[UART5_Oprx.InIndex++]=UART5->DR;//fill can clear flag
     Uart5RxTime=Uart5RxTimeReload;
-    rx5 += 1;
+    //rx5 += 1;
   }
   
   if((UART5->SR&USART_FLAG_TXE)&&(UART5_Optx.Intrrupt==true))

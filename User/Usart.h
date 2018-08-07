@@ -186,7 +186,9 @@ void Usart2_Init_op(u32 bd);
 #define RS485_2_RX_Active()      RS485_2_DIR_R_PORT->BRR=RS485_2_DIR_PIN_RE;RS485_2_DIR_D_PORT->BRR=RS485_2_DIR_PIN_DE
 #define RS485_2_TX_Active()      RS485_2_DIR_R_PORT->BSRR=RS485_2_DIR_PIN_RE;RS485_2_DIR_D_PORT->BSRR=RS485_2_DIR_PIN_DE
 
+extern u32 rx3;
 extern u32 rx5;
+extern UART_OPTION UART5_Oprx;
 
 #endif
 

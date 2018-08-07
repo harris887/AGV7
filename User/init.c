@@ -162,7 +162,7 @@ void NVIC_Configuration(void)
 
 void GPIO_Configuration(void)
 {
-
+  GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable,ENABLE);
 }
 
 

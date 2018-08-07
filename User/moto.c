@@ -28,8 +28,8 @@ const u8 MODBUS_MOTO_UP_TIME_SET[8] =
 const u8 MODBUS_MOTO_DOWN_TIME_SET[8] = 
 {0x01 ,0x06 ,0x00 ,0x31 ,0x00 ,0x64 ,0x00 ,0x00};
 const u8 MODBUS_MOTO_RPM_READ[8] = 
-//{0x01 ,0x03 ,0x10 ,0x2D ,0x00 ,0x01 ,0x85, 0xF6};//0x01
-{0x01 ,0x03 ,0x10 ,0x00 ,0x00 ,0x01 ,0x85, 0xF6};//0x01
+{0x01 ,0x03 ,0x10 ,0x2D ,0x00 ,0x01 ,0x85, 0xF6};//0x01
+//{0x01 ,0x03 ,0x10 ,0x00 ,0x00 ,0x01 ,0x85, 0xF6};//0x01
 u8 moto_comm_buff[256];
 u32 ReadMotoRpmTimes[MOTO_NUM] = {0,0};
 u32 SetMotoRpmTimes[MOTO_NUM] = {0,0};
@@ -455,7 +455,7 @@ void MOTO_SPEED_CONTROL_TASK(void)
           {
           case 0:
             {
-              SetMotoSpeedUpTime(moto_enum, MOTO_SPEED_UP_DOWN_DELAY_TIME);
+              SetMotoSpeedUpTime(moto_enum, MOTO_SPEED_UP_DOWN_DELAY_TIME); 
             }
             break;
           case 1:
@@ -466,7 +466,7 @@ void MOTO_SPEED_CONTROL_TASK(void)
           case 2:
             {
               moto_enable_status[moto_enum] =0;
-              Enable_Moto_RS485(moto_enum, moto_enable_status[moto_enum]);            
+              Enable_Moto_RS485(moto_enum, moto_enable_status[moto_enum]);   
             }
             break;
           default: ;
@@ -522,7 +522,7 @@ void MOTO_SPEED_CONTROL_TASK(void)
             MOTO_485COMM_Timeout = MOTO_CONTROL_CYCLE;
             moto_speed_in_rpm_bk[moto_enum] = moto_speed_in_rpm[moto_enum];
             SetMotoD01Rpm(moto_enum, moto_speed_in_rpm_bk[moto_enum]);
-            SetMotoRpmTimes[moto_enum] += 1;
+            SetMotoRpmTimes[moto_enum] += 1; 
           }
           moto_enum += 1;
         }
@@ -544,8 +544,7 @@ void MOTO_SPEED_CONTROL_TASK(void)
           {
             MOTO_485COMM_Timeout = MOTO_CONTROL_CYCLE;
             moto_enable_status_change_flag[moto_enum] = 0;
-            Enable_Moto_RS485(moto_enum, moto_enable_status[moto_enum]);
-            //SetBeep(1,1000,50);            
+            Enable_Moto_RS485(moto_enum, moto_enable_status[moto_enum]);     
           }
           moto_enum += 1;
         }
