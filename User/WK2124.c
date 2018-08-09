@@ -13,8 +13,8 @@ u32 WK2124_BD_List[WK_CH_NUM] = {
 void SPI2_MasterInit(void)
 {
   SPI_InitTypeDef  SPI_InitStructure;
-  GPIO_InitTypeDef GPIO_InitStructure;
-
+  GPIO_InitTypeDef GPIO_InitStructure;  
+  
   GPIO_InitStructure.GPIO_Pin = WK2124_CS_PIN ;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -302,18 +302,17 @@ void WK2124_TransTask(void)
             
             }
             break;
-          /*  
+          /*  */
           case CH_HALL:
             {
-              
               rx_time[CH_HALL] = 3;
               for(j = 0; j < data[0]; j++)
               {              
-                Analysis_Receive_From_ModeBusSlaveDev(temp_buf[j]);
+                Analysis_Receive_From_HallSensor(temp_buf[j], &MODBUS_HallSensor);
               }
             }
             break;
-          */
+          
           case CH_BMS:
             {
               //Handle_BmsRx(temp_buf, data[0]);
@@ -331,15 +330,15 @@ void WK2124_TransTask(void)
         MODBUS_Dido.MachineState = 0;
       }
     }
-    /*   
+    /*   */
     if(rx_time[CH_HALL] == 0)
     {
-      if(HallSensorMachineState) 
+      if(MODBUS_HallSensor.MachineState) 
       {
-        HallSensorMachineState=0;
+        MODBUS_HallSensor.MachineState = 0;
       }    
     }
-    */
+    
   }
 }
 

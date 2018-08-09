@@ -31,9 +31,7 @@ void SysTick_IrqHandler(void)
     if(Uart3RxTime!=0) Uart3RxTime--;
     if(Uart4RxTime!=0) Uart4RxTime--;
     if(Uart5RxTime!=0) Uart5RxTime--;
-    //if(Modebus_tx_rx_change_delay!=0) Modebus_tx_rx_change_delay--;
-    if(modebus_timeout!=0) modebus_timeout--;
-    if(Modebus_tx_rx_change_delay!=0) Modebus_tx_rx_change_delay--;
+    if(HallSensor_Timeout!=0) HallSensor_Timeout--;
     if(RecoverFlash_Timeout!=0) RecoverFlash_Timeout--;
     if(MOTO_RS485_RX_TX_Timeout!=0) MOTO_RS485_RX_TX_Timeout--;
     if(REMOTE_SINGLE_CHANNAL_Timtout!=0) REMOTE_SINGLE_CHANNAL_Timtout--;

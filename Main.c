@@ -43,7 +43,7 @@ int main(void)
   while(1)
   {
     UART_Task();
-    MODBUS_READ_SERSOR_BOARD_TASK();
+    MODBUS_READ_HALL_SERSOR_TASK();
     //CHECK_BUTTON_TASK();
     //CheckBatteryVolt_TASK();
     JOYSTICK_SCAN_TASK();

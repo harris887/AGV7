@@ -29,7 +29,7 @@
 
 
 
-extern u16 modebus_timeout;
+extern u16 HallSensor_Timeout;
 extern u8 Modebus_read_cmd_tx_finish;
 extern u16 Modebus_tx_rx_change_delay;
 
@@ -105,8 +105,8 @@ typedef struct
 }MODBUS_SAMPLE;
 
 extern struct  MODBUS  A8_Modbus;
+extern MODBUS_SAMPLE MODBUS_HallSensor;
 extern u8 Receive_Data_From_A8[256];
-extern u8 HallSensorMachineState;
 
 extern u8 calculate_CRC_H;
 extern u8 calculate_CRC_L;
@@ -116,7 +116,7 @@ extern u8 ON_LINE_Flag;
 
 //ModBus 通信格式
 //将从控制器 A8接收到的数据，进入状态机，进行数据检索。
-extern void Analysis_Receive_From_ModeBusSlaveDev(unsigned char data);
+extern void Analysis_Receive_From_HallSensor(u8 data, MODBUS_SAMPLE* pMODBUS);
 extern u16 ModBus_CRC16_Calculate(unsigned char *aStr , unsigned char alen);
 
 
@@ -124,7 +124,7 @@ extern u16 ModBus_CRC16_Calculate(unsigned char *aStr , unsigned char alen);
 
 
 
-void MODBUS_READ_SERSOR_BOARD_TASK(void);
+void MODBUS_READ_HALL_SERSOR_TASK(void);
 u8 CheckHallOnListNum(u8* hall_list,u8 total_num,SENSOR_STATUS* St);
 u8 CheckHallOnListNumNew(u8* hall_list,u8 total_num,SENSOR_STATUS_NEW* St);
 u8 GetSensorMiddleIndex(SENSOR_STATUS_NEW* st);

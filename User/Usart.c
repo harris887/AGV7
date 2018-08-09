@@ -399,9 +399,6 @@ void UART4_ISR(void)
     {
       USART_ITConfig(UART4, USART_IT_TXE, DISABLE);
       UART4_Optx.Intrrupt=false;
-      
-      Modebus_read_cmd_tx_finish=1;
-  
     }
   }
 }
@@ -520,7 +517,7 @@ void UART_Task(void)
   
   if(UART4_Oprx.InIndex!=UART4_Oprx.OutIndex)
   {
-    Analysis_Receive_From_ModeBusSlaveDev(UART4_Oprx.Buf[UART4_Oprx.OutIndex++]);
+
   }  
   
   if(UART5_Oprx.InIndex!=UART5_Oprx.OutIndex)
@@ -551,10 +548,7 @@ void UART_Task(void)
   
   if(Uart4RxTime==0)
   {
-    if(HallSensorMachineState) 
-    {
-      HallSensorMachineState=0;
-    } 
+
   }
   
   if(Uart5RxTime==0)

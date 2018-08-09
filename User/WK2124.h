@@ -26,8 +26,8 @@
 #define BMS_RS485_TX_ACTIVE       RS485_4_TX_Active
 #define BMS_RS485_RX_ACTIVE       RS485_4_RX_Active
 
-#define HALL_RS485_TX_ACTIVE       RS485_1_TX_Active
-#define HALL_RS485_RX_ACTIVE       RS485_1_RX_Active
+#define HALL_RS485_TX_ACTIVE       RS485_3_TX_Active
+#define HALL_RS485_RX_ACTIVE       RS485_3_RX_Active
 
 typedef enum
 {
