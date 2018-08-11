@@ -91,7 +91,7 @@ void Usart1_Init(void)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
   
-  USART_InitStructure.USART_BaudRate = 115200;
+  USART_InitStructure.USART_BaudRate = 9600;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -150,7 +150,7 @@ void Usart2_Init(void)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//GPIO_Mode_IPU
   GPIO_Init(GPIOD, &GPIO_InitStructure);
   
-  USART_InitStructure.USART_BaudRate = 9600;
+  USART_InitStructure.USART_BaudRate = 115200;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -214,7 +214,7 @@ void Usart3_Init(void)
         - 无硬件……
         - 发送和接受两个使能
   */
-  USART_InitStructure.USART_BaudRate = 115200;//19200 , 19200 9600
+  USART_InitStructure.USART_BaudRate = 9600;//19200 , 19200 9600
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -346,12 +346,14 @@ void UART1_ISR(void)
   }
 }
 
+u32 rx2 = 0;
 void UART2_ISR(void)
 {
   if(USART2->SR&USART_FLAG_RXNE)
   {
     UART2_Oprx.Buf[UART2_Oprx.InIndex++]=USART2->DR;//fill can clear flag
     Uart2RxTime=Uart2RxTimeReload;//20ms
+    rx2 += 1;
   }
   if((USART2->SR&USART_FLAG_TXE)&&(UART2_Optx.Intrrupt==true))
   {
@@ -501,7 +503,7 @@ void UART_Task(void)
   
   if(UART1_Oprx.InIndex!=UART1_Oprx.OutIndex)
   {
-    
+    Analysis_Receive_From_Charge(UART1_Oprx.Buf[UART1_Oprx.OutIndex++], &MODBUS_Charge); 
   }
   
   if(UART2_Oprx.InIndex!=UART2_Oprx.OutIndex)
@@ -527,7 +529,10 @@ void UART_Task(void)
   
   if(Uart1RxTime==0)
   {
-
+    if(MODBUS_Charge.MachineState)
+    {
+      MODBUS_Charge.MachineState = 0;
+    }
   }
   
   if(Uart2RxTime==0)

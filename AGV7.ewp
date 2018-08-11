@@ -1742,6 +1742,12 @@
       <name>$PROJ_DIR$\User\can.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\User\Charge.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\User\Charge.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\User\Delay.c</name>
     </file>
     <file>

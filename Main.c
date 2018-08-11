@@ -66,11 +66,42 @@ int main(void)
     //if(0)
     if(debug_show)
     {
+      static s8 o_index = 0;
       //static u8 sta=0;
       debug_show=0;
+      /*
+      if(USART_BYTE == 'C')
+      {
+        USART_BYTE = 0;
+        SET_Charge(1);
+      }
+      */
       
+      if(USART_BYTE == 'y')
+      {
+        USART_BYTE = 0;
+        printf("DIDO %d Off\n", o_index);
+        SET_DIDO_Relay(o_index--, 0);
+        if(o_index < 0) o_index = 7;
+        else if(o_index > 7) o_index = 0;
+      }        
+      if(USART_BYTE == 'Y')
+      {
+        USART_BYTE = 0;
+        printf("DIDO %d On\n", o_index);
+        SET_DIDO_Relay(o_index++, 1);
+        if(o_index < 0) o_index = 7;
+        else if(o_index > 7) o_index = 0;          
+      }      
       if(1)// µç»ú²âÊÔ
       {
+        if(USART_BYTE == 'Z')
+        {
+          //USART_BYTE = 0;
+          printf("DIDO ack_num : %d, DI = %02X\n",
+                 MODBUS_Dido.read_success_num, 
+                 DIDO_INPUT_Status.LightStatus );        
+        }           
         if(USART_BYTE == 'A')
         {
           sprintf(test_buffer,"Speed_mmps: [ %d %d ], L_001rpm: [ %d %d ] \n",
@@ -86,6 +117,7 @@ int main(void)
                   MODBUS_Monitor.read_success_num);// rx5
           FillUartTxBufN((u8*)test_buffer,strlen(test_buffer),1);
         }
+        /*
         else if(USART_BYTE == 'C')
         {
           u8 bff[32];
@@ -103,17 +135,40 @@ int main(void)
                   bf[0], bf[1], bf[2], bf[3], bf[4], bf[5], bf[6], bf[7], bf[8], bf[9], bf[10], bf[11], bf[12], bf[13], bf[14], bf[15]);
           FillUartTxBufN((u8*)test_buffer, strlen(test_buffer), 1);
         }
-      }      
-      if(0)
-      //if(1)
+        */
+      }   
+      if(USART_BYTE == 'h')
       {
-        printf("485 data here!\n");
-        printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+        USART_BYTE = 0;
+        if(MODE_BUS_HALL_Addr == BACKWARD_MODE_BUS_HALL_ADDR)
+        {
+          MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR ;
+        }
+        else
+        {
+          MODE_BUS_HALL_Addr = BACKWARD_MODE_BUS_HALL_ADDR;
+        }
+        printf("MODE_BUS_HALL_Addr = %d\n", MODE_BUS_HALL_Addr);
+      }
+      if(USART_BYTE == 'H')
+      {
+        //printf("485 data here!\n");
+        printf("HALL [%d] : %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", MODBUS_HallSensor.read_success_num,
              HallValue[0],HallValue[1],HallValue[2],HallValue[3],
              HallValue[4],HallValue[5],HallValue[6],HallValue[7],
              HallValue[8],HallValue[9],HallValue[10],HallValue[11],
              HallValue[12],HallValue[13],HallValue[14],HallValue[15]
              );        
+      }
+      
+      if(USART_BYTE == 'P')
+      {
+        static u8 v_index = 0;
+        USART_BYTE = 0;
+        Play_Warning(v_index);
+        printf("Play_Warning %d\n", v_index);
+        v_index += 1;
+        if(v_index >= VOICE_NUM) v_index = 0;
       }
       if(0)
       {
@@ -136,7 +191,7 @@ int main(void)
       if(USART_BYTE == 'R')
       {
         //USART_BYTE = 0;
-        printf("RFID_ReadBlockSuccessTimes %d , rx = %d\n", RFID_ReadBlockSuccessTimes, rx3);
+        printf("RFID_ReadBlockSuccessTimes %d , rx = %d %d\n", RFID_ReadBlockSuccessTimes, rx2, rx3);
       }
       
       if(USART_BYTE == 'U')

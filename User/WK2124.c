@@ -5,8 +5,8 @@
 u16 WK2124_Timeout = DEFAULT_WK2124_INIT_DELAY;
 u32 WK2124_BD_List[WK_CH_NUM] = {
   9600  , // CH_VOICE
-  9600  , // CH_DIDO
-  9600  , // RSV
+  38400  , // CH_DIDO
+  19200  , // HALL
   9600  , // RSV
 };
 

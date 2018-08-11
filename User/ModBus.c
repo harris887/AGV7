@@ -4,7 +4,7 @@
 
 #define HALL_SENSOR_PRINTF_DEBUG  0
 #define HALL_COMM_ENUM            CH_HALL //CH_HALL, 4 
-#define HALL_SENSOR_READ_ONCE_MS  60
+#define HALL_SENSOR_READ_ONCE_MS  100
 
 //巡线过程中的分叉
 u8 SelectDir=SELECT_DIR_LEFT;//0-无指示，1-走左边，2-走右边
@@ -165,6 +165,7 @@ u16 ModBus_CRC16_Calculate(u8 *aStr , u8 alen)
 void MODBUS_READ_HALL_SERSOR_TASK(void)
 {
   static u8 modebus_hall_tx_pro=0;
+  static u16 ms_waste;
   switch(modebus_hall_tx_pro)
   {
   case 0:
@@ -173,6 +174,7 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
       {
         HALL_RS485_TX_ACTIVE();
         HallSensor_Timeout = 2;
+        ms_waste = 2;
         modebus_hall_tx_pro++;
       }
     }
@@ -195,6 +197,7 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
         //FillUartTxBufN((u8*)temp_buf, sizeof(MODBUS_READ_SENSOR_DATA1), HALL_COMM_ENUM);
         FillUartTxBuf_NEx((u8*)temp_buf, sizeof(MODBUS_READ_SENSOR_DATA1), HALL_COMM_ENUM);
         HallSensor_Timeout = (bits / 19) + 3; // 2
+        ms_waste += (bits / 19) + 3;
         modebus_hall_tx_pro++;
       }
     }
@@ -203,7 +206,7 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
     if(HallSensor_Timeout == 0)
     {
       HALL_RS485_RX_ACTIVE();
-      HallSensor_Timeout = HALL_SENSOR_READ_ONCE_MS;
+      HallSensor_Timeout = HALL_SENSOR_READ_ONCE_MS - ms_waste;
       modebus_hall_tx_pro = 0;
     }
     break;

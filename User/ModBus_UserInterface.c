@@ -4,7 +4,7 @@
 
 
 //本设备的寄存器
-#define MOD_BUS_REG_START_ADDR  0x0000
+#define MOD_BUS_REG_START_ADDR      0x0000
 #define DEFAULT_MODE_BUS_AGV_ADDR   0x0001
 #define MOD_BUS_REG_NUM         ((sizeof(MOD_BUS_REG)>>1)-2)//0x000C
 
@@ -1155,9 +1155,8 @@ void MOD_BUS_REG_MODIFY_Check(void)
         //配置MODBUS 波特率
         if(MOD_BUS_Reg.COMM_BD<MOD_BUS_BD_LIST_LENGTH)
         {
-          //Usart4_Init_op(MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
           Usart2_Init_op(MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
-          //RS485_SLAVE_TX_2_RX_Delay=RS485_SLAVE_TX_2_RX_DELAY_List[MOD_BUS_Reg.COMM_BD];
+          
           //printf("MOD BUS SPEED PARA %ld,N,8,1\r\n",MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
         }
       }
