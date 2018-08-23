@@ -13,9 +13,9 @@ u8 CAN_INFOR_OUT_Index = 0;
 u32 CAN_RX_IntNum = 0;
 u32 LaserTimeout = 0;
 u16 LaserBeepTimeout = DEFAULT_LASER_BEEP_TIMEOUT;
-u8 LaserSelect = LASER_NUM;
+u8 LaserSelect = 0; // LASER_NUM
 u16 laser_width_cm = 70;
-u16 laser_deep_cm = 200;
+u16 laser_deep_cm = 100; // 200
 
 // CAN³õÊ¼»¯º¯Êý
 void CAN1_Init(u32 Param1, u32 Param2)
@@ -383,8 +383,13 @@ void Laser_Task()
     {
       if((LASER_Infor[i].state & 0x2) && (LASER_Infor[i].is_things))
       {
-        SetBeep(1, 100, 50);
+        //SetBeep(1, 100, 50);
         //printf("Laser %d: angle = %d, distance = %d\n", i, LASER_Infor[i].angle, LASER_Infor[i].distance);
+        TOUCH_SENSOR_Flag |= (1 << i); 
+      }
+      else
+      {
+        TOUCH_SENSOR_Flag &= ~(1 << i);
       }
     }
   }

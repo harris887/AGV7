@@ -159,6 +159,7 @@ void AGV_RUN_Task(void)
       {
         LED_FOLLOW_LINE_Display(500);
         
+        /*
         if(RFID_COMEIN_Flag & 0x1)
         {
           RFID_COMEIN_Flag=0;
@@ -166,7 +167,7 @@ void AGV_RUN_Task(void)
           AGV_RUN_Pro=AGV_STATUS_RFID_COMEIN;
           AGV_RUN_SUB_Pro=0;  
           break;
-        }     
+        }     */
         
         NEW_FOLLOW_LINE_TASK(&FollowLineReset,Run_Dir);
         
@@ -201,8 +202,8 @@ void AGV_RUN_Task(void)
         
         //臂章，进入
         //if(TOUCH_SENSOR_Flag&TOUCH_SENSOR_MASK)
-        if(((TOUCH_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1)))!=0)
-          || ((TOUCH_SENSOR_Flag & (3<<((Run_Dir==DIR_FORWARD)?2:4)))!=0))        
+        if((TOUCH_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1)))!=0)
+          //|| ((TOUCH_SENSOR_Flag & (3<<((Run_Dir==DIR_FORWARD)?2:4)))!=0))        
         {
           Play_Warning(DETECT_TING);
           AGV_RUN_Pro=AGV_STATUS_BARRIER;
@@ -242,16 +243,17 @@ void AGV_RUN_Task(void)
         
         //遇到RFID
         //if((RFID_COMEIN_Flag&1)&&(RFID_ReadBlockDelay==0))
-        //if(RFID_COMEIN_Flag&1)  
-        //{
-        //  RFID_COMEIN_Flag&=~1;
-        //  if((RFID_STOP_ANGIN_Timeout==0)&&(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS!=0))
-        //  {
-        //    AGV_RUN_Pro=AGV_STATUS_RFID_COMEIN;
-        //    AGV_RUN_SUB_Pro=0;   
-        //    break;
-        //  }
-        //}   
+        if(RFID_COMEIN_Flag & 1)  
+        {
+          RFID_COMEIN_Flag &= ~1;
+          //if((RFID_STOP_ANGIN_Timeout==0)&&(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS!=0))
+          if(RFID_STOP_ANGIN_Timeout==0)  
+          {
+            AGV_RUN_Pro=AGV_STATUS_RFID_COMEIN;
+            AGV_RUN_SUB_Pro=0;   
+            break;
+          }
+        }   
         
         BATT_LOW_LEVEL_1_Warning(); 
       }
@@ -500,7 +502,7 @@ void AGV_RUN_Task(void)
         //没有障碍物后，进入空闲状态
         //if((TOUCH_SENSOR_Flag&TOUCH_SENSOR_MASK)==0)
         if(((TOUCH_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1)))==0)
-          && ((TOUCH_SENSOR_Flag & (3<<((Run_Dir==DIR_FORWARD)?2:4)))==0)
+          //&& ((TOUCH_SENSOR_Flag & (3<<((Run_Dir==DIR_FORWARD)?2:4)))==0)
             && (AGV_Delay==0))
         {
           AGV_Delay=2400;

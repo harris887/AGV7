@@ -8,7 +8,7 @@
 
 //巡线过程中的分叉
 u8 SelectDir = SELECT_DIR_LEFT;//0-无指示，1-走左边，2-走右边
-u16 MB_LINE_DIR_SELECT=0;
+u16 MB_LINE_DIR_SELECT = 1;
 
 
 //霍尔传感器接收端相关全局变量

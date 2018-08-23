@@ -5,7 +5,7 @@
 #define DEFAULT_PLAY_DETECT_THING_TIME_IN_MS  5000
 extern u32 AGV_Delay;
 
-#define DEFAULT_Vehicle_WIDTH_FLOAT   51.0    //车体宽度，51.0 ,56.0 , 45.0
+#define DEFAULT_Vehicle_WIDTH_FLOAT   35.0    //车体宽度，51.0 ,56.0 , 45.0
 
 #define MIN_DEST_ID     1
 #define MAX_DEST_ID     10

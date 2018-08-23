@@ -26,7 +26,7 @@ typedef struct
   u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
   u32 MOD_REG_MAGIC_WORD;
 }MOD_BUS_REG;
-#define MAGIC_WORD  0x1A2B3C44
+#define MAGIC_WORD  0x1A2B3C45
 extern const MOD_BUS_REG DEFAULT_MOD_BUS_Reg;
 extern MOD_BUS_REG MOD_BUS_Reg;
 #define MOD_BUS_BD_LIST_LENGTH  9
