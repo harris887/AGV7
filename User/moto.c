@@ -79,8 +79,8 @@ float Caculate_MAX_WHEEL_SPEED(float wheel_diameter_in_cm,float max_moto_speed_i
 void MOTO_Init(void)
 {
   max_wheel_speed = Caculate_MAX_WHEEL_SPEED(WHEEL_DIAMETER_IN_CM, MAX_MOTO_SPEED_IN_RPM, SPEED_DOWN_RATIO);
-  //SPEED_UP_DOWN_STRUCT_Init(50,100,0.1,SPEED_UP_OPTION_List[DirectRun]);//加速度20cm/S^2,最高速度40cm/S,加速周期0.1s ,40
-  //SPEED_UP_DOWN_STRUCT_Init(5 ,10,0.1,SPEED_UP_OPTION_List[CircleRun]);
+  SPEED_UP_DOWN_STRUCT_Init(50, 100, 0.1,SPEED_UP_OPTION_List[DirectRun]);//加速度20cm/S^2,最高速度40cm/S,加速周期0.1s ,40
+  SPEED_UP_DOWN_STRUCT_Init(5 , 10, 0.1,SPEED_UP_OPTION_List[CircleRun]);
   COFF_001RPM_TO_MMS = WHEEL_DIAMETER_IN_CM * 10.0 * PI * 0.01 / 60.0;
 
   COFF_MMS_TO_D1RPM = 60.0 / (WHEEL_DIAMETER_IN_CM * 10.0 * PI * 0.1) ;
@@ -107,6 +107,31 @@ void SetD1Rpm(MOTO_INDEX_ENUM MOTO_SELECT,s16 d1rpm)
     RealRpm[RIGHT_MOTO_INDEX] = d1rpm;
     moto_speed_in_rpm[RIGHT_MOTO_INDEX] = -d1rpm;
   }  
+}
+
+//Speed:-1000~1000
+void SetSpeedRate(MOTO_INDEX_ENUM MOTO_SELECT,s16 Speed)
+{
+  s32 d1rpm;
+  if(Speed > MAX_SPEED_STEP) Speed = MAX_SPEED_STEP;
+  else if(Speed < -MAX_SPEED_STEP)  Speed = -MAX_SPEED_STEP;  
+  
+  if(MOTO_SELECT == LEFT_MOTO_INDEX)
+  {
+    LeftRealSpeed = Speed;
+    d1rpm = Speed * MAX_MOTO_SPEED_IN_D1RPM / MAX_SPEED_STEP;
+    
+    RealRpm[LEFT_MOTO_INDEX] = d1rpm;
+    moto_speed_in_rpm[LEFT_MOTO_INDEX] = d1rpm;    
+  }
+  else if(MOTO_SELECT==RIGHT_MOTO_INDEX)
+  {
+    RightRealSpeed = Speed;
+    d1rpm = Speed * MAX_MOTO_SPEED_IN_D1RPM / MAX_SPEED_STEP;
+
+    RealRpm[RIGHT_MOTO_INDEX] = d1rpm;
+    moto_speed_in_rpm[RIGHT_MOTO_INDEX] = -d1rpm;    
+  }
 }
 
 void MOTO_IM_STOP(void)
@@ -335,9 +360,9 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
       left_speed = -b;
       right_speed = -a;      
     }
-    
-    //SetPwm(LEFT_MOTO_INDEX, left_speed);
-    //SetPwm(RIGHT_MOTO_INDEX, right_speed);
+
+    SetSpeedRate(LEFT_MOTO_INDEX, left_speed);
+    SetSpeedRate(RIGHT_MOTO_INDEX, right_speed);
     
     //PID Debug
     //sprintf(temp_buff,"%d ,%d\n",(s32)hall_value-WONDER_MID_SENSOR_INDEX, \

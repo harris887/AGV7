@@ -7,7 +7,7 @@
 #define HALL_SENSOR_READ_ONCE_MS  100
 
 //巡线过程中的分叉
-u8 SelectDir=SELECT_DIR_LEFT;//0-无指示，1-走左边，2-走右边
+u8 SelectDir = SELECT_DIR_LEFT;//0-无指示，1-走左边，2-走右边
 u16 MB_LINE_DIR_SELECT=0;
 
 
@@ -358,7 +358,7 @@ u8 GetSensorMiddleIndex(SENSOR_STATUS_NEW* st)
       {
         //SelectDir=SELECT_DIR_NULL;
         //SelectDir=MB_LINE_DIR_SELECT?SELECT_DIR_LEFT:SELECT_DIR_RIGHT;
-        SelectDir=MB_LINE_DIR_SELECT?SELECT_DIR_RIGHT:SELECT_DIR_LEFT;
+        SelectDir = (MB_LINE_DIR_SELECT) ? SELECT_DIR_RIGHT : SELECT_DIR_LEFT;
       }
     }
     //if(line_width<(line_width_filter+3))

@@ -15,6 +15,7 @@
 #define WHEEL_DIAMETER_IN_CM          (DEFAULT_WHEEL_DIAMETER_IN_MM * 0.1)//12.1  //25 20 31 22.5 ，20.3 
 #define MAX_MOTO_SPEED_IN_D1RPM       (MAX_MOTO_SPEED_IN_RPM * 10)
 #define SPEED_DOWN_RATIO              1.0        //电机齿轮箱减速比
+#define MAX_REMOTE_SPEED_IN_D1RPM    (MAX_MOTO_SPEED_IN_RPM * 10)
 
 
 #define MAX_SPEED_STEP    1000
@@ -90,7 +91,7 @@ void FOLLOW_LINE_TASK(u8* pFollowLineReset);
 void MOTO_IM_STOP(void);
 
 
-void SetPwm(MOTO_INDEX_ENUM MOTO_SELECT,s16 Speed);
+void SetSpeedRate(MOTO_INDEX_ENUM MOTO_SELECT,s16 Speed);
 void MOTO_FaultCheck_TASK(void);
 //void FOLLOW_LINE_TASK(void);
 void ROAD_RECORD_Task(void);

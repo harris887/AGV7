@@ -1,23 +1,34 @@
 #include "user_inc.h"
 #include "string.h"
 
-
-
-
 AGV_STATUS_LIST AGV_RUN_Pro=AGV_STATUS_INIT;
 u8 AGV_RUN_SUB_Pro=0;
 u32 AGV_Delay=3500;
 u16 RFID_STOP_ANGIN_Timeout=0;
 
 u16 ProgramControlCycle=0;
-//float VehicleWidth=DEFAULT_Vehicle_WIDTH_FLOAT;
+float VehicleWidth=DEFAULT_Vehicle_WIDTH_FLOAT;
 float Displacement_coff=1.0;
 float Angle_coff=1.0;
-
+u16 SPEED_UP_Length=0;
 u16 Current_ID=0;
 u16 Dest_ID=0;
-s16 Run_Dir=DIR_FORWARD;
+s16 Run_Dir = DIR_FORWARD;
 u16 LoopDetectThing_time_out = DEFAULT_PLAY_DETECT_THING_TIME_IN_MS;
+
+MOVEMENT_OPTION_LIST DISPLACEMENT_MOVEMENT_OPTION_List={0,0};
+MOVEMENT_OPTION_LIST ANGLE_MOVEMENT_OPTION_List={0,0};
+SPEED_UP_OPTION SPEED_UP_OPTION_List[RunFuncNum][MAX_SPEED_UP_LIST_LENGTH];
+
+void MovementListInit(void)
+{
+  memset(&DISPLACEMENT_MOVEMENT_OPTION_List,0,sizeof(DISPLACEMENT_MOVEMENT_OPTION_List));
+  memset(&ANGLE_MOVEMENT_OPTION_List,0,sizeof(ANGLE_MOVEMENT_OPTION_List));
+}
+void ClearMovementList(MOVEMENT_OPTION_LIST* pLIST)
+{
+  pLIST->Out_index=pLIST->In_index;
+}
 
 void AGV_RUN_Task(void)
 {
@@ -76,16 +87,18 @@ void AGV_RUN_Task(void)
         //   &&(MOD_BUS_Reg.AUTO_FOLLOW_ENABLE) 
         //   &&(ON_LINE_Flag)
         //     &&(BUTTON_FOLLOW_LINE_AND_PROGRAM_Flag)) 
-        if((ON_LINE_Flag)&&(Current_ID==0))
+        //if((ON_LINE_Flag)&&(Current_ID==0))
+        if(ON_LINE_Flag)
         {
           MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR ;
-          Run_Dir=DIR_FORWARD;
-          INIT_SpeedLimted();
+          //Run_Dir=DIR_FORWARD;
+          //INIT_SpeedLimted();
           AGV_RUN_Pro=AGV_STATUS_FOLLOWLINE;
           AGV_RUN_SUB_Pro=0;
           break;
         }
         
+        /*
         if(remote_fresh)
         {
           remote_fresh = 0;
@@ -95,7 +108,7 @@ void AGV_RUN_Task(void)
             if((ON_LINE_Flag)&&(Dest_ID != Current_ID))
             {
               Play_Warning(TO_1_PLACE + (Dest_ID>>1) - MIN_DEST_ID);
-              //SetBeep(6,100,100);//test
+              
               if(Dest_ID > Current_ID)
               {
                 MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR ;
@@ -113,19 +126,7 @@ void AGV_RUN_Task(void)
             }
           }
         }
-    
-    
-        
-        //不在磁条时，进入离开磁条模式
-        //if((MOD_BUS_Reg.M_CONTROL_MODE==M_CONTROL_MODE_FOLLOW_LINE)
-        //   &&(MOD_BUS_Reg.AUTO_FOLLOW_ENABLE) 
-        //   &&(ON_LINE_Flag==0)
-        //     &&(BUTTON_FOLLOW_LINE_AND_PROGRAM_Flag)) 
-        //{
-        //  AGV_RUN_Pro=AGV_STATUS_OFF_LINE;
-        //  AGV_RUN_SUB_Pro=0;
-        //  break;
-        //}        
+        */      
         
         //遥控ON按钮按下进入，遥控状态
         if(REMOTE_SelectFlag)
@@ -158,25 +159,13 @@ void AGV_RUN_Task(void)
       {
         LED_FOLLOW_LINE_Display(500);
         
-        if(RFID_COMEIN_Flag & 0x4)
+        if(RFID_COMEIN_Flag & 0x1)
         {
           RFID_COMEIN_Flag=0;
-          Current_ID = PlaceId<<1;
           
-          if(Dest_ID == 0)
-          {
-            Clear_FollowLineTempBaseSpeed();//清除初始化的临时速度
-          }
-          
-          if((Current_ID == Dest_ID) || (Dest_ID == 0))
-          {
-            Play_Warning(AT_1_PLACE + (Current_ID>>1) - MIN_DEST_ID);
-            AGV_Delay = voice_all[AT_1_PLACE + (Current_ID>>1) - MIN_DEST_ID].last_time;
-            AGV_RUN_Pro=AGV_STATUS_RFID_COMEIN;
-            AGV_RUN_SUB_Pro=0;  
-            break;
-          }
-          ROUND_SpeedLimted();
+          AGV_RUN_Pro=AGV_STATUS_RFID_COMEIN;
+          AGV_RUN_SUB_Pro=0;  
+          break;
         }     
         
         NEW_FOLLOW_LINE_TASK(&FollowLineReset,Run_Dir);
@@ -336,8 +325,9 @@ void AGV_RUN_Task(void)
       if(AGV_RUN_SUB_Pro==0)
       {
         reset = 1;
-        //AGV_Delay=1500;
+        AGV_Delay=10000;
         //SetBeep(2,200,500);
+        VehicleTurnRound(180);
         LED_DISPLAY_Reset();
         AGV_RUN_SUB_Pro+=1;
       }
@@ -345,10 +335,19 @@ void AGV_RUN_Task(void)
       {
         LED_RFID_Display(500);
         
-        //1秒时间匀减速刹车，待测试**
-        SLOW_DOWN_Task(&reset,1000);        
+        if(AGV_Delay > (10000 - 1500))
+        {
+          // 1秒时间匀减速刹车，待测试**
+          SLOW_DOWN_Task(&reset,1000);      
+        }
+        else //转弯
+        {
+          AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(&reset);
+        }
         
-        //遥控ON按钮按下进入，遥控状态
+        
+        
+        // 遥控ON按钮按下进入，遥控状态
         if((REMOTE_SelectFlag)&&(BUTTON_IM_STOP_Flag==0))
         {
           AGV_RUN_Pro=AGV_STATUS_REMOTE;
@@ -625,4 +624,226 @@ void INIT_SpeedLimted(void)
   {
     Set_FollowLineTempBaseSpeed(FOLLOW_LINE_ROUND_SPEED);
   }
+}
+
+/************************************************************
+ ** 功能：加减速过程初始化---
+ ** 参数：accelerated_speed_cmps  - 加速度，单位cm/s
+ **       max_speed_cmps          - 最大速度，单位cm/s
+ **       cycle_time              - 电机的调整时间周期，单位s
+*************************************************************/
+void SPEED_UP_DOWN_STRUCT_Init(float accelerated_speed_cmps,float max_speed_cmps,float cycle_time,SPEED_UP_OPTION* pSPEED)
+{
+  int i;
+  float speed=0;
+  float time=0;
+  float disp=0;
+  for(i=0;i<MAX_SPEED_UP_LIST_LENGTH;i++)
+  {
+    time+=cycle_time;
+    speed+=(accelerated_speed_cmps*cycle_time);
+    disp+=cycle_time*speed;
+    pSPEED[i].total_time=time;
+    pSPEED[i].current_speed=speed;
+    pSPEED[i].total_disp=disp;
+    if(speed>=max_speed_cmps) 
+    {
+      i+=1;
+      break;
+    }
+  }
+  SPEED_UP_Length=i;
+}
+
+// 计算车体位移流程的加减速过程
+void Caculate_DisplacmentProcess(MOVEMENT_OPTION* pM,SPEED_OPTION_LIST* pS,u8 coff_enable,SPEED_UP_OPTION* pSPEED)
+{
+  u32 total_displacement=pM->value;
+  u32 dir=pM->dir;
+  u32 index=0,i;
+  //角度和位移模式更新相关，20160921
+  //Wonder_Disp_or_Angle_value=total_displacement;//
+  //Finish_Disp_or_Angle_value=0;  
+  
+  if(coff_enable)
+  {
+    //位移补偿，20160813
+    total_displacement=(u32)(((float)total_displacement)*Displacement_coff);
+  }
+  if(total_displacement<(pSPEED[0].total_disp*2))
+  {
+	;
+  }
+  else if(total_displacement>(pSPEED[SPEED_UP_Length-2].total_disp*2))
+  {//加速+匀速+减速
+    for(i=0;i<(SPEED_UP_Length-1);i++)
+    {
+      pS->buf[index].L_Speed=speed_to_pwm(dir?-pSPEED[i].current_speed:pSPEED[i].current_speed);//cm/s->pwm_persent
+      pS->buf[index].R_Speed=pS->buf[index].L_Speed;
+      pS->buf[index].repeat_times=100/DEFAULT_PROGRAM_CYCLE_IN_MS;
+      index+=1;
+    }
+    {
+      pS->buf[index].L_Speed=speed_to_pwm(dir?-pSPEED[SPEED_UP_Length-1].current_speed:pSPEED[SPEED_UP_Length-1].current_speed);;
+      pS->buf[index].R_Speed=pS->buf[index].L_Speed;
+      pS->buf[index].repeat_times=(total_displacement-(pSPEED[SPEED_UP_Length-2].total_disp*2))*(1000/DEFAULT_PROGRAM_CYCLE_IN_MS)/pSPEED[SPEED_UP_Length-1].current_speed;
+      index+=1;    
+    }
+    for(i=0;i<(SPEED_UP_Length-1);i++)
+    {
+      pS->buf[index].L_Speed=speed_to_pwm(dir?-pSPEED[(SPEED_UP_Length-2)-i].current_speed:pSPEED[(SPEED_UP_Length-2)-i].current_speed);//cm/s->pwm_persent
+      pS->buf[index].R_Speed=pS->buf[index].L_Speed;
+      pS->buf[index].repeat_times=100/DEFAULT_PROGRAM_CYCLE_IN_MS;
+      index+=1;
+    }    
+  }
+  else
+  {//加速-减速
+    u32 speed_up_step;
+    for(i=1;i<SPEED_UP_Length;i++)
+    {
+      if(total_displacement<(pSPEED[i].total_disp*2)) break;
+    }
+    speed_up_step=i;
+    
+    for(i=0;i<speed_up_step;i++)
+    {
+      pS->buf[index].L_Speed=speed_to_pwm(dir?-pSPEED[i].current_speed:pSPEED[i].current_speed);//cm/s->pwm_persent
+      pS->buf[index].R_Speed=pS->buf[index].L_Speed;
+      pS->buf[index].repeat_times=100/DEFAULT_PROGRAM_CYCLE_IN_MS;
+      index+=1;
+    }
+    
+    {
+      pS->buf[index].L_Speed=speed_to_pwm(dir?-pSPEED[speed_up_step-1].current_speed:pSPEED[speed_up_step-1].current_speed);;
+      pS->buf[index].R_Speed=pS->buf[index].L_Speed;
+      pS->buf[index].repeat_times=(total_displacement-(pSPEED[speed_up_step-1].total_disp*2))*(1000/DEFAULT_PROGRAM_CYCLE_IN_MS)/pSPEED[speed_up_step-1].current_speed;
+      index+=1;    
+    }
+
+    for(i=0;i<speed_up_step;i++)
+    {
+      pS->buf[index].L_Speed=speed_to_pwm(dir?-pSPEED[(speed_up_step-1)-i].current_speed:pSPEED[(speed_up_step-1)-i].current_speed);//cm/s->pwm_persent
+      pS->buf[index].R_Speed=pS->buf[index].L_Speed;
+      pS->buf[index].repeat_times=100/DEFAULT_PROGRAM_CYCLE_IN_MS;
+      index+=1;
+    }
+  
+  }
+
+  {
+    pS->buf[index].L_Speed=0;		
+    pS->buf[index].R_Speed=pS->buf[index].L_Speed;
+    pS->buf[index].repeat_times=10;
+    index+=1;
+  }
+    
+  pS->InIndex=index;
+  pS->OutIndex=0;
+}
+
+s16 speed_to_pwm(float speed_in_cmps)
+{
+  return (s16)(speed_in_cmps*FULL_SPEED_STEP/MAX_WHEEL_RUN_LENGTH_IN_CM_PER_SECOND);
+}
+
+//计算车体位移流程的加减速过程
+void Caculate_AngleProcess(MOVEMENT_OPTION* pM,SPEED_OPTION_LIST* pS)
+{
+  u8 i;
+  u32 total_angle=pM->value;
+  u32 dir=pM->dir;  
+  MOVEMENT_OPTION temp;
+  float disp;
+  disp=(3.14*VehicleWidth*total_angle*Angle_coff)/360;//180
+  temp.dir=0;
+  temp.value=disp;
+  
+  Caculate_DisplacmentProcess(&temp,pS,0,SPEED_UP_OPTION_List[CircleRun]);
+
+  if(dir==0)//方向：逆时针
+  {
+    for(i=0;i<pS->InIndex;i++)
+    {
+      pS->buf[i].L_Speed=-pS->buf[i].L_Speed;
+    }
+  }
+  else //顺时针
+  {
+    for(i=0;i<pS->InIndex;i++) 
+    {
+      pS->buf[i].R_Speed=-pS->buf[i].R_Speed;
+    }
+  }
+}
+
+void AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(u8* pReset)
+{
+  if(*pReset)
+  {
+    *pReset=0;
+  }
+  //执行机构，处理最底层设置PWM  
+  if(ProgramControlCycle==0)
+  {
+    ProgramControlCycle=DEFAULT_PROGRAM_CYCLE_IN_MS;
+    if(SPEED_OPTION_List.InIndex!=SPEED_OPTION_List.OutIndex)
+    {
+      if(SPEED_OPTION_List.buf[SPEED_OPTION_List.OutIndex].repeat_times!=0)
+      {
+        s16 LP=SPEED_OPTION_List.buf[SPEED_OPTION_List.OutIndex].L_Speed;
+        s16 RP=SPEED_OPTION_List.buf[SPEED_OPTION_List.OutIndex].R_Speed;
+      
+        SetD1Rpm(LEFT_MOTO_INDEX, (float)LP*0.001*(float)MAX_MOTO_SPEED_IN_D1RPM);
+        SetD1Rpm(RIGHT_MOTO_INDEX, (float)RP*0.001*(float)MAX_MOTO_SPEED_IN_D1RPM);
+
+        SPEED_OPTION_List.buf[SPEED_OPTION_List.OutIndex].repeat_times-=1;
+        if(SPEED_OPTION_List.buf[SPEED_OPTION_List.OutIndex].repeat_times==0)
+        {
+          SPEED_OPTION_List.OutIndex+=1;
+        }
+
+      }
+      else
+      {
+        SPEED_OPTION_List.OutIndex+=1;        
+      }
+    }
+    else
+    {//执行完毕
+
+    }
+  }
+  
+  //计算位移编程的执行流程
+  if(SPEED_OPTION_List.InIndex==SPEED_OPTION_List.OutIndex)
+  {
+    if(DISPLACEMENT_MOVEMENT_OPTION_List.In_index!=DISPLACEMENT_MOVEMENT_OPTION_List.Out_index)
+    {
+      MOVEMENT_OPTION* pM=&DISPLACEMENT_MOVEMENT_OPTION_List.buf[DISPLACEMENT_MOVEMENT_OPTION_List.Out_index&LIST_LENGTH_MASK];
+      Caculate_DisplacmentProcess(pM,&SPEED_OPTION_List,1,SPEED_UP_OPTION_List[DirectRun]);
+      DISPLACEMENT_MOVEMENT_OPTION_List.Out_index+=1;
+    }
+  }
+  
+  //计算角度编程的执行流程
+  if(SPEED_OPTION_List.InIndex==SPEED_OPTION_List.OutIndex)
+  {
+    if(ANGLE_MOVEMENT_OPTION_List.In_index!=ANGLE_MOVEMENT_OPTION_List.Out_index)
+    {
+      MOVEMENT_OPTION* pM=&ANGLE_MOVEMENT_OPTION_List.buf[ANGLE_MOVEMENT_OPTION_List.Out_index&LIST_LENGTH_MASK];
+      Caculate_AngleProcess(
+           pM,&SPEED_OPTION_List);    
+      ANGLE_MOVEMENT_OPTION_List.Out_index+=1;
+    }
+  }   
+}
+
+void VehicleTurnRound(s16 value)
+{
+      MOVEMENT_OPTION* pM=
+            &ANGLE_MOVEMENT_OPTION_List.buf[ANGLE_MOVEMENT_OPTION_List.In_index&LIST_LENGTH_MASK];
+      pM->dir = 0;
+      pM->value = value;
+      ANGLE_MOVEMENT_OPTION_List.In_index += 1;
 }

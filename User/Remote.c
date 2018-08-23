@@ -195,12 +195,12 @@ void CacluteRemoteSpeed(s16* pWheelSpeedStep)
     pWheelSpeedStep[1] = -abs_speed;//ÓÒÂÖ 
     break;
   case 3:
-    abs_speed /= 2;
+    abs_speed /= 4;
     pWheelSpeedStep[0] = (s16)(abs_speed * DIFF_COFF);//×óÂÖ  -abs_speed
     pWheelSpeedStep[1] = abs_speed;//ÓÒÂÖ
     break;
   case 4:
-    abs_speed /= 2;
+    abs_speed /= 4;
     pWheelSpeedStep[0] = abs_speed;//×óÂÖ   
     pWheelSpeedStep[1] = (s16)(abs_speed * DIFF_COFF);//ÓÒÂÖ-abs_speed
     break;
@@ -377,8 +377,8 @@ void REMOTE_Task(void)
     s16 rpm[2];
     
     CacluteRemoteSpeed(WheelSpeedStep);
-    rpm[LEFT_MOTO_INDEX] = (s32)MAX_MOTO_SPEED_IN_D1RPM*(s32)WheelSpeedStep[LEFT_MOTO_INDEX]/(s32)MAX_SPEED_STEP;
-    rpm[RIGHT_MOTO_INDEX] = (s32)MAX_MOTO_SPEED_IN_D1RPM*(s32)WheelSpeedStep[RIGHT_MOTO_INDEX]/(s32)MAX_SPEED_STEP;
+    rpm[LEFT_MOTO_INDEX] = (s32)MAX_REMOTE_SPEED_IN_D1RPM*(s32)WheelSpeedStep[LEFT_MOTO_INDEX]/(s32)MAX_SPEED_STEP;
+    rpm[RIGHT_MOTO_INDEX] = (s32)MAX_REMOTE_SPEED_IN_D1RPM*(s32)WheelSpeedStep[RIGHT_MOTO_INDEX]/(s32)MAX_SPEED_STEP;
     SetD1Rpm(LEFT_MOTO_INDEX, rpm[LEFT_MOTO_INDEX]);
     SetD1Rpm(RIGHT_MOTO_INDEX, rpm[RIGHT_MOTO_INDEX]);
   }

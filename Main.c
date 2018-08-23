@@ -15,7 +15,7 @@ int main(void)
   //FLASH_READOUT_Protect();//harris 20160522
   BackupAccessEnable();
   
-  //MovementListInit();
+  MovementListInit();
   //BUTTON_Init();
   BUZZER_Init();
   //RELAY_Init();

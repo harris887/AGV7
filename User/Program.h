@@ -5,6 +5,8 @@
 #define DEFAULT_PLAY_DETECT_THING_TIME_IN_MS  5000
 extern u32 AGV_Delay;
 
+#define DEFAULT_Vehicle_WIDTH_FLOAT   51.0    //³µΜεΏν¶Θ£¬51.0 ,56.0 , 45.0
+
 #define MIN_DEST_ID     1
 #define MAX_DEST_ID     10
 
@@ -29,6 +31,13 @@ typedef struct
   MOVEMENT_OPTION buf[MAX_LIST_LENGTH];
 }MOVEMENT_OPTION_LIST;
 
+typedef enum
+{
+  DirectRun = 0,
+  CircleRun,
+  RunFuncNum,
+}VEHICLE_RUN_FUNC;
+
 extern MOVEMENT_OPTION_LIST DISPLACEMENT_MOVEMENT_OPTION_List;
 extern MOVEMENT_OPTION_LIST ANGLE_MOVEMENT_OPTION_List;
 extern u16 ProgramControlCycle;
@@ -41,9 +50,6 @@ void BATT_LOW_LEVEL_1_Warning(void);
 void MovementListInit(void);
 void AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(u8* pReset);
 
-#define DEFAULT_PROGRAM_CYCLE_IN_MS 10  
-void Caculate_DisplacmentProcess(MOVEMENT_OPTION* pM,SPEED_OPTION_LIST* pS,u8 coff_enable);
-void Caculate_AngleProcess(MOVEMENT_OPTION* pM,SPEED_OPTION_LIST* pS);
 
 
 typedef struct
@@ -54,8 +60,12 @@ typedef struct
 }SPEED_UP_OPTION;
 #define MAX_SPEED_UP_LIST_LENGTH  32
 extern u16 SPEED_UP_Length;
-extern SPEED_UP_OPTION SPEED_UP_OPTION_List[MAX_SPEED_UP_LIST_LENGTH];
-void SPEED_UP_DOWN_STRUCT_Init(float accelerated_speed_cmps,float max_speed_cmps,float cycle_time);
+
+#define DEFAULT_PROGRAM_CYCLE_IN_MS 10  
+void Caculate_DisplacmentProcess(MOVEMENT_OPTION* pM,SPEED_OPTION_LIST* pS,u8 coff_enable,SPEED_UP_OPTION* pSPEED);
+void Caculate_AngleProcess(MOVEMENT_OPTION* pM,SPEED_OPTION_LIST* pS);
+extern SPEED_UP_OPTION SPEED_UP_OPTION_List[RunFuncNum][MAX_SPEED_UP_LIST_LENGTH];
+void SPEED_UP_DOWN_STRUCT_Init(float accelerated_speed_cmps,float max_speed_cmps,float cycle_time,SPEED_UP_OPTION* pSPEED);
 s16 speed_to_pwm(float speed_in_cmps);
 void ROUND_SpeedLimted(void);
 typedef enum
@@ -76,4 +86,5 @@ typedef enum
 extern AGV_STATUS_LIST AGV_RUN_Pro;
 extern u16 LoopDetectThing_time_out;
 extern void INIT_SpeedLimted(void);
+extern void VehicleTurnRound(s16 value);
 #endif
