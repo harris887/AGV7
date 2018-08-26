@@ -69,13 +69,23 @@ int main(void)
       static s8 o_index = 0;
       //static u8 sta=0;
       debug_show=0;
-      /*
-      if(USART_BYTE == 'C')
+
+      if(USART_BYTE == 'Q')
       {
         USART_BYTE = 0;
-        SET_Charge(1);
+        printf("pro = %d \n", AGV_RUN_Pro);
+      }      
+      
+      if(USART_BYTE == 'S')
+      {
+        USART_BYTE = 0;
+        FollowLineEnable = 1;
+        Run_Dir = DIR_FORWARD;
+        MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
+        MB_LINE_DIR_SELECT = 1;
+        printf("Start FOLLOW\n");
       }
-      */
+      
       
       if(USART_BYTE == 'y')
       {
@@ -182,10 +192,7 @@ int main(void)
         printf("%x %x",GET_BUTTON_VT_STATUS(), GetVt() );
       }
 
-      if(0)
-      {
-        printf("pro = %d \n",AGV_RUN_Pro);
-      }
+
       
       
       if(USART_BYTE == 'R')

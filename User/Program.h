@@ -81,10 +81,12 @@ typedef enum
   
   AGV_STATUS_USER_PROGRAM,
   AGV_STATUS_OFF_LINE,
-  
+  AGV_STATUS_CHARGE
 }AGV_STATUS_LIST;
 extern AGV_STATUS_LIST AGV_RUN_Pro;
 extern u16 LoopDetectThing_time_out;
 extern void INIT_SpeedLimted(void);
 extern void VehicleTurnRound(s16 value);
+extern u8 FollowLineEnable;
+extern s16 Run_Dir;
 #endif

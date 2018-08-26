@@ -3,7 +3,7 @@
 
 #define RFID_COMM               3
 
-#define RFID_PRINTF_DEBUG       0
+#define RFID_PRINTF_DEBUG       1
 
 #define RFID_CMD_HEADER 0x7F
 #define RFID_CMD_MIN_LENGTH 2
@@ -188,7 +188,7 @@ void READ_RFID_BLOCK_Task(void)
             PlaceId = ((u16)RFID_BLOCK_Data[1]<<8)|RFID_BLOCK_Data[2];
             RFID_COMEIN_Flag |= 4;
 #if (RFID_PRINTF_DEBUG)
-            printf("RFID = %d\n",PlaceId);    
+            printf("RFID = %04X\n", PlaceId);    
 #endif
           }
           

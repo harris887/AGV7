@@ -130,7 +130,6 @@ extern s32 pid_out_global;
 extern u16 hall_value;
 extern u8 speed_step_g;
 
-u16 Hall_Filter(u16 value,u16 reset);
 void MOTO_SPEED_CONTROL_TASK(void);
 s32 Get_ANALOG_SD_Speed(void);
 #define FOLLOW_LINE_ROUND_SPEED       250 //0.4m/s 

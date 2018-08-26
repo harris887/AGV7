@@ -40,7 +40,7 @@ const MOD_BUS_REG DEFAULT_MOD_BUS_Reg=
   M_CONTROL_MODE_FOLLOW_LINE,
   8,
   DEFAULT_MODE_BUS_AGV_ADDR,
-  1,//自动巡线使能
+  0,//自动巡线使能
   //--------------------------------
   AUTO_FOLLOW_SPEED_CONTROL_MODE_DIGITAL,//0-车身电位器,1-MODBUS寄存器
   30,//30%

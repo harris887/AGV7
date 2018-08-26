@@ -268,7 +268,7 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
 
   if(PID_TimeOut==0)
   {
-    u8 speed_step;
+    //u8 speed_step;
     s32 pid_out;
     s32 left_speed=FOLLOW_LINE_MIN_SPEED;
     s32 right_speed=FOLLOW_LINE_MIN_SPEED;
@@ -290,12 +290,13 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
     expect_FollowLineBaseSpeed = lmin(expect_FollowLineBaseSpeed,FOLLOW_LINE_MAX_SPEED);
     expect_FollowLineBaseSpeed = lmax(expect_FollowLineBaseSpeed,FOLLOW_LINE_MIN_SPEED);
     
+    /*
     //车体不正时的速度限制
     if((hall_value>(WONDER_MID_SENSOR_INDEX+5))||(hall_value<(WONDER_MID_SENSOR_INDEX-5)))
     {
       expect_FollowLineBaseSpeed = lmin(FOLLOW_LINE_NOT_MIDDLE_SPEED,expect_FollowLineBaseSpeed);
     }
-    
+    */
     
     if((curr_FollowLineBaseSpeed + max_pwm_speed_up_100ms) < expect_FollowLineBaseSpeed)
     {
@@ -314,20 +315,20 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
       curr_FollowLineBaseSpeed -= max_pwm_speed_up_100ms;
     }
     
-    
+    /*
     //计算速度等级
     speed_step = 10*(curr_FollowLineBaseSpeed - FOLLOW_LINE_MIN_SPEED)/(FOLLOW_LINE_MAX_SPEED - FOLLOW_LINE_MIN_SPEED);
     
     speed_step_g = speed_step;
+    */
     
-    
-    
-    //hall_value = Hall_Filter(hall_value,0);
     
     pid_out = -SPEED_PID(WONDER_MID_SENSOR_INDEX * 10, hall_value * 10); //hall_value*10
     
+    /*
     // 不同速度时的增益
     pid_out =  (pid_out * PID_Gain[speed_step])/10;
+    */
     
     if(pid_out<-1000) pid_out=-1000;
     if(pid_out>1000) pid_out=1000;
@@ -344,14 +345,6 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
       left_speed = curr_FollowLineBaseSpeed;
       right_speed = curr_FollowLineBaseSpeed-((pid_out*curr_FollowLineBaseSpeed)/1000);
     }
-    
-    //速度为0时特殊处理,
-    //if((MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE==AUTO_FOLLOW_SPEED_CONTROL_MODE_DIGITAL)
-    //   &&(MOD_BUS_Reg.AUTO_FOLLOW_SPEED==0))
-    //{
-    //  left_speed=0;
-    //  right_speed=0; 
-    //}
     
     if(dir<0)
     {

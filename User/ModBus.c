@@ -2,7 +2,7 @@
 #include "string.h"
 #include "stdlib.h"
 
-#define HALL_SENSOR_PRINTF_DEBUG  0
+#define HALL_SENSOR_PRINTF_DEBUG  1
 #define HALL_COMM_ENUM            CH_HALL //CH_HALL, 4 
 #define HALL_SENSOR_READ_ONCE_MS  100
 

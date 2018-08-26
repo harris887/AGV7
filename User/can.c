@@ -383,8 +383,8 @@ void Laser_Task()
     {
       if((LASER_Infor[i].state & 0x2) && (LASER_Infor[i].is_things))
       {
-        //SetBeep(1, 100, 50);
-        //printf("Laser %d: angle = %d, distance = %d\n", i, LASER_Infor[i].angle, LASER_Infor[i].distance);
+        SetBeep(1, 100, 50);
+        printf("Laser %d: angle = %d, distance = %d\n", i, LASER_Infor[i].angle, LASER_Infor[i].distance);
         TOUCH_SENSOR_Flag |= (1 << i); 
       }
       else
