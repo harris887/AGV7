@@ -34,7 +34,9 @@ int main(void)
   CAN1_Init(CAN_BOUND_250, CAN_Mode_Normal);
   WK2124_Init();
   
-  SetBeep(3,100,200);//test use
+  
+  
+  //SetBeep(3,100,200);//test use
   
 #if (MAIN_PRINTF_DEBUG)
   printf("---- AGV7 Mining ! ----\n");
@@ -78,14 +80,44 @@ int main(void)
       
       if(USART_BYTE == 'S')
       {
-        USART_BYTE = 0;
-        FollowLineEnable = 1;
-        Run_Dir = DIR_FORWARD;
-        MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
-        MB_LINE_DIR_SELECT = 1;
-        printf("Start FOLLOW\n");
+        static u16 cycle_s = 0; // 600
+        static u16 run_timers = 0;
+        //USART_BYTE = 0;
+        if(cycle_s == 0)
+        {
+          cycle_s = 600;
+          FollowLineEnable = 1;
+          Run_Dir = DIR_FORWARD;
+          MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
+          MB_LINE_DIR_SELECT = 1;
+          printf("Start FOLLOW %d times\n", ++run_timers);
+          Play_Warning(AUTO_FOLLOW_LINE);
+        }
+        else
+        {
+          cycle_s -= 2;
+        }
       }
       
+      if(USART_BYTE == 'b')
+      {
+        USART_BYTE = 0;      
+        SetBeep(3,100,200);
+      }
+      
+      if(USART_BYTE == 'f')
+      {
+        USART_BYTE = 0;      
+        SET_DIDO_Relay(DO_Fan_1, 0);
+        SET_DIDO_Relay(DO_Fan_2, 0);
+      }   
+      
+      if(USART_BYTE == 'F')
+      {
+        USART_BYTE = 0;      
+        SET_DIDO_Relay(DO_Fan_1, 1);
+        SET_DIDO_Relay(DO_Fan_2, 1);        
+      }       
       
       if(USART_BYTE == 'y')
       {
@@ -99,9 +131,10 @@ int main(void)
       {
         USART_BYTE = 0;
         printf("DIDO %d On\n", o_index);
+        o_index++;
         SET_DIDO_Relay(o_index++, 1);
         if(o_index < 0) o_index = 7;
-        else if(o_index > 7) o_index = 0;          
+        else if(o_index > 7) o_index = 0;   
       }      
       if(1)// µç»ú²âÊÔ
       {

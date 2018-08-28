@@ -5,7 +5,7 @@
 
 extern u16 g_can_defbound;
 
-#define DEFAULT_LASER_BEEP_TIMEOUT  200
+#define DEFAULT_LASER_BEEP_TIMEOUT  1000
 // Ω” ’” œ‰
 CanRxMsg g_CAN_RxData[MAX_CAN_RX_INFOR_NUM];
 u8 CAN_INFOR_IN_Index = 0;
@@ -384,7 +384,7 @@ void Laser_Task()
     {
       if((LASER_Infor[i].state & 0x2) && (LASER_Infor[i].is_things))
       {
-        SetBeep(1, 100, 50);
+        //SetBeep(1, 100, 50);
         printf("Laser %d: angle = %d, distance = %d\n", i, LASER_Infor[i].angle, LASER_Infor[i].distance);
         LASER_SENSOR_Flag |= (1 << i); 
       }

@@ -20,41 +20,18 @@ u8 voice_play_flag = 0;
 
 const voice_option voice_all[VOICE_NUM]=
 {
-  { BAT_LOW_10P , 1 , 3900 },
-  { BAT_LOW_20P , 2 , 3600 },
+  { BAT_LOW_20P , 1 , 3900 },
+  { BAT_LOW_30P , 2 , 3600 },
+  { START_CHARGE, 3 , 1500 },
+  { STOP_CHARGE , 4 , 1500 },
   
-  { SELF_TEST   , 11 , 10500},
+  { SELF_TEST_OK   , 11 , 1500},
+  { SELF_TEST_ERROR, 12 , 1500},
   
-  { AT_1_PLACE   , 21 , 1500},
-  { AT_2_PLACE   , 22 , 1500},
-  { AT_3_PLACE   , 23 , 1500},
-  { AT_4_PLACE   , 24 , 1500},
-  { AT_5_PLACE   , 25 , 1500},
-  { AT_6_PLACE   , 26 , 1500},
-  { AT_7_PLACE   , 27 , 1500},
-  { AT_8_PLACE   , 28 , 1500},
-  { AT_9_PLACE   , 29 , 1500},
-  { AT_10_PLACE   , 30 , 1500},
-  { AT_11_PLACE   , 31 , 1500},
-  { AT_12_PLACE   , 32 , 1500},  
-  
-  { TO_1_PLACE   , 41 , 1500},
-  { TO_2_PLACE   , 42 , 1500},
-  { TO_3_PLACE   , 43 , 1500},
-  { TO_4_PLACE   , 44 , 1500},
-  { TO_5_PLACE   , 45 , 1500},
-  { TO_6_PLACE   , 46 , 1500},
-  { TO_7_PLACE   , 47 , 1500},
-  { TO_8_PLACE   , 48 , 1500},
-  { TO_9_PLACE   , 49 , 1500},
-  { TO_10_PLACE   , 50 , 1500},
-  { TO_11_PLACE   , 51 , 1800},
-  { TO_12_PLACE   , 52 , 1800},    
+  { AUTO_FOLLOW_LINE , 21 , 1500},
+  { REMOTE_MODE      , 22 , 1500},
   
   { DETECT_TING   , 61 , 3500}, 
-  
-  { CANCLE_TO_X_PLACE   , 4 , 1500}, 
-  
 };
 
 void Play_Warning(VOICE_CONTEXT ctx)

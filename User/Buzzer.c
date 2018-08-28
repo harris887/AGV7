@@ -86,10 +86,12 @@ void SetBuzzer(u8 on_off)
     if(on_off)
     {
       BUZZER_A_PORT->BSRR = BUZZER_A_PIN;
+      SET_DIDO_Relay(DO_Buzzer, 1);
     }
     else
     {
       BUZZER_A_PORT->BRR = BUZZER_A_PIN;  
+      SET_DIDO_Relay(DO_Buzzer, 0);
     }
 }
 

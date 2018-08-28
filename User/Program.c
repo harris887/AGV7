@@ -41,8 +41,8 @@ void AGV_RUN_Task(void)
       if(AGV_Delay==0)
       {
         //SetBeep(3,300,500);
-        Play_Warning(SELF_TEST);
-        AGV_Delay = voice_all[SELF_TEST].last_time + 2000;
+        Play_Warning(SELF_TEST_OK);
+        AGV_Delay = voice_all[SELF_TEST_OK].last_time + 2000;
         
         LED_DISPLAY_Reset();  
         AGV_RUN_Pro=AGV_STATUS_IDLE;
@@ -142,7 +142,8 @@ void AGV_RUN_Task(void)
         }
         
         //臂章，进入
-        if((TOUCH_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1)))!=0)        
+        if(((TOUCH_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1))) != 0)
+          || ((LASER_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1))) != 0)) 
         {
           Play_Warning(DETECT_TING);
           AGV_RUN_Pro=AGV_STATUS_BARRIER;
@@ -447,7 +448,7 @@ void AGV_RUN_Task(void)
         if(AGV_Delay==0)
         {
           AGV_Delay = 20000;//60s播放一次
-          Play_Warning(BAT_LOW_10P);
+          Play_Warning(BAT_LOW_20P);
         }
         
         //遥控ON按钮按下进入，遥控状态
@@ -518,6 +519,7 @@ void AGV_RUN_Task(void)
         
         //没有障碍物后，进入空闲状态
         if(((TOUCH_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1)))==0)
+            && ((LASER_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1)))==0)
             && (AGV_Delay==0))
         {
           AGV_Delay=2400;

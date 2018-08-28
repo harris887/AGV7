@@ -27,9 +27,9 @@ void LedDispInit( void )
 
 void LED_DISPLAY_Reset(void)
 {
-  ClrLED1();
-  ClrLED2();
-  ClrLED3();  
+  SET_DIDO_Relay(DO_LED_Red, 0);
+  SET_DIDO_Relay(DO_LED_Yellow, 0);
+  SET_DIDO_Relay(DO_LED_Green, 0);
 }
 
 void LED_WATER_Display(u16 SPEED)
@@ -50,10 +50,10 @@ void LED_WATER_Display(u16 SPEED)
     {
       water_led_status=1;
       water_led_timer=SPEED;
-      SetLED1();
       
-      SetLED5();
-      ClrLED6();
+      SET_DIDO_Relay(DO_LED_Red, 0);
+      SET_DIDO_Relay(DO_LED_Yellow, 0);
+      SET_DIDO_Relay(DO_LED_Green, 0);
     }
     break;
   case 1:
@@ -61,11 +61,10 @@ void LED_WATER_Display(u16 SPEED)
     {
       water_led_status++;
       water_led_timer=SPEED;
-      ClrLED1();
-      SetLED2();
-      
-      SetLED6();
-      ClrLED5();      
+     
+      SET_DIDO_Relay(DO_LED_Red, 1);
+      SET_DIDO_Relay(DO_LED_Yellow, 0);
+      SET_DIDO_Relay(DO_LED_Green, 0);      
     }
     break;   
   case 2:
@@ -73,11 +72,9 @@ void LED_WATER_Display(u16 SPEED)
     {
       water_led_status++;
       water_led_timer=SPEED;
-      ClrLED2();
-      SetLED3();
-      
-      SetLED5();
-      ClrLED6();      
+      SET_DIDO_Relay(DO_LED_Red, 0);
+      SET_DIDO_Relay(DO_LED_Yellow, 1);
+      SET_DIDO_Relay(DO_LED_Green, 0);  
     }
     break;
   case 3:
@@ -85,11 +82,9 @@ void LED_WATER_Display(u16 SPEED)
     {
       water_led_status=1;
       water_led_timer=SPEED;
-      ClrLED3();
-      SetLED1();
-      
-      SetLED6();
-      ClrLED5();        
+      SET_DIDO_Relay(DO_LED_Red, 0);
+      SET_DIDO_Relay(DO_LED_Yellow, 0);
+      SET_DIDO_Relay(DO_LED_Green, 1);      
     }
     break;    
   default: water_led_status=0;
@@ -119,18 +114,18 @@ void LED_LOW_POWER_Display(u16 SPEED)
     {
       water_led_status=1;
       water_led_timer=SPEED;
-      SetLED1();
-      SetLED2();
-      SetLED3();
+      SET_DIDO_Relay(DO_LED_Red, 1);
+      SET_DIDO_Relay(DO_LED_Yellow, 1);
+      SET_DIDO_Relay(DO_LED_Green, 1); 
     }
     break;
   case 1:
     {
       water_led_status=0;
       water_led_timer=SPEED;
-      ClrLED1();
-      ClrLED2();
-      ClrLED3();
+      SET_DIDO_Relay(DO_LED_Red, 0);
+      SET_DIDO_Relay(DO_LED_Yellow, 0);
+      SET_DIDO_Relay(DO_LED_Green, 0); 
     }
     break;  
   default:
@@ -161,14 +156,14 @@ void LED_IM_STOP_Display(u16 SPEED)
     {
       water_led_status=1;
       water_led_timer=SPEED;
-      SetLED1();
+      SET_DIDO_Relay(DO_LED_Red, 1);
     }
     break;
   case 1:
     {
       water_led_status=0;
       water_led_timer=SPEED;
-      ClrLED1();
+      SET_DIDO_Relay(DO_LED_Red, 0);
     }
     break;  
   default:
@@ -199,14 +194,16 @@ void LED_FOLLOW_LINE_Display(u16 SPEED)
     {
       water_led_status=1;
       water_led_timer=SPEED;
-      SetLED2();
+      //SetLED2();
+      SET_DIDO_Relay(DO_LED_Green, 1);
     }
     break;
   case 1:
     {
       water_led_status=0;
       water_led_timer=SPEED;
-      ClrLED2();
+      //ClrLED2();
+      SET_DIDO_Relay(DO_LED_Green, 1);
     }
     break;  
   default:
@@ -237,14 +234,14 @@ void LED_BARRIER_Display(u16 SPEED)
     {
       water_led_status=1;
       water_led_timer=SPEED;
-      SetLED3();
+      SET_DIDO_Relay(DO_LED_Yellow, 1);
     }
     break;
   case 1:
     {
       water_led_status=0;
       water_led_timer=SPEED;
-      ClrLED3();
+      SET_DIDO_Relay(DO_LED_Yellow, 0);
     }
     break;  
   default:
@@ -276,14 +273,16 @@ void LED_RFID_Display(u16 SPEED)
     {
       water_led_status=1;
       water_led_timer=SPEED;
-      SetLED2();
+      SET_DIDO_Relay(DO_LED_Yellow, 1);
+      SET_DIDO_Relay(DO_LED_Green, 1); 
     }
     break;
   case 1:
     {
       water_led_status=0;
       water_led_timer=SPEED;
-      ClrLED2();
+      SET_DIDO_Relay(DO_LED_Yellow, 0);
+      SET_DIDO_Relay(DO_LED_Green, 0); 
     }
     break;  
   default:

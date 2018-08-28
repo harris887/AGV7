@@ -43,7 +43,7 @@ const MOD_BUS_REG DEFAULT_MOD_BUS_Reg=
   0,//自动巡线使能
   //--------------------------------
   AUTO_FOLLOW_SPEED_CONTROL_MODE_DIGITAL,//0-车身电位器,1-MODBUS寄存器
-  30,//30%
+  45,//30%
   DEFAULT_RFID_WAIT_TIME_IN_MS,
   DEFAULT_RFID_ONLINE_TIME_IN_MS,
   //--------------------------------
