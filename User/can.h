@@ -14,6 +14,7 @@ extern u8 CAN_INFOR_IN_Index;
 extern u8 CAN_INFOR_OUT_Index;
 extern u32 CAN_RX_IntNum;
 extern u8 LaserSelect;
+extern u16 LASER_SENSOR_Flag;
 
 typedef struct
 {

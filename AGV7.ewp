@@ -1772,6 +1772,12 @@
       <name>$PROJ_DIR$\User\LedDisp.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\User\Mining.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\User\Mining.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\User\ModBus.c</name>
     </file>
     <file>

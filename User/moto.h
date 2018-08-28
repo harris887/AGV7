@@ -119,7 +119,7 @@ extern SPEED_OPTION_LIST SPEED_OPTION_List;
 
 #define DEFALUT_AGV_FOLLOW_LINE_SPEED_PERSENT 30
 extern u32 follow_speed_persent;
-void SLOW_DOWN_Task(u8* reset,u16 time_in_ms);
+u8 SLOW_DOWN_Task(u8* reset,u16 time_in_ms);
 
 void Set_FollowLineTempBaseSpeed(s32 value);
 u16 Get_FollowLineTempBaseSpeed(void);

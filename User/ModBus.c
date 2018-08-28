@@ -7,8 +7,8 @@
 #define HALL_SENSOR_READ_ONCE_MS  100
 
 //巡线过程中的分叉
-u8 SelectDir = SELECT_DIR_LEFT;//0-无指示，1-走左边，2-走右边
-u16 MB_LINE_DIR_SELECT = 1;
+//u8 SelectDir = SELECT_DIR_LEFT;//0-无指示，1-走左边，2-走右边
+u16 MB_LINE_DIR_SELECT = 1; // 0 - left , 1 - right
 
 
 //霍尔传感器接收端相关全局变量
@@ -22,7 +22,6 @@ u8 HallStatusFresh=0;
 u8 HallValue[LINE_SENSOR_NUM];
 //SENSOR_STATUS SENSOR_Status={0,0,0};
 SENSOR_STATUS_NEW SENSOR_STATUS_New={
-  //.black_sensor_num=0,
   .black_sensor_serial_flag=0,
   .Segment_Num=0,
 };
@@ -271,7 +270,7 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
 
 u8 CheckHallOnListNumNew(u8* hall_list,u8 total_num,SENSOR_STATUS_NEW* St)
 {
-  u8 i,num;
+  u8 i, num = 0;
   u8 start_flag=0;
   u8 seg_index=0;
   for(i=0;i<total_num;i++)
@@ -323,89 +322,35 @@ u8 CheckHallOnListNumNew(u8* hall_list,u8 total_num,SENSOR_STATUS_NEW* St)
   
   if(seg_index==1) St->black_sensor_serial_flag=1;
   else St->black_sensor_serial_flag=0;
-  //St->black_sensor_num=num;
   St->Segment_Num=seg_index;
   return num;
 }
 
 
-
-#define LINE_WIDTH_FILTER_LENGTH  64
-#define DEFAULT_LINE_WIDTH  4
-u32 LineWidthBuf=64*DEFAULT_LINE_WIDTH;
 /*磁条出现分叉的检测策略*/
 u8 GetSensorMiddleIndex(SENSOR_STATUS_NEW* st)
 {
-  static u8 LastMiddleIndex=WONDER_MID_SENSOR_INDEX;
-  if(st->Segment_Num==0)
+  u8 temp = WONDER_MID_SENSOR_INDEX;
+  if(st->Segment_Num == 0)
   {
-    return WONDER_MID_SENSOR_INDEX;
+    temp = WONDER_MID_SENSOR_INDEX;
   }
-  else if(st->Segment_Num==1)
+  else if(st->Segment_Num == 1)
   {
-    //u8 line_width=st->seg_list[0].tail_index-st->seg_list[0].head_index+1;
-    //u8 line_width_filter;
-    //LineWidthBuf-=(LineWidthBuf/LINE_WIDTH_FILTER_LENGTH);
-    //LineWidthBuf+=line_width;
-    //line_width_filter=(LineWidthBuf/LINE_WIDTH_FILTER_LENGTH);
-    
-    
-    //分叉过后，清除方向选择标志
-    if(SelectDir&SELECT_DIR_START_FLAG)
+    temp = st->seg_list[0].middle_index;
+  }
+  else if(st->Segment_Num >= 2)
+  {
+    if(MB_LINE_DIR_SELECT == 0) //left
     {
-      SelectDir+=SELECT_DIR_SINGLE_LINE_TIMES_UP_STEP;
-      if((SelectDir&SELECT_DIR_SINGLE_LINE_TIMES_MASK)>=20)
-      {
-        //SelectDir=SELECT_DIR_NULL;
-        //SelectDir=MB_LINE_DIR_SELECT?SELECT_DIR_LEFT:SELECT_DIR_RIGHT;
-        SelectDir = (MB_LINE_DIR_SELECT) ? SELECT_DIR_RIGHT : SELECT_DIR_LEFT;
-      }
+      temp=st->seg_list[1].middle_index;
     }
-    //if(line_width<(line_width_filter+3))
-    //{
-      LastMiddleIndex=st->seg_list[0].middle_index;
-      return st->seg_list[0].middle_index;
-    //}
-    //else
-    //{
-    //  return LastMiddleIndex;
-    //}
-  }
-  else if(st->Segment_Num>=2)
-  {
-    u8 temp;
-    switch(SelectDir&SELECT_DIR_MASK)
+    else // right
     {
-    case SELECT_DIR_NULL:
-      {
-        if(abs(((s32)LastMiddleIndex)-((s32)st->seg_list[0].middle_index))
-            >= abs(((s32)LastMiddleIndex)-((s32)st->seg_list[1].middle_index)))
-        {
-          temp=st->seg_list[1].middle_index;
-        }
-        else
-        {
-          temp=st->seg_list[0].middle_index;
-        }
-      }
-      break;
-    case SELECT_DIR_LEFT:
-      {
-        if((SelectDir&SELECT_DIR_START_FLAG)==0) SelectDir|=SELECT_DIR_START_FLAG;
-        temp=st->seg_list[1].middle_index;
-      }
-      break;
-    case SELECT_DIR_RIGHT:
-      {
-        if((SelectDir&SELECT_DIR_START_FLAG)==0) SelectDir|=SELECT_DIR_START_FLAG;
-        temp=st->seg_list[0].middle_index;
-      }
-      break;
+      temp=st->seg_list[0].middle_index;
     }
-    LastMiddleIndex=temp;
-    return temp;
   }
-  return WONDER_MID_SENSOR_INDEX;
+  return temp;
 }
 
 

@@ -860,11 +860,6 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
       if(reg_value<=1)
       {
         MB_LINE_DIR_SELECT=reg_value;
-        //Harris 20160608
-        if((SelectDir&SELECT_DIR_START_FLAG)==0)
-        {
-          SelectDir=MB_LINE_DIR_SELECT?SELECT_DIR_RIGHT:SELECT_DIR_LEFT;
-        }
         return_code=return_OK;
       }
       else

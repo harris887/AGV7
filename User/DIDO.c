@@ -6,8 +6,7 @@
 #define DEFAULT_DIDO_COMM_TIME_OUT        12
 #define DEFAULT_DIDO_READ_LIGHT_TIME_OUT  100
 #define DEFAULT_DIDO_ENABLE_TIME_OUT      1000
-#define DI_IM_STOP_MASK                   0x1
-#define DI_TOUCH_MASK                     0x2
+
 
 u16 DIDO_COMM_Timeout = DEFAULT_DIDO_ENABLE_TIME_OUT;
 u16 DIDO_READ_LIGHT_Timeout = DEFAULT_DIDO_READ_LIGHT_TIME_OUT;
@@ -114,8 +113,8 @@ void Analysis_Receive_From_Dido(u8 data,MODBUS_SAMPLE* pMODBUS, DIDO_INPUT_STATU
             else
             {
               st->LightStatus  = pMODBUS->DataBuf[3];
-              BUTTON_IM_STOP_Flag = (st->LightStatus & DI_IM_STOP_MASK)?1:0;
-              //BARRIER_Flag = (st->LightStatus & DI_TOUCH_MASK)?1:0;
+              BUTTON_IM_STOP_Flag = (st->LightStatus & ((1 << DI_IM_STOP_1) | (1 << DI_IM_STOP_2))) >> DI_IM_STOP_1; 
+              TOUCH_SENSOR_Flag = (st->LightStatus & ((1 << DI_TOUCH_HEAD) | (1 << DI_TOUCH_TAIL))) >> DI_TOUCH_TAIL; 
             }
           }    
           else	  
@@ -165,10 +164,8 @@ void Analysis_Receive_From_Dido(u8 data,MODBUS_SAMPLE* pMODBUS, DIDO_INPUT_STATU
     }
 }
 
-
 void Check_DIDO_TASK(void)
 {
-  
   // 通讯
   if(DIDO_COMM_Timeout==0)
   {
@@ -211,8 +208,9 @@ void Check_DIDO_TASK(void)
     }
   }
   
+  /*
   //---- 输入打印测试 ----
-  if(0)
+  if(1)
   {
     static u8 st=0;
     u8 i;
@@ -228,15 +226,16 @@ void Check_DIDO_TASK(void)
       st = DIDO_INPUT_Status.LightStatus;
     }
   }
+  */
 }
 
 
 void SET_DIDO_Relay(u8 index,u8 status)
 {
-  if(index<8)
+  if(index < DO_Num)
   {
-    DIDO_RelayRefresh |= (0x1<<index);
-    if(status)  DIDO_RelayStatus |= (1<<index);
-    else DIDO_RelayStatus &= ~(1<<index);
+    DIDO_RelayRefresh |= (1 << index);
+    if(status)  DIDO_RelayStatus |= (1 << index);
+    else DIDO_RelayStatus &= ~(1 << index);
   }
 }

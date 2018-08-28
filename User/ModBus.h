@@ -43,13 +43,6 @@ extern u16 Modebus_tx_rx_change_delay;
 
 extern u8 HallStatusFresh;
 extern u8 HallValue[LINE_SENSOR_NUM];
-typedef struct
-{
-  u8 black_sensor_num;
-  u8 black_sensor_serial_flag;
-  u8 Middle_Index;
-  u8 black_sensor_index_list[LINE_SENSOR_NUM];
-}SENSOR_STATUS;
 
 typedef struct
 {
@@ -60,7 +53,6 @@ typedef struct
 #define MAX_SEGMENT_NUM 8
 typedef struct
 {
-  //u8 black_sensor_num;
   u8 black_sensor_serial_flag;
   u8 Segment_Num;
   SEGMENT_OPTION seg_list[MAX_SEGMENT_NUM];
@@ -125,7 +117,7 @@ extern u16 ModBus_CRC16_Calculate(unsigned char *aStr , unsigned char alen);
 
 
 void MODBUS_READ_HALL_SERSOR_TASK(void);
-u8 CheckHallOnListNum(u8* hall_list,u8 total_num,SENSOR_STATUS* St);
+//u8 CheckHallOnListNum(u8* hall_list,u8 total_num,SENSOR_STATUS* St);
 u8 CheckHallOnListNumNew(u8* hall_list,u8 total_num,SENSOR_STATUS_NEW* St);
 u8 GetSensorMiddleIndex(SENSOR_STATUS_NEW* st);
 

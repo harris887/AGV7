@@ -17,6 +17,7 @@ typedef struct
 
 extern float COFF_001RPM_TO_MMS;
 //extern float COFF_MMS_TO_RPM;
+extern float COFF_01RPM_TO_MMS;
 extern float COFF_MMS_TO_D1RPM;
 extern float COFF_DISTANCE;
 extern MONITOR_STATUS MONITOR_St[MOTO_NUM];

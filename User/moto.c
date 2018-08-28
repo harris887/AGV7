@@ -35,21 +35,6 @@ u32 ReadMotoRpmTimes[MOTO_NUM] = {0,0};
 u32 SetMotoRpmTimes[MOTO_NUM] = {0,0};
 s16 RealRpm[MOTO_NUM] = {0,0};
 
-//不同速度级别时的PID增益
-s32 PID_Gain[11]=
-{
-  10,
-  10,//10cm/s
-  9,
-  8,
-  7,
-  6,//50cm/s
-  5,
-  4,
-  3,
-  2,
-  1
-};
 
 //计算位移使用，-1000~1000
 //s16 LeftRealSpeed=0;
@@ -82,7 +67,7 @@ void MOTO_Init(void)
   SPEED_UP_DOWN_STRUCT_Init(50, 100, 0.1,SPEED_UP_OPTION_List[DirectRun]);//加速度20cm/S^2,最高速度40cm/S,加速周期0.1s ,40
   SPEED_UP_DOWN_STRUCT_Init(5 , 10, 0.1,SPEED_UP_OPTION_List[CircleRun]);
   COFF_001RPM_TO_MMS = WHEEL_DIAMETER_IN_CM * 10.0 * PI * 0.01 / 60.0;
-
+  COFF_01RPM_TO_MMS = (WHEEL_DIAMETER_IN_CM * 10.0 * PI * 0.1) / 60.0;
   COFF_MMS_TO_D1RPM = 60.0 / (WHEEL_DIAMETER_IN_CM * 10.0 * PI * 0.1) ;
   //COFF_DISTANCE = (float)MOD_BUS_Reg.COFF_DISTANCE_1000TIME * 0.001;
   
@@ -150,11 +135,12 @@ void MOTO_IM_STOP(void)
 #define max_pwm_speed_up_100ms  10   //0.5m/ss-25  0.2m/ss-10
 
 
-
-void SLOW_DOWN_Task(u8* reset,u16 time_in_ms)
+// return : 0 - stop_status , 1 - Runing
+u8 SLOW_DOWN_Task(u8* reset,u16 time_in_ms)
 {
   static s16 slow_value_every_time[MOTO_NUM] = {0,0};
   static s16 Speed_bk[MOTO_NUM];
+  u8 status = 1;
   u8 i;
   if(PID_TimeOut==0)
   {
@@ -167,6 +153,7 @@ void SLOW_DOWN_Task(u8* reset,u16 time_in_ms)
       {
         Speed_bk[i] = RealRpm[i];
         slow_value_every_time[i] = (s32)RealRpm[i] / ((s32)time_in_ms/100);
+        if(slow_value_every_time[i] == 0) slow_value_every_time[i] = RealRpm[i];
       }     
     }
     else
@@ -192,9 +179,11 @@ void SLOW_DOWN_Task(u8* reset,u16 time_in_ms)
         {
           SetD1Rpm((MOTO_INDEX_ENUM)i, 0);
         }    
+        status = 0;
       }
     }
   }
+  return status;
 }
 
 //=========================================
@@ -315,20 +304,8 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
       curr_FollowLineBaseSpeed -= max_pwm_speed_up_100ms;
     }
     
-    /*
-    //计算速度等级
-    speed_step = 10*(curr_FollowLineBaseSpeed - FOLLOW_LINE_MIN_SPEED)/(FOLLOW_LINE_MAX_SPEED - FOLLOW_LINE_MIN_SPEED);
-    
-    speed_step_g = speed_step;
-    */
-    
     
     pid_out = -SPEED_PID(WONDER_MID_SENSOR_INDEX * 10, hall_value * 10); //hall_value*10
-    
-    /*
-    // 不同速度时的增益
-    pid_out =  (pid_out * PID_Gain[speed_step])/10;
-    */
     
     if(pid_out<-1000) pid_out=-1000;
     if(pid_out>1000) pid_out=1000;
@@ -700,4 +677,61 @@ void MOTO_SPEED_CONTROL_TASK(void)
       }
     }
   }
+}
+
+// return : 0 - stop_status , 1 - Runing
+u8 SLOW_DOWN_EX_Task(u8* reset, s16 distance_cm)
+{
+#define MAX_SLOW_DOWN_ACC_CMPSS  50.0   // 加速度50.0cm/ss
+  static s16 slow_value_every_time[MOTO_NUM] = {0, 0};
+  static s16 Speed_bk[MOTO_NUM];
+  u8 status = 1;
+  u8 i;
+  if(PID_TimeOut==0)
+  {
+    PID_TimeOut=100;
+    if(*reset)
+    {
+      *reset=0;
+      float D1Rpm = 0.0; 
+      float speed_mms;
+
+      /*
+      if(time_in_ms<100) time_in_ms=100;
+      for(i = 0; i < MOTO_NUM; i++)
+      {
+        Speed_bk[i] = RealRpm[i];
+        slow_value_every_time[i] = (s32)RealRpm[i] / ((s32)time_in_ms/100);
+        if(slow_value_every_time[i] == 0) slow_value_every_time[i] = RealRpm[i];
+      }     
+      */
+    }
+    else
+    {
+      if((RealRpm[LEFT_MOTO_INDEX] != 0) || (RealRpm[RIGHT_MOTO_INDEX] != 0))    
+      {
+        for(i = 0; i < MOTO_NUM; i++)
+        {
+          if(abs(Speed_bk[i]) <= abs(slow_value_every_time[i]))
+          {
+            Speed_bk[i] = 0;
+          }
+          else 
+          {
+            Speed_bk[i] -= slow_value_every_time[i];
+          }
+          SetD1Rpm((MOTO_INDEX_ENUM)i, Speed_bk[i]);
+        }   
+      }
+      else
+      {
+        for(i = 0;i < MOTO_NUM; i++)
+        {
+          SetD1Rpm((MOTO_INDEX_ENUM)i, 0);
+        }    
+        status = 0;
+      }
+    }
+  }
+  return status;
 }

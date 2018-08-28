@@ -17,15 +17,30 @@ typedef struct
 
 typedef enum
 {
-  DIDO_LED_Blue = 0,
-  DIDO_LED_Green,
-  DIDO_LED_Red,
-  DIDO_LED_Eye,
-  DIDO_Fan,
-  DIDO_Buzzer,
-  DIDO_Breath,
-  DIDO_Reserve
+  DO_LED_Red = 0,
+  DO_LED_Yellow,
+  DO_LED_Green,
+  DO_Buzzer,
+  DO_Fan_1,
+  DO_Fan_2,
+  DO_Reserve_1,
+  DO_Reserve_2,
+  DO_Num
 }DIDO_OUT_INDEX;
+
+typedef enum
+{
+  DI_TOUCH_HEAD = 0,
+  DI_TOUCH_TAIL,
+  DI_IM_STOP_1,
+  DI_IM_STOP_2,
+  DI_Reserve_1,
+  DI_Reserve_2,
+  DI_Reserve_3,
+  DI_Reserve_4,  
+  DI_Num
+}DIDO_IN_INDEX;
+
 
 extern u16 DIDO_COMM_Timeout;
 extern u16 DIDO_READ_LIGHT_Timeout;
