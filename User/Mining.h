@@ -27,9 +27,18 @@ typedef struct
   ACTION_INFOR ActionInfor[MAX_ACTION_NUM];
 }RFID_INFOR;
 
+typedef struct
+{
+  u16 Id;
+  u16 ActionNum;
+  ACTION_INFOR ActionInfor[MAX_ACTION_NUM];
+}RFID_ACTION;
+
 #define RFID_CARD_NUM            14
 #define LAST_ID_NOT_CARE         0x00FF
 #define BRAKE_DISTANCE_NOT_CARE  -1
+
+#define FUNC_1_RFID_CARD_NUM     8
 
 #define LINE_TYPE_FORWARD   0
 #define LINE_TYPE_BACKWARD  1

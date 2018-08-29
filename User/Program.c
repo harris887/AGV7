@@ -377,14 +377,7 @@ void AGV_RUN_Task(void)
         
         //60s后回到空闲
         if(AGV_Delay==0)
-        {
-          //RFID 读取失败报警
-          //if(RFID_ReadBlockSuccessTimes!=RFID_ReadBlockTimes)
-          //{
-          //  RFID_ReadBlockTimes=RFID_ReadBlockSuccessTimes;
-          //  SetBeep(5,150,150);
-          //}
-          
+        { 
           RFID_STOP_ANGIN_Timeout = 10000;
           AGV_Delay=100;
           LED_DISPLAY_Reset();
@@ -611,9 +604,6 @@ void AGV_RUN_Task(void)
             if(AGV_Delay==0)
             {              
               //断开充电继电器
-              //SetRelay(RELAY_CHARGE_P_Index,RELAY_OFF);
-              //SetRelay(RELAY_CHARGE_N_Index,RELAY_OFF);
-              //SetBeep(2,800,1200);
               AGV_Delay=4000;
               AGV_RUN_SUB_Pro=0;
               AGV_RUN_Pro = AGV_STATUS_IDLE;
@@ -928,175 +918,6 @@ void VehicleTurnRound(s16 value)
 }
 
 
-void MiningAgvSpecFlow(u8* reset)
-{
-#define ACTION_PRO_OFFSET    3
-  static u8 LineType = LINE_TYPE_FORWARD; 
-  static u8 BranchSelectDirection = BRANCH_TO_LEFT;
-  static s16 VehicleDirection = DIR_FORWARD;
-  static u16 LastRfid = 0;
-  static u8 Pro = 0;
-  static u16 ActionIndex = 0;
-  static u8 InsideReset = 0;
-  static const RFID_INFOR* pRFID_INFOR = NULL; 
-  if(*reset)
-  {
-    LineType = LINE_TYPE_FORWARD;           // 路线分类：前进路线、返回路线
-    BranchSelectDirection = BRANCH_TO_LEFT; // 遇到磁条分叉时的方向选择
-    VehicleDirection = DIR_FORWARD;         // 车体巡线方向：正向用前边磁导航传感器，逆向用后边磁导航传感器
-    Run_Dir = DIR_FORWARD;
-    MB_LINE_DIR_SELECT = 1;
-    MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
-    LastRfid = 0;
-    InsideReset = 1;
-    Pro = 0;
-  }
-  
-  switch(Pro)
-  {
-  case 0: // 巡线
-    {
-      NEW_FOLLOW_LINE_TASK(&InsideReset, VehicleDirection);
-      
-      // 检测RFID
-      if(RFID_COMEIN_Flag & 0x4) 
-      {
-        u8 i;
-        RFID_COMEIN_Flag &= ~0x4;
-        for(i = 0; i < RFID_CARD_NUM; i++)
-        {
-          if(RFID_Infor[i].Id == (PlaceId & 0xFF))
-          {
-            pRFID_INFOR = RFID_Infor + i;
-            Pro = 1;
-            break;
-          }
-        }
-      }
-    }
-    break;
-  case 1: // RFID处理_01
-    {
-      if((LineType == pRFID_INFOR->ResponseLineType) && 
-          ((LAST_ID_NOT_CARE == pRFID_INFOR->ResponseLastId) || (LastRfid == pRFID_INFOR->ResponseLastId)))
-      {
-        ActionIndex = 0;
-        Pro = 2;
-      }
-      else
-      {
-        Pro = 0;
-        printf("-- ByPass RFID %04X --\n", pRFID_INFOR->Id);
-      }
-    }
-    break;
-  case 2: // RFID处理_02
-    {
-      if(ActionIndex >= pRFID_INFOR->ActionNum)
-      {
-        InsideReset = 1;
-        LastRfid = (PlaceId & 0xFF);
-        PlaceId = 0;
-        Pro = 0;
-      }
-      else if(pRFID_INFOR->ActionInfor[ActionIndex].ActionType == ACTION_BRAKE)      // 刹车
-      {
-        InsideReset = 1;
-        MiningAgvTimeout = 1500;
-        Pro = (ACTION_PRO_OFFSET + ACTION_BRAKE);
-      }
-      else if(pRFID_INFOR->ActionInfor[ActionIndex].ActionType == ACTION_TURN_ANGLE) // 转弯
-      {
-        VehicleTurnRound(pRFID_INFOR->ActionInfor[ActionIndex].value);
-        InsideReset = 1;
-        MiningAgvTimeout = 10000;      
-        Pro = (ACTION_PRO_OFFSET + ACTION_TURN_ANGLE);
-      }
-      else if(pRFID_INFOR->ActionInfor[ActionIndex].ActionType == ACTION_WAIT)       // 等待
-      {
-        InsideReset = 1;
-        MiningAgvTimeout = 1000 * pRFID_INFOR->ActionInfor[ActionIndex].value;      
-        Pro = (ACTION_PRO_OFFSET + ACTION_WAIT);
-      }
-      else if(pRFID_INFOR->ActionInfor[ActionIndex].ActionType == ACTION_SET_LINE_TYPE)
-      {
-        LineType = pRFID_INFOR->ActionInfor[ActionIndex].value;
-        ActionIndex += 1;
-      }
-      else if(pRFID_INFOR->ActionInfor[ActionIndex].ActionType == ACTION_SET_BRANCH_DIR)
-      {
-        BranchSelectDirection = pRFID_INFOR->ActionInfor[ActionIndex].value;
-        MB_LINE_DIR_SELECT = pRFID_INFOR->ActionInfor[ActionIndex].value; // 兼容老版本
-        ActionIndex += 1;
-      }
-      else if(pRFID_INFOR->ActionInfor[ActionIndex].ActionType == ACTION_SET_VEHICLE_DIR)
-      {
-        VehicleDirection = pRFID_INFOR->ActionInfor[ActionIndex].value;
-        Run_Dir = pRFID_INFOR->ActionInfor[ActionIndex].value;
-        if(VehicleDirection == DIR_BACKWARD) 
-        {
-          MODE_BUS_HALL_Addr = BACKWARD_MODE_BUS_HALL_ADDR;
-        }
-        else
-        {
-          MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
-        }
-        ActionIndex += 1;
-      }      
-    }
-    break;
-  case (ACTION_PRO_OFFSET + ACTION_BRAKE): // 刹车
-    {
-      if(MiningAgvTimeout != 0)
-      {
-        SLOW_DOWN_Task(&InsideReset, 1000);
-      }
-      else 
-      {      
-        ActionIndex += 1;
-        Pro = 2;
-      }
-    }
-    break;
-  case (ACTION_PRO_OFFSET + ACTION_TURN_ANGLE):
-    {
-      if(MiningAgvTimeout != 0)
-      {
-        AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(&InsideReset);
-      }
-      else
-      {
-        ActionIndex += 1;
-        Pro = 2;
-      }      
-    }
-    break;
-  case (ACTION_PRO_OFFSET + ACTION_WAIT):
-    {
-      if(MiningAgvTimeout != 0)
-      {
-        // do nothing
-      }
-      else
-      {
-        ActionIndex += 1;
-        Pro = 2;
-      }  
-    }
-    break;    
-  case (ACTION_PRO_OFFSET + ACTION_SET_LINE_TYPE):
-    {
-    }
-    break;      
-  case (ACTION_PRO_OFFSET + ACTION_SET_BRANCH_DIR):
-    {
-    }
-    break;    
-  case (ACTION_PRO_OFFSET + ACTION_SET_VEHICLE_DIR):
-    {
-    }
-    break;        
-  }
-}
+
 
 
