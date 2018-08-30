@@ -9,6 +9,7 @@ typedef enum
   ACTION_SET_LINE_TYPE,
   ACTION_SET_BRANCH_DIR,
   ACTION_SET_VEHICLE_DIR,
+  ACTION_CHARGE
 }ACTIONS;
 
 typedef struct
@@ -40,6 +41,8 @@ typedef struct
 
 #define FUNC_1_RFID_CARD_NUM     8
 
+#define ROAD_TYPE_FORWARD   1
+#define ROAD_TYPE_BACKWARD  -1
 #define LINE_TYPE_FORWARD   0
 #define LINE_TYPE_BACKWARD  1
 #define BRANCH_TO_LEFT      1
@@ -48,4 +51,8 @@ typedef struct
 
 extern const RFID_INFOR RFID_Infor[RFID_CARD_NUM];
 extern u32 MiningAgvTimeout;
+extern s32 RoadType;
+
+extern const RFID_ACTION FORWARD_RFID_Action[FUNC_1_RFID_CARD_NUM];
+extern const RFID_ACTION BACKWARD_RFID_Action[FUNC_1_RFID_CARD_NUM];
 #endif

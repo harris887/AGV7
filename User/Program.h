@@ -48,7 +48,7 @@ extern u16 RFID_STOP_ANGIN_Timeout;
 extern void AGV_USER_PROGRAM_IN_SPEED_Task(u8* pReset);
 void BATT_LOW_LEVEL_1_Warning(void);
 void MovementListInit(void);
-void AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(u8* pReset);
+u32 AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(u8* pReset);
 
 
 

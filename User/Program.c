@@ -115,19 +115,235 @@ void AGV_RUN_Task(void)
   case AGV_STATUS_FOLLOWLINE:
     {
       static u8 FollowLineReset=0;
+      static RFID_ACTION* pRFID_ACTION;
+      static u16 ActionIndex = 0;
+      static u16 MotoModifyFlag = 0;
+      static u16 LastRfid = 0;
+      static u16 IM_STOP_Ignore = 0;
+      static u16 BARRIER_Ignore = 0;
+      static u16 OFF_LINE_Ignore = 0;      
       if(AGV_RUN_SUB_Pro==0)
       {
         if(AGV_Delay==0)
         {
           PID_Init();
           LED_DISPLAY_Reset();
-          AGV_RUN_SUB_Pro+=1;
-          RFID_COMEIN_Flag&=~1;
-          FollowLineReset=1;
+          AGV_RUN_SUB_Pro += 1;
+          RFID_COMEIN_Flag &= ~1;
+          FollowLineReset = 1;
+          ActionIndex = 0;
+          MotoModifyFlag = 0;
+          LastRfid = 0;
+          IM_STOP_Ignore = 0;
+          BARRIER_Ignore = 0;
+          OFF_LINE_Ignore = 0;                
         }
       }
       else
       {
+#if (1)
+#define ACTION_PRO_OFFSET    3        
+        // 巡线 + RFID 响应
+        switch(AGV_RUN_SUB_Pro) 
+        {
+        case 1:
+          {
+            LED_FOLLOW_LINE_Display(500);
+            NEW_FOLLOW_LINE_TASK(&FollowLineReset, Run_Dir);
+            if(RFID_COMEIN_Flag & RFID_READ_INFOR_SUCCESS_MASK) 
+            {
+              RFID_COMEIN_Flag &= ~RFID_READ_INFOR_SUCCESS_MASK;
+              if(LastRfid != PlaceId)
+              {
+                if(RoadType == ROAD_TYPE_FORWARD) pRFID_ACTION = (RFID_ACTION*)FORWARD_RFID_Action;
+                else pRFID_ACTION = (RFID_ACTION*)BACKWARD_RFID_Action;
+                for(u8 i = 0; i < FUNC_1_RFID_CARD_NUM; i++)
+                {
+                  if((pRFID_ACTION[i].Id == PlaceId) 
+                     && (pRFID_ACTION[i].ActionNum != 0))
+                  {
+                    pRFID_ACTION = pRFID_ACTION + i;
+                    ActionIndex = 0;
+                    AGV_RUN_SUB_Pro = 2;
+                    MotoModifyFlag = 0;
+                    IM_STOP_Ignore = 1;
+                    BARRIER_Ignore = 1;
+                    OFF_LINE_Ignore = 1;
+                    break;
+                  }
+                }
+              }
+              else
+              {
+                printf("BYPASS %04X\n", PlaceId);
+              }
+            }            
+          }
+          break;
+        case 2: // RFID動作解析
+          {
+            if(ActionIndex >= pRFID_ACTION->ActionNum)
+            {
+              if(MotoModifyFlag) FollowLineReset = 1;
+              else FollowLineReset = 0;
+              LastRfid = PlaceId;
+              PlaceId = 0;
+              AGV_RUN_SUB_Pro = 1;
+              IM_STOP_Ignore = 0;
+              BARRIER_Ignore = 0;
+              OFF_LINE_Ignore = 0;
+            }
+            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_BRAKE) // 刹车
+            {
+              FollowLineReset = 1;
+              AGV_Delay = 1500;
+              AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_BRAKE);
+            }
+            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_TURN_ANGLE) // 转弯
+            {
+              FollowLineReset = 1;
+              VehicleTurnRound(pRFID_ACTION->ActionInfor[ActionIndex].value);
+              AGV_Delay = 10000;      
+              AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_TURN_ANGLE);
+            }
+            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_WAIT)       // 等待
+            {
+              AGV_Delay = 1000 * pRFID_ACTION->ActionInfor[ActionIndex].value;      
+              AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_WAIT);
+            }
+            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_LINE_TYPE)
+            {
+              RoadType = pRFID_ACTION->ActionInfor[ActionIndex].value;
+              ActionIndex += 1;
+            }
+            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_BRANCH_DIR)
+            {
+              MB_LINE_DIR_SELECT = pRFID_ACTION->ActionInfor[ActionIndex].value; 
+              ActionIndex += 1;
+            }
+            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_VEHICLE_DIR)
+            {
+              Run_Dir = pRFID_ACTION->ActionInfor[ActionIndex].value;
+              if(Run_Dir == DIR_BACKWARD) 
+              {
+                MODE_BUS_HALL_Addr = BACKWARD_MODE_BUS_HALL_ADDR;
+              }
+              else
+              {
+                MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
+              }
+              ActionIndex += 1;
+            }
+            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_CHARGE)
+            {
+              AGV_RUN_Pro = AGV_STATUS_CHARGE;
+              AGV_RUN_SUB_Pro = 0;   
+            }
+          }
+          break;
+        case (ACTION_PRO_OFFSET + ACTION_BRAKE): // 刹车
+          {
+            if(AGV_Delay != 0)
+            {
+              SLOW_DOWN_Task(&FollowLineReset, 1000);
+            }
+            else 
+            {
+              MotoModifyFlag = 1;
+              ActionIndex += 1;
+              AGV_RUN_SUB_Pro = 2;
+            }
+          }
+          break; 
+        case (ACTION_PRO_OFFSET + ACTION_TURN_ANGLE):
+          {
+            if(AGV_Delay != 0)
+            {
+              u32 run_flag = AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(&FollowLineReset);
+              if(run_flag == 0) AGV_Delay = 0;
+            }
+            else
+            {
+              MotoModifyFlag = 1;
+              ActionIndex += 1;
+              AGV_RUN_SUB_Pro = 2;
+            }      
+          }
+          break;       
+        case (ACTION_PRO_OFFSET + ACTION_WAIT):
+          {
+            if(AGV_Delay != 0)
+            {
+              // do nothing
+            }
+            else
+            {
+              ActionIndex += 1;
+              AGV_RUN_SUB_Pro = 2;
+            }  
+          }
+          break;  
+        case (ACTION_PRO_OFFSET + ACTION_SET_LINE_TYPE):
+          {
+          }
+          break;      
+        case (ACTION_PRO_OFFSET + ACTION_SET_BRANCH_DIR):
+          {
+          }
+          break;    
+        case (ACTION_PRO_OFFSET + ACTION_SET_VEHICLE_DIR):
+          {
+          }
+          break;       
+        case (ACTION_PRO_OFFSET + ACTION_CHARGE):
+          {
+          }
+          break;            
+        }
+        
+        // ---- 响应其他传感器 ----//
+        //急停按钮按下，进入急停模式
+        if((BUTTON_IM_STOP_Flag) && (IM_STOP_Ignore == 0))
+        {
+          AGV_RUN_Pro=AGV_STATUS_IM_STOP;
+          AGV_RUN_SUB_Pro=0;    
+          printf("-- BUTTON_IM_STOP_Flag --\n");
+          break;
+        }        
+        
+        //臂章，进入
+        if((((TOUCH_SENSOR_Flag & (1 << ((Run_Dir == DIR_FORWARD)?0:1))) != 0)
+          || ((LASER_SENSOR_Flag & (1 << ((Run_Dir == DIR_FORWARD)?0:1))) != 0))
+          && (BARRIER_Ignore == 0))
+        {
+          Play_Warning(DETECT_TING);
+          AGV_RUN_Pro = AGV_STATUS_BARRIER;
+          AGV_RUN_SUB_Pro = 0;    
+          printf("-- TOUCH_SENSOR_Flag --\n");
+          break;
+        }        
+        
+        //遥控ON按钮按下进入，遥控状态
+        if(REMOTE_SelectFlag)
+        {
+          AGV_RUN_Pro = AGV_STATUS_REMOTE;
+          AGV_RUN_SUB_Pro = 0;
+          FollowLineEnable = 0; // 结束巡线流程
+          printf("-- REMOTE_SelectFlag --\n");
+          break;
+        }
+        
+        if((ON_LINE_Flag == 0) && (OFF_LINE_Ignore == 0))
+        {
+          AGV_RUN_Pro = AGV_STATUS_OFF_LINE;
+          
+          AGV_RUN_SUB_Pro = 0;  
+          FollowLineEnable = 0; // 结束巡线流程
+          printf("-- OFF_LINE_Flag --\n");
+          break;
+        }        
+#else
+        /*
         LED_FOLLOW_LINE_Display(500);
         
         NEW_FOLLOW_LINE_TASK(&FollowLineReset,Run_Dir);
@@ -202,20 +418,20 @@ void AGV_RUN_Task(void)
               break;  
             }            
           }
-          else if((PlaceId == 0x8001) && (MB_LINE_DIR_SELECT == 1))
+          else if((PlaceId == 0x8001) && (MB_LINE_DIR_SELECT == BRANCH_TO_RIGHT))
           {
             PlaceId = 0;
           }
           else if(RFID_STOP_ANGIN_Timeout==0)  
           {
-            if((PlaceId == 0x8001) && (MB_LINE_DIR_SELECT == 0))
+            if((PlaceId == 0x8001) && (MB_LINE_DIR_SELECT == BRANCH_TO_LEFT))
             {
               Run_Dir = DIR_BACKWARD;
               MODE_BUS_HALL_Addr = BACKWARD_MODE_BUS_HALL_ADDR;
             }
             if(PlaceId == 0x8007)  
             {
-              MB_LINE_DIR_SELECT = 0; // 左
+              MB_LINE_DIR_SELECT = BRANCH_TO_LEFT; // 左
             }
 
             //PlaceId = 0;
@@ -224,7 +440,8 @@ void AGV_RUN_Task(void)
             break;
           }
         }   
-        
+        */
+#endif
         BATT_LOW_LEVEL_1_Warning(); 
       }
     }
@@ -844,14 +1061,42 @@ void Caculate_AngleProcess(MOVEMENT_OPTION* pM,SPEED_OPTION_LIST* pS)
   }
 }
 
-void AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(u8* pReset)
+u32 AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(u8* pReset)
 {
+#define DISPLACEMENT_FINISH_DELAY  20
+  static u32 run_flag = 0;
   if(*pReset)
   {
     *pReset=0;
+    run_flag = DISPLACEMENT_FINISH_DELAY;
   }
+  //计算位移编程的执行流程
+  if(SPEED_OPTION_List.InIndex==SPEED_OPTION_List.OutIndex)
+  {
+    if(DISPLACEMENT_MOVEMENT_OPTION_List.In_index!=DISPLACEMENT_MOVEMENT_OPTION_List.Out_index)
+    {
+      MOVEMENT_OPTION* pM=&DISPLACEMENT_MOVEMENT_OPTION_List.buf[DISPLACEMENT_MOVEMENT_OPTION_List.Out_index&LIST_LENGTH_MASK];
+      Caculate_DisplacmentProcess(pM,&SPEED_OPTION_List,1,SPEED_UP_OPTION_List[DirectRun]);
+      DISPLACEMENT_MOVEMENT_OPTION_List.Out_index+=1;
+      run_flag = DISPLACEMENT_FINISH_DELAY;
+    }
+  }
+  
+  //计算角度编程的执行流程
+  if(SPEED_OPTION_List.InIndex==SPEED_OPTION_List.OutIndex)
+  {
+    if(ANGLE_MOVEMENT_OPTION_List.In_index!=ANGLE_MOVEMENT_OPTION_List.Out_index)
+    {
+      MOVEMENT_OPTION* pM=&ANGLE_MOVEMENT_OPTION_List.buf[ANGLE_MOVEMENT_OPTION_List.Out_index&LIST_LENGTH_MASK];
+      Caculate_AngleProcess(
+           pM,&SPEED_OPTION_List);    
+      ANGLE_MOVEMENT_OPTION_List.Out_index+=1;
+      run_flag = DISPLACEMENT_FINISH_DELAY;
+    }
+  }    
+  
   //执行机构，处理最底层设置PWM  
-  if(ProgramControlCycle==0)
+  if(ProgramControlCycle == 0)
   {
     ProgramControlCycle=DEFAULT_PROGRAM_CYCLE_IN_MS;
     if(SPEED_OPTION_List.InIndex!=SPEED_OPTION_List.OutIndex)
@@ -869,7 +1114,6 @@ void AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(u8* pReset)
         {
           SPEED_OPTION_List.OutIndex+=1;
         }
-
       }
       else
       {
@@ -878,32 +1122,10 @@ void AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(u8* pReset)
     }
     else
     {//执行完毕
-
+      if(run_flag != 0) run_flag -= 1;
     }
-  }
-  
-  //计算位移编程的执行流程
-  if(SPEED_OPTION_List.InIndex==SPEED_OPTION_List.OutIndex)
-  {
-    if(DISPLACEMENT_MOVEMENT_OPTION_List.In_index!=DISPLACEMENT_MOVEMENT_OPTION_List.Out_index)
-    {
-      MOVEMENT_OPTION* pM=&DISPLACEMENT_MOVEMENT_OPTION_List.buf[DISPLACEMENT_MOVEMENT_OPTION_List.Out_index&LIST_LENGTH_MASK];
-      Caculate_DisplacmentProcess(pM,&SPEED_OPTION_List,1,SPEED_UP_OPTION_List[DirectRun]);
-      DISPLACEMENT_MOVEMENT_OPTION_List.Out_index+=1;
-    }
-  }
-  
-  //计算角度编程的执行流程
-  if(SPEED_OPTION_List.InIndex==SPEED_OPTION_List.OutIndex)
-  {
-    if(ANGLE_MOVEMENT_OPTION_List.In_index!=ANGLE_MOVEMENT_OPTION_List.Out_index)
-    {
-      MOVEMENT_OPTION* pM=&ANGLE_MOVEMENT_OPTION_List.buf[ANGLE_MOVEMENT_OPTION_List.Out_index&LIST_LENGTH_MASK];
-      Caculate_AngleProcess(
-           pM,&SPEED_OPTION_List);    
-      ANGLE_MOVEMENT_OPTION_List.Out_index+=1;
-    }
-  }   
+  } 
+  return run_flag;
 }
 
 // 顺时针为正数，逆时针为负数

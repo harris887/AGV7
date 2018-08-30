@@ -18,7 +18,7 @@ void HandlerRfidCmd(u8* data ,u8 length);
 void ReadRfidBlock(void);
 void READ_RFID_BLOCK_Task(void);
 
-
+#define RFID_READ_INFOR_SUCCESS_MASK  0x04
 #define RFID_UPLOAD_ONLY_ID       0
 #define RFID_UPLOAD_ID_AND_INFOR  1
 

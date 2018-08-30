@@ -12,7 +12,7 @@
           
           
           
-        <Column0>38</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+        <Column0>127</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
       </Workspace>
       <Build>
         
@@ -29,7 +29,7 @@
     <Windows>
       
       
-    <Wnd2>
+    <Wnd0>
         <Tabs>
           <Tab>
             <Identity>TabID-11933-17193</Identity>
@@ -41,21 +41,21 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd2><Wnd3><Tabs><Tab><Identity>TabID-19504-31626</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab><Tab><Identity>TabID-25568-791</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd3></Windows>
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd1><Tabs><Tab><Identity>TabID-19504-31626</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab><Tab><Identity>TabID-25568-791</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd1></Windows>
     <Editor>
       
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Program.c</Filename><XPos>0</XPos><YPos>123</YPos><SelStart>3549</SelStart><SelEnd>3568</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Remote.c</Filename><XPos>0</XPos><YPos>177</YPos><SelStart>5260</SelStart><SelEnd>5260</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\Main.c</Filename><XPos>0</XPos><YPos>123</YPos><SelStart>3090</SelStart><SelEnd>3090</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Program.h</Filename><XPos>0</XPos><YPos>61</YPos><SelStart>1941</SelStart><SelEnd>1959</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\DIDO.c</Filename><XPos>1</XPos><YPos>100</YPos><SelStart>3580</SelStart><SelEnd>3580</SelEnd></Tab><ActiveTab>4</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\DIDO.h</Filename><XPos>0</XPos><YPos>22</YPos><SelStart>477</SelStart><SelEnd>477</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Pane><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Mining.c</Filename><XPos>0</XPos><YPos>260</YPos><SelStart>9428</SelStart><SelEnd>9428</SelEnd></Tab><ActiveTab>0</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\ModBus_UserInterface.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>43</SelStart><SelEnd>43</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Mining.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>161</SelStart><SelEnd>183</SelEnd></Tab></Pane><Sizes><Pane><X>787854</X><Y>1000000</Y></Pane><Pane><X>212145</X><Y>1000000</Y></Pane></Sizes><SplitMode>4</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Remote.c</Filename><XPos>0</XPos><YPos>177</YPos><SelStart>5260</SelStart><SelEnd>5260</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\Main.c</Filename><XPos>0</XPos><YPos>89</YPos><SelStart>1606</SelStart><SelEnd>1606</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Program.h</Filename><XPos>0</XPos><YPos>4</YPos><SelStart>351</SelStart><SelEnd>362</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\DIDO.c</Filename><XPos>5</XPos><YPos>99</YPos><SelStart>3961</SelStart><SelEnd>3961</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\DIDO.h</Filename><XPos>0</XPos><YPos>22</YPos><SelStart>477</SelStart><SelEnd>477</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Pid.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>265</SelStart><SelEnd>265</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\moto.c</Filename><XPos>0</XPos><YPos>167</YPos><SelStart>5245</SelStart><SelEnd>5245</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Rfid.c</Filename><XPos>0</XPos><YPos>25</YPos><SelStart>250</SelStart><SelEnd>266</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\LedDisp.c</Filename><XPos>0</XPos><YPos>255</YPos><SelStart>4221</SelStart><SelEnd>4240</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\ModBus.c</Filename><XPos>0</XPos><YPos>157</YPos><SelStart>4444</SelStart><SelEnd>4444</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\ModBus.h</Filename><XPos>0</XPos><YPos>122</YPos><SelStart>3282</SelStart><SelEnd>3282</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\user_inc.h</Filename><XPos>0</XPos><YPos>30</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Program.c</Filename><XPos>0</XPos><YPos>498</YPos><SelStart>14779</SelStart><SelEnd>14801</SelEnd></Tab><ActiveTab>12</ActiveTab></Pane><ActivePane>0</ActivePane><Pane><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\ModBus_UserInterface.c</Filename><XPos>0</XPos><YPos>849</YPos><SelStart>29988</SelStart><SelEnd>29988</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Mining.c</Filename><XPos>0</XPos><YPos>267</YPos><SelStart>9912</SelStart><SelEnd>9924</SelEnd></Tab><ActiveTab>1</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>F:\harris\AGV7_mining\program\AGV7\User\Mining.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>187</SelStart><SelEnd>200</SelEnd></Tab></Pane><Sizes><Pane><X>618673</X><Y>1000000</Y></Pane><Pane><X>381326</X><Y>1000000</Y></Pane></Sizes><SplitMode>4</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-0255f7c0><key>iaridepm.enu1</key></Toolbar-0255f7c0></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>461</Bottom><Right>129</Right><x>-2</x><y>-2</y><xscreen>-2169523</xscreen><yscreen>-1005781</yscreen><sizeHorzCX>-1588230599</sizeHorzCX><sizeHorzCY>-1468293430</sizeHorzCY><sizeVertCX>95900</sizeVertCX><sizeVertCY>675912</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>179</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>181</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>264234</sizeHorzCY><sizeVertCX>108346</sizeVertCX><sizeVertCY>200000</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-0249f658><key>iaridepm.enu1</key></Toolbar-0249f658></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>461</Bottom><Right>218</Right><x>-2</x><y>-2</y><xscreen>-2169520</xscreen><yscreen>-1005778</yscreen><sizeHorzCX>-1588228403</sizeHorzCX><sizeHorzCY>-1468289050</sizeHorzCY><sizeVertCX>161054</sizeVertCX><sizeVertCY>675912</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>179</Bottom><Right>1368</Right><x>-2</x><y>-2</y><xscreen>1370</xscreen><yscreen>181</yscreen><sizeHorzCX>1002928</sizeHorzCX><sizeHorzCY>264234</sizeHorzCY><sizeVertCX>108346</sizeVertCX><sizeVertCY>200000</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 

@@ -8,7 +8,7 @@
 
 //巡线过程中的分叉
 //u8 SelectDir = SELECT_DIR_LEFT;//0-无指示，1-走左边，2-走右边
-u16 MB_LINE_DIR_SELECT = 1; // 0 - left , 1 - right
+u16 MB_LINE_DIR_SELECT = BRANCH_TO_RIGHT; 
 
 
 //霍尔传感器接收端相关全局变量
@@ -341,7 +341,7 @@ u8 GetSensorMiddleIndex(SENSOR_STATUS_NEW* st)
   }
   else if(st->Segment_Num >= 2)
   {
-    if(MB_LINE_DIR_SELECT == 0) //left
+    if(MB_LINE_DIR_SELECT == BRANCH_TO_LEFT) //left
     {
       temp=st->seg_list[1].middle_index;
     }

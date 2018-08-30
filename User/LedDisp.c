@@ -175,11 +175,11 @@ void LED_IM_STOP_Display(u16 SPEED)
 void LED_FOLLOW_LINE_Display(u16 SPEED)
 {
   static u32 NumOfSysTickIntBk;
-  static u16 water_led_timer=0;
-  static u16 water_led_status=0;
-  if(NumOfSysTickInt!=NumOfSysTickIntBk)
+  static u16 water_led_timer = 0;
+  static u16 water_led_status = 0;
+  if(NumOfSysTickInt != NumOfSysTickIntBk)
   {
-    NumOfSysTickIntBk=NumOfSysTickInt;
+    NumOfSysTickIntBk = NumOfSysTickInt;
     if(water_led_timer)
     {
       water_led_timer--;
@@ -192,22 +192,20 @@ void LED_FOLLOW_LINE_Display(u16 SPEED)
   {
   case 0:
     {
-      water_led_status=1;
-      water_led_timer=SPEED;
-      //SetLED2();
+      water_led_status = 1;
+      water_led_timer = SPEED;
       SET_DIDO_Relay(DO_LED_Green, 1);
     }
     break;
   case 1:
     {
-      water_led_status=0;
-      water_led_timer=SPEED;
-      //ClrLED2();
+      water_led_status = 0;
+      water_led_timer = SPEED;
       SET_DIDO_Relay(DO_LED_Green, 1);
     }
     break;  
   default:
-    water_led_status=0;
+    water_led_status = 0;
   }
 }
 

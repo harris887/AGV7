@@ -138,21 +138,21 @@ void MOTO_IM_STOP(void)
 // return : 0 - stop_status , 1 - Runing
 u8 SLOW_DOWN_Task(u8* reset,u16 time_in_ms)
 {
-  static s16 slow_value_every_time[MOTO_NUM] = {0,0};
+  static s16 slow_value_every_time[MOTO_NUM] = {0, 0};
   static s16 Speed_bk[MOTO_NUM];
   u8 status = 1;
   u8 i;
-  if(PID_TimeOut==0)
+  if(PID_TimeOut == 0)
   {
-    PID_TimeOut=100;
+    PID_TimeOut = 100;
     if(*reset)
     {
       *reset=0;
-      if(time_in_ms<100) time_in_ms=100;
+      if(time_in_ms < 100) time_in_ms = 100;
       for(i = 0; i < MOTO_NUM; i++)
       {
         Speed_bk[i] = RealRpm[i];
-        slow_value_every_time[i] = (s32)RealRpm[i] / ((s32)time_in_ms/100);
+        slow_value_every_time[i] = (s32)RealRpm[i] / ((s32)time_in_ms / 100);
         if(slow_value_every_time[i] == 0) slow_value_every_time[i] = RealRpm[i];
       }     
     }

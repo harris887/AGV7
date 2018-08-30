@@ -78,18 +78,18 @@ int main(void)
         printf("pro = %d \n", AGV_RUN_Pro);
       }      
       
-      if(USART_BYTE == 'S')
+      if(USART_BYTE == 's')
       {
         static u16 cycle_s = 0; // 600
         static u16 run_timers = 0;
-        //USART_BYTE = 0;
         if(cycle_s == 0)
         {
           cycle_s = 600;
           FollowLineEnable = 1;
+          RoadType = ROAD_TYPE_FORWARD;
           Run_Dir = DIR_FORWARD;
           MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
-          MB_LINE_DIR_SELECT = 1;
+          MB_LINE_DIR_SELECT = BRANCH_TO_RIGHT;
           printf("Start FOLLOW %d times\n", ++run_timers);
           Play_Warning(AUTO_FOLLOW_LINE);
         }
@@ -98,6 +98,18 @@ int main(void)
           cycle_s -= 2;
         }
       }
+      
+      if(USART_BYTE == 'S')
+      {
+        USART_BYTE = 0;
+
+        FollowLineEnable = 1;
+        RoadType = ROAD_TYPE_FORWARD;
+        Run_Dir = DIR_FORWARD;
+        MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
+        MB_LINE_DIR_SELECT = BRANCH_TO_RIGHT;
+        Play_Warning(AUTO_FOLLOW_LINE);
+      }      
       
       if(USART_BYTE == 'b')
       {

@@ -1,5 +1,6 @@
 #include "user_inc.h"
 
+s32 RoadType = ROAD_TYPE_FORWARD;
 u32 MiningAgvTimeout = 0;
 //--------------- CASE 3 ------------------------------------------//
 const RFID_INFOR RFID_Infor[RFID_CARD_NUM] = {
@@ -69,7 +70,7 @@ void MiningAgvSpecFlow(u8* reset)
     BranchSelectDirection = BRANCH_TO_LEFT; // 遇到磁条分叉时的方向选择
     VehicleDirection = DIR_FORWARD;         // 车体巡线方向：正向用前边磁导航传感器，逆向用后边磁导航传感器
     Run_Dir = DIR_FORWARD;
-    MB_LINE_DIR_SELECT = 1;
+    MB_LINE_DIR_SELECT = BRANCH_TO_RIGHT;
     MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
     LastRfid = 0;
     InsideReset = 1;
@@ -262,8 +263,9 @@ const RFID_ACTION FORWARD_RFID_Action[FUNC_1_RFID_CARD_NUM] = {
 
 const RFID_ACTION BACKWARD_RFID_Action[FUNC_1_RFID_CARD_NUM] = {
   
-  {0x80FF, 2, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE}, 
-               {ACTION_SET_VEHICLE_DIR, DIR_BACKWARD}, }},
+  {0x80FF, 3, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE}, 
+               {ACTION_SET_VEHICLE_DIR, DIR_FORWARD}, 
+               {ACTION_CHARGE, 0}}},
   
   {0x8001, 3, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
                {ACTION_TURN_ANGLE, 180}, 
