@@ -153,6 +153,7 @@ void AGV_RUN_Task(void)
             if(RFID_COMEIN_Flag & RFID_READ_INFOR_SUCCESS_MASK) 
             {
               RFID_COMEIN_Flag &= ~RFID_READ_INFOR_SUCCESS_MASK;
+              printf("-- RFID_COMEIN_Flag %04X--\n", PlaceId);
               if(LastRfid != PlaceId)
               {
                 if(RoadType == ROAD_TYPE_FORWARD) pRFID_ACTION = (RFID_ACTION*)FORWARD_RFID_Action;
@@ -169,6 +170,7 @@ void AGV_RUN_Task(void)
                     IM_STOP_Ignore = 1;
                     BARRIER_Ignore = 1;
                     OFF_LINE_Ignore = 1;
+                    printf("ActionNum = %d\n", pRFID_ACTION->ActionNum);
                     break;
                   }
                 }
@@ -215,11 +217,13 @@ void AGV_RUN_Task(void)
             {
               RoadType = pRFID_ACTION->ActionInfor[ActionIndex].value;
               ActionIndex += 1;
+              printf("++RoadType = %d\n", RoadType);
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_BRANCH_DIR)
             {
               MB_LINE_DIR_SELECT = pRFID_ACTION->ActionInfor[ActionIndex].value; 
               ActionIndex += 1;
+              printf("++MB_LINE_DIR_SELECT = %d\n", MB_LINE_DIR_SELECT);
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_VEHICLE_DIR)
             {
@@ -233,6 +237,7 @@ void AGV_RUN_Task(void)
                 MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
               }
               ActionIndex += 1;
+              printf("++Run_Dir = %d\n", Run_Dir);
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_CHARGE)
             {
@@ -245,7 +250,7 @@ void AGV_RUN_Task(void)
           {
             if(AGV_Delay != 0)
             {
-              SLOW_DOWN_Task(&FollowLineReset, 1000);
+              SLOW_DOWN_Task(&FollowLineReset, 1200); // 1000 -> 1400 -> 1200
             }
             else 
             {

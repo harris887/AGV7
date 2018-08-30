@@ -113,9 +113,9 @@ void Analysis_Receive_From_Dido(u8 data,MODBUS_SAMPLE* pMODBUS, DIDO_INPUT_STATU
             else
             {
               st->LightStatus  = pMODBUS->DataBuf[3];
-              //BUTTON_IM_STOP_Flag = (st->LightStatus & ((1 << DI_IM_STOP_1) | (1 << DI_IM_STOP_2))) >> DI_IM_STOP_1;
+              BUTTON_IM_STOP_Flag = (st->LightStatus & ((1 << DI_IM_STOP_1) | (1 << DI_IM_STOP_2))) >> DI_IM_STOP_1;
               //BUTTON_IM_STOP_Flag = (st->LightStatus & (1 << DI_IM_STOP_1)) ? 0 : 1; 
-              BUTTON_IM_STOP_Flag = ((st->LightStatus & ((1 << DI_IM_STOP_1) | (1 << DI_IM_STOP_2))) >> DI_IM_STOP_1) ^ 0x3;
+              //BUTTON_IM_STOP_Flag = ((st->LightStatus & ((1 << DI_IM_STOP_1) | (1 << DI_IM_STOP_2))) >> DI_IM_STOP_1) ^ 0x3;
               TOUCH_SENSOR_Flag = (st->LightStatus & ((1 << DI_TOUCH_HEAD) | (1 << DI_TOUCH_TAIL))) >> DI_TOUCH_TAIL; 
             }
           }    

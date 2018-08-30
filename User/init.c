@@ -184,7 +184,7 @@ void FLASH_READOUT_Protect(void)
 
 
 /*保存参数的地址*/
-#define ConfigDataAddr      ((u32)(0x08010000-FLASH_PAGE_SIZE))
+#define ConfigDataAddr      ((u32)(0x08020000-FLASH_PAGE_SIZE))
 
 
 

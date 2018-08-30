@@ -108,6 +108,7 @@ int main(void)
         Run_Dir = DIR_FORWARD;
         MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
         MB_LINE_DIR_SELECT = BRANCH_TO_RIGHT;
+        printf("Start FOLLOW ONCE\n");
         Play_Warning(AUTO_FOLLOW_LINE);
       }      
       

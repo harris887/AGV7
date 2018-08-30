@@ -1,6 +1,8 @@
 #include "user_inc.h"
 
 s32 RoadType = ROAD_TYPE_FORWARD;
+
+/*
 u32 MiningAgvTimeout = 0;
 //--------------- CASE 3 ------------------------------------------//
 const RFID_INFOR RFID_Infor[RFID_CARD_NUM] = {
@@ -223,40 +225,41 @@ void MiningAgvSpecFlow(u8* reset)
     break;        
   }
 }
-
+*/
 //--------------- CASE 1 ------------------------------------------//
+#define VIDEO_DELAY_S  5
 const RFID_ACTION FORWARD_RFID_Action[FUNC_1_RFID_CARD_NUM] = {
   
   {0x80FF, 0,},
   
-  {0x8001, 1, {{ACTION_SET_BRANCH_DIR, BRANCH_TO_LEFT}, }},
+  {0x8001, 1, {{ACTION_SET_BRANCH_DIR, BRANCH_TO_RIGHT}, }},
   
   {0x0002, 4, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
-               {ACTION_WAIT, 30},
+               {ACTION_WAIT, VIDEO_DELAY_S}, 
                {ACTION_TURN_ANGLE, 180}, 
-               {ACTION_WAIT, 30}, }},
+               {ACTION_WAIT, VIDEO_DELAY_S}, }},
   
   {0x0003, 4, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
-               {ACTION_WAIT, 30},
+               {ACTION_WAIT, VIDEO_DELAY_S},
                {ACTION_TURN_ANGLE, 180}, 
-               {ACTION_WAIT, 30}, }},
+               {ACTION_WAIT, VIDEO_DELAY_S}, }},
                                                      
   {0x0004, 2, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE} ,
-               {ACTION_WAIT, 30}, }},
+               {ACTION_WAIT, VIDEO_DELAY_S}, }},
                                                      
   {0x0005, 2, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE} ,
-               {ACTION_WAIT, 30}, }},
+               {ACTION_WAIT, VIDEO_DELAY_S}, }},
                                                      
   {0x0006, 4, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
-               {ACTION_WAIT, 30},
+               {ACTION_WAIT, VIDEO_DELAY_S},
                {ACTION_TURN_ANGLE, 180}, 
-               {ACTION_WAIT, 30}, }},
+               {ACTION_WAIT, VIDEO_DELAY_S}, }},
                                                      
   {0x8007, 6, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
-               {ACTION_WAIT, 30},
+               {ACTION_WAIT, VIDEO_DELAY_S},
                {ACTION_TURN_ANGLE, 180}, 
-               {ACTION_WAIT, 30}, 
-               {ACTION_SET_LINE_TYPE, LINE_TYPE_BACKWARD}, 
+               {ACTION_WAIT, VIDEO_DELAY_S}, 
+               {ACTION_SET_LINE_TYPE, ROAD_TYPE_BACKWARD}, 
                {ACTION_SET_BRANCH_DIR, BRANCH_TO_LEFT}, }},
 };
 

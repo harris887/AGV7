@@ -43,8 +43,8 @@ typedef struct
 
 #define ROAD_TYPE_FORWARD   1
 #define ROAD_TYPE_BACKWARD  -1
-#define LINE_TYPE_FORWARD   0
-#define LINE_TYPE_BACKWARD  1
+//#define LINE_TYPE_FORWARD   0
+//#define LINE_TYPE_BACKWARD  1
 #define BRANCH_TO_LEFT      1
 #define BRANCH_TO_RIGHT     2
 
