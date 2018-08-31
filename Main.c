@@ -62,6 +62,7 @@ int main(void)
     Laser_Task();
     Check_DIDO_TASK();
     WK2124_TransTask();
+    BMS_Task();
     
     TimeoutJump();
     FeedDog();     
@@ -71,6 +72,14 @@ int main(void)
       static s8 o_index = 0;
       //static u8 sta=0;
       debug_show=0;
+      
+      if(USART_BYTE == 'T')
+      {
+        USART_BYTE = 0;
+        printf("PACK_Vol = %d, PACK_Current = %d, PACK_Left = %d\n", PACK_ANALOG_Infor.PACK_Vol, \
+          PACK_ANALOG_Infor.PACK_Current, \
+          PACK_ANALOG_Infor.PACK_Left);
+      }         
 
       if(USART_BYTE == 'Q')
       {
@@ -294,6 +303,23 @@ int main(void)
 
 
 
-
+/*
+#if (0)
+  u8 i;
+  SendBmsCommand(DEFAULT_BMS_ADDR, BMS_CID2_GET_PACK_ANALOG, 0x01); 
+  SendBmsCommand(DEFAULT_BMS_ADDR, BMS_CID2_GET_PACK_WARNING, 0x01);
+  SendBmsCommand(DEFAULT_BMS_ADDR, BMS_CID2_BAT_CHARGE_MOS_CONTROL, BMS_CHARGE_MOS_CHANGE_FLAG | BMS_CHARGE_MOS_CLOSE);
+  BMS_CURRENT_Cmd = BMS_CID2_GET_PACK_ANALOG;
+  for(i = 0; i < strlen(BMS_INFOR_ACK); i++)
+  {
+    Handle_BmsRx(BMS_INFOR_ACK[i]);
+  }
+  BMS_CURRENT_Cmd = BMS_CID2_GET_PACK_WARNING;
+  for(i = 0; i < strlen(BMS_WARN_ACK); i++)
+  {
+    Handle_BmsRx(BMS_WARN_ACK[i]);
+  }
+#endif
+*/
 
 

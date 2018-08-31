@@ -14,6 +14,9 @@
 u8 MOTO_RS485_RX_TX_Timeout = 0;
 u8 MOTO_RS485_RX_TX_STAUTS = RS485_IDEL;
 
+u8 BMS_RS485_RX_TX_Timeout = 0;
+u8 BMS_RS485_RX_TX_STAUTS = RS485_IDEL;
+
 /*上一个接受或者发送的字符*/
 u8 USART_BYTE = 0;
 u8 USART_UpInforEnable = 0;
@@ -260,7 +263,7 @@ void Usart4_Init(void)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
   
-  USART_InitStructure.USART_BaudRate = 19200;
+  USART_InitStructure.USART_BaudRate = 9600; // 19200
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -482,7 +485,8 @@ void UART_Task(void)
   
   if(UART4_Optx.Intrrupt==false)
   {
-    if(UART4_Optx.OutIndex!=UART4_Optx.InIndex)
+    if((UART4_Optx.OutIndex!=UART4_Optx.InIndex)
+      &&(BMS_RS485_RX_TX_STAUTS==RS485_TX_ENABLE))
     {
       UART4_Optx.Intrrupt=true;
       USART_ITConfig(UART4, USART_IT_TXE, ENABLE);
@@ -519,7 +523,7 @@ void UART_Task(void)
   
   if(UART4_Oprx.InIndex!=UART4_Oprx.OutIndex)
   {
-
+    Handle_BmsRx(UART4_Oprx.Buf[UART4_Oprx.OutIndex++]);
   }  
   
   if(UART5_Oprx.InIndex!=UART5_Oprx.OutIndex)
@@ -553,7 +557,10 @@ void UART_Task(void)
   
   if(Uart4RxTime==0)
   {
-
+    if(BMS_RX_Pro)
+    {
+      BMS_RX_Pro = 0;
+    }
   }
   
   if(Uart5RxTime==0)
@@ -597,5 +604,39 @@ void UART_Task(void)
     break;
   default: MOTO_RS485_RX_TX_STAUTS = RS485_IDEL;
   }  
+  
+  //电机接口的485发送接收的转换
+  switch(BMS_RS485_RX_TX_STAUTS)
+  {
+  case RS485_IDEL:
+    if(BMS_RS485_RX_TX_Timeout==0)
+    {
+      RS485_1_RX_Active();//
+      BMS_RS485_RX_TX_STAUTS = RS485_RX_ENABLE;
+    }
+    break;
+  case RS485_RX_ENABLE:
+    if(UART4_Optx.OutIndex != UART4_Optx.InIndex)
+    {
+      RS485_1_TX_Active();
+      BMS_RS485_RX_TX_Timeout = 2;
+      BMS_RS485_RX_TX_STAUTS = RS485_TX_INIT;
+    }
+    break;
+  case RS485_TX_INIT:
+    if(BMS_RS485_RX_TX_Timeout==0)
+    {
+      BMS_RS485_RX_TX_STAUTS = RS485_TX_ENABLE;
+    }
+    break;
+  case RS485_TX_ENABLE:  
+    if(UART4_Optx.Intrrupt==false)
+    {
+      BMS_RS485_RX_TX_Timeout = RS485_SLAVE_TX_2_RX_Delay;
+      BMS_RS485_RX_TX_STAUTS = RS485_IDEL;
+    }
+    break;
+  default: BMS_RS485_RX_TX_STAUTS = RS485_IDEL;
+  }    
   
 }

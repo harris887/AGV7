@@ -809,19 +809,39 @@ void AGV_RUN_Task(void)
             }
           }
           break;
-        case 2:
+        case 2: // 打开BMS的充电口
           {
-            if(AGV_Delay==0)
+            if(AGV_Delay == 0)
             {
+              Set_BMS_CHARGE_MOS(BMS_CHARGE_MOS_OPEN);
+              AGV_Delay = 2000;
+              AGV_RUN_SUB_Pro += 1;
             }
           }
           break;      
         case 3:
-          { //检测电流,小于额定充电电流，结束充电
-
+          { 
+            if(AGV_Delay == 0)
+            {
+              SET_Charge(1);
+              AGV_Delay = 100 * 1000;
+              AGV_RUN_SUB_Pro += 1;
+            }
           }
           break;
         case 4:
+          {
+            //检测电流,小于额定充电电流，结束充电
+            if(AGV_Delay == 0)
+            {
+              Set_BMS_CHARGE_MOS(BMS_CHARGE_MOS_CLOSE);
+              SET_Charge(0);
+              AGV_Delay = 1000;
+              AGV_RUN_SUB_Pro += 1;
+            }            
+          }
+          break;
+        case 5:
           {
             if(AGV_Delay==0)
             {              

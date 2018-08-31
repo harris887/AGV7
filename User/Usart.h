@@ -150,6 +150,7 @@ extern UART_OPTION UART2_Optx;
 extern UART_OPTION UART2_Oprx;
 extern u16 RS485_SLAVE_TX_2_RX_Delay;
 extern u8 MOTO_RS485_RX_TX_Timeout;
+extern u8 BMS_RS485_RX_TX_Timeout;
 extern const u16 RS485_SLAVE_TX_2_RX_DELAY_List[9];
 
 u8 Deal_UART_Infor(u8* pINFOR,u8 Length);
