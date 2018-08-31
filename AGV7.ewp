@@ -1724,6 +1724,12 @@
       <name>$PROJ_DIR$\User\Adc.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\User\BMS.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\User\BMS.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\User\Button.c</name>
     </file>
     <file>

@@ -31,6 +31,7 @@
 #include "DIDO.h"
 #include "Charge.h"
 #include "Mining.h"
+#include "BMS.h"
 
 #define MODBUS_PARA_REFLUSH_FLASH_ENABLE  1//µ÷ÊÔ½×¶Î²»²ÁFLASH
 

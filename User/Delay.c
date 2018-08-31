@@ -57,6 +57,7 @@ void SysTick_IrqHandler(void)
     if(DIDO_READ_LIGHT_Timeout) DIDO_READ_LIGHT_Timeout--;
     if(WK2124_Timeout) WK2124_Timeout--;
     //if(MiningAgvTimeout) MiningAgvTimeout--;
+    if(BMS_TimeOutCounter) BMS_TimeOutCounter--;
     
     I_RollAd-=(I_RollAd>>8);
     I_RollAd+=AD_Roller;
