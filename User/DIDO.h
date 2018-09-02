@@ -23,7 +23,7 @@ typedef enum
   DO_Buzzer,
   DO_Fan_1,
   DO_Fan_2,
-  DO_Reserve_1,
+  DO_CHARGE_Enable,
   DO_Reserve_2,
   DO_Num
 }DIDO_OUT_INDEX;

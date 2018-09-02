@@ -5,12 +5,7 @@
 #include <string.h>
 #include <stdlib.h> 
 
-#define DEBUG_USART     USART1 //UART5 USART1
 
-#define RS485_IDEL      0
-#define RS485_RX_ENABLE 1
-#define RS485_TX_INIT   2
-#define RS485_TX_ENABLE 3
 u8 MOTO_RS485_RX_TX_Timeout = 0;
 u8 MOTO_RS485_RX_TX_STAUTS = RS485_IDEL;
 
@@ -18,7 +13,7 @@ u8 BMS_RS485_RX_TX_Timeout = 0;
 u8 BMS_RS485_RX_TX_STAUTS = RS485_IDEL;
 
 /*上一个接受或者发送的字符*/
-u8 USART_BYTE = 0;
+u8 USART_Byte[5] = {0};
 u8 USART_UpInforEnable = 0;
 u16 Uart1RxTime;
 u16 Uart2RxTime;
@@ -94,7 +89,7 @@ void Usart1_Init(void)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
   
-  USART_InitStructure.USART_BaudRate = 115200;
+  USART_InitStructure.USART_BaudRate = 9600;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -333,8 +328,8 @@ void UART1_ISR(void)
 {
   if(USART1->SR&USART_FLAG_RXNE)
   {
-    USART_BYTE = USART1->DR;
-    UART1_Oprx.Buf[UART1_Oprx.InIndex++] = USART_BYTE;    
+    USART_Byte[0] = USART1->DR;
+    UART1_Oprx.Buf[UART1_Oprx.InIndex++] = USART_Byte[0];    
     //UART1_Oprx.Buf[UART1_Oprx.InIndex++]=USART1->DR;//fill can clear flag
     Uart1RxTime=Uart1RxTimeReload;//20ms
   }
@@ -349,14 +344,15 @@ void UART1_ISR(void)
   }
 }
 
-u32 rx2 = 0;
+//u32 rx2 = 0;
 void UART2_ISR(void)
 {
   if(USART2->SR&USART_FLAG_RXNE)
   {
-    UART2_Oprx.Buf[UART2_Oprx.InIndex++]=USART2->DR;//fill can clear flag
-    Uart2RxTime=Uart2RxTimeReload;//20ms
-    rx2 += 1;
+    USART_Byte[1] = USART2->DR;
+    UART2_Oprx.Buf[UART2_Oprx.InIndex++] = USART_Byte[1];//fill can clear flag
+    Uart2RxTime = Uart2RxTimeReload;//20ms
+    //rx2 += 1;
   }
   if((USART2->SR&USART_FLAG_TXE)&&(UART2_Optx.Intrrupt==true))
   {
@@ -632,7 +628,7 @@ void UART_Task(void)
   case RS485_TX_ENABLE:  
     if(UART4_Optx.Intrrupt==false)
     {
-      BMS_RS485_RX_TX_Timeout = RS485_SLAVE_TX_2_RX_Delay;
+      BMS_RS485_RX_TX_Timeout = 3;
       BMS_RS485_RX_TX_STAUTS = RS485_IDEL;
     }
     break;

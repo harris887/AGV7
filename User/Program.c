@@ -3,7 +3,7 @@
 
 AGV_STATUS_LIST AGV_RUN_Pro=AGV_STATUS_INIT;
 u8 AGV_RUN_SUB_Pro=0;
-u32 AGV_Delay=3500;
+u32 AGV_Delay = 3500;
 u16 RFID_STOP_ANGIN_Timeout=0;
 
 u16 ProgramControlCycle=0;
@@ -16,6 +16,9 @@ u16 Dest_ID=0;
 s16 Run_Dir = DIR_FORWARD;
 u16 LoopDetectThing_time_out = DEFAULT_PLAY_DETECT_THING_TIME_IN_MS;
 u8 FollowLineEnable = 0;
+u32 CHARGE_MinCycle = 0;
+u8 FORCE_CHARGE_Flag = 0;
+u8 FORCE_CHARGE_STOP_Flag = 0;
 
 MOVEMENT_OPTION_LIST DISPLACEMENT_MOVEMENT_OPTION_List={0,0};
 MOVEMENT_OPTION_LIST ANGLE_MOVEMENT_OPTION_List={0,0};
@@ -38,15 +41,15 @@ void AGV_RUN_Task(void)
   /*----------初始化模式---------------*/    
   case AGV_STATUS_INIT:
     {
-      if(AGV_Delay==0)
+      if(AGV_Delay == 0)
       {
         //SetBeep(3,300,500);
         Play_Warning(SELF_TEST_OK);
         AGV_Delay = voice_all[SELF_TEST_OK].last_time + 2000;
         
         LED_DISPLAY_Reset();  
-        AGV_RUN_Pro=AGV_STATUS_IDLE;
-        AGV_RUN_SUB_Pro=0;
+        AGV_RUN_Pro = AGV_STATUS_IDLE;
+        AGV_RUN_SUB_Pro = 0;
       }
     }
     break;
@@ -67,46 +70,48 @@ void AGV_RUN_Task(void)
       {
         LED_WATER_Display(500);
         
-        //低电压状态切换
-        if(BatteryVolt_LowFlag>=2)
-        {
-          AGV_RUN_Pro=AGV_STATUS_LOW_POWER;
-          AGV_RUN_SUB_Pro=0;
-          break;
-        }
-        
         //急停按钮按下，进入急停模式
         if(BUTTON_IM_STOP_Flag)
         {
-          AGV_RUN_Pro=AGV_STATUS_IM_STOP;
-          AGV_RUN_SUB_Pro=0;    
+          AGV_RUN_Pro = AGV_STATUS_IM_STOP;
+          AGV_RUN_SUB_Pro = 0;    
           break;
         }       
         
         //巡线按钮按下&&霍尔检测到磁条
-        //if((MOD_BUS_Reg.M_CONTROL_MODE==M_CONTROL_MODE_FOLLOW_LINE)
-        //   &&(MOD_BUS_Reg.AUTO_FOLLOW_ENABLE) 
-        //   &&(ON_LINE_Flag)
-        //     &&(BUTTON_FOLLOW_LINE_AND_PROGRAM_Flag)) 
-        //if((ON_LINE_Flag)&&(Current_ID==0))
         if((ON_LINE_Flag) && (FollowLineEnable))
         {
-          //FollowLineEnable = 0;
-          //MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
-          //INIT_SpeedLimted();
-          AGV_RUN_Pro=AGV_STATUS_FOLLOWLINE;
-          AGV_RUN_SUB_Pro=0;
+          if(FollowLineEnable == 1)
+          {
+            FollowLineEnable += 1;
+            Play_Warning(AUTO_FOLLOW_LINE);
+          }
+          AGV_RUN_Pro = AGV_STATUS_FOLLOWLINE;
+          AGV_RUN_SUB_Pro = 0;
           break;
         }   
         
         //遥控ON按钮按下进入，遥控状态
         if(REMOTE_SelectFlag)
         {
-          AGV_RUN_Pro=AGV_STATUS_REMOTE;
-          AGV_RUN_SUB_Pro=0;
+          AGV_RUN_Pro = AGV_STATUS_REMOTE;
+          AGV_RUN_SUB_Pro = 0;
           break;
         }
 
+        //低电压状态切换
+        if(((BatteryVolt_LowFlag >= 2) || (FORCE_CHARGE_Flag)) 
+           && (ON_LINE_Flag) 
+           && (FollowLineEnable == 0)
+           && (CHARGE_MinCycle == 0))
+        {
+          if(FORCE_CHARGE_Flag) FORCE_CHARGE_Flag -= 1; // test charge 
+          CHARGE_MinCycle = DEFAULT_MIN_CHARGE_CYCLE_IN_S * 1000;
+          AGV_RUN_Pro = AGV_STATUS_CHARGE;
+          AGV_RUN_SUB_Pro = 0;
+          break;
+        }        
+        
         BATT_LOW_LEVEL_1_Warning();        
       }     
     }
@@ -140,15 +145,15 @@ void AGV_RUN_Task(void)
         }
       }
       else
-      {
-#if (1)
-#define ACTION_PRO_OFFSET    3        
+      {      
+        LED_FOLLOW_LINE_Display(500);
+ 
+#define ACTION_PRO_OFFSET    3         
         // 巡线 + RFID 响应
         switch(AGV_RUN_SUB_Pro) 
         {
         case 1:
           {
-            LED_FOLLOW_LINE_Display(500);
             NEW_FOLLOW_LINE_TASK(&FollowLineReset, Run_Dir);
             if(RFID_COMEIN_Flag & RFID_READ_INFOR_SUCCESS_MASK) 
             {
@@ -239,10 +244,19 @@ void AGV_RUN_Task(void)
               ActionIndex += 1;
               printf("++Run_Dir = %d\n", Run_Dir);
             }
-            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_CHARGE)
+            else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_FINISH)
             {
-              AGV_RUN_Pro = AGV_STATUS_CHARGE;
-              AGV_RUN_SUB_Pro = 0;   
+              FollowLineEnable = 0;
+              if(BatteryVolt_LowFlag >= 2)
+              {
+                AGV_RUN_Pro = AGV_STATUS_IDLE;
+                AGV_RUN_SUB_Pro = 0;   
+              }
+              else
+              {
+                AGV_RUN_Pro = AGV_STATUS_CHARGE;
+                AGV_RUN_SUB_Pro = 0;                 
+              }
             }
           }
           break;
@@ -300,7 +314,7 @@ void AGV_RUN_Task(void)
           {
           }
           break;       
-        case (ACTION_PRO_OFFSET + ACTION_CHARGE):
+        case (ACTION_PRO_OFFSET + ACTION_FINISH):
           {
           }
           break;            
@@ -347,106 +361,7 @@ void AGV_RUN_Task(void)
           printf("-- OFF_LINE_Flag --\n");
           break;
         }        
-#else
-        /*
-        LED_FOLLOW_LINE_Display(500);
-        
-        NEW_FOLLOW_LINE_TASK(&FollowLineReset,Run_Dir);
-        
-        //急停按钮按下，进入急停模式
-        if(BUTTON_IM_STOP_Flag)
-        {
-          AGV_RUN_Pro=AGV_STATUS_IM_STOP;
-          AGV_RUN_SUB_Pro=0;    
-          printf("-- BUTTON_IM_STOP_Flag --\n");
-          break;
-        }
-        
-        //臂章，进入
-        if(((TOUCH_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1))) != 0)
-          || ((LASER_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1))) != 0)) 
-        {
-          Play_Warning(DETECT_TING);
-          AGV_RUN_Pro=AGV_STATUS_BARRIER;
-          AGV_RUN_SUB_Pro=0;    
-          printf("-- TOUCH_SENSOR_Flag --\n");
-          break;
-        }
-        
-        //遥控ON按钮按下进入，遥控状态
-        if(REMOTE_SelectFlag)
-        {
-          AGV_RUN_Pro=AGV_STATUS_REMOTE;
-          AGV_RUN_SUB_Pro=0;
-          printf("-- REMOTE_SelectFlag --\n");
-          break;
-        }        
-        //a.巡线启动按键抬起，进入急停模式
-        //b.用户要求巡线停止，进入急停模式
-        //c.脱离磁带后，进入急停模式
-        //if((BUTTON_FOLLOW_LINE_AND_PROGRAM_Flag==0)
-        //  || (MOD_BUS_Reg.AUTO_FOLLOW_ENABLE==0)
-        //    || (ON_LINE_Flag==0))
-        if(ON_LINE_Flag==0)
-        {
-          AGV_RUN_Pro= AGV_STATUS_OFF_LINE;
-          
-          AGV_RUN_SUB_Pro=0;  
-          printf("-- ON_LINE_Flag --\n");
-          break;
-        }
 
-        //低电压状态切换
-        if(BatteryVolt_LowFlag>=2)
-        {
-          MOTO_IM_STOP();
-          AGV_RUN_Pro=AGV_STATUS_LOW_POWER;
-          AGV_RUN_SUB_Pro=0;
-          printf("-- BatteryVolt_LowFlag --\n");
-          break;
-        }
-        
-        //遇到RFID
-        if(RFID_COMEIN_Flag & 0x4)  
-        {
-          RFID_COMEIN_Flag &= ~0x4;
-          //if((RFID_STOP_ANGIN_Timeout==0)&&(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS!=0))
-          if(PlaceId == 0x80FF)
-          {
-            PlaceId = 0;
-            if(Run_Dir == DIR_BACKWARD)
-            {
-              Run_Dir = DIR_FORWARD;
-              MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
-              AGV_RUN_Pro = AGV_STATUS_CHARGE;
-              AGV_RUN_SUB_Pro = 0;   
-              break;  
-            }            
-          }
-          else if((PlaceId == 0x8001) && (MB_LINE_DIR_SELECT == BRANCH_TO_RIGHT))
-          {
-            PlaceId = 0;
-          }
-          else if(RFID_STOP_ANGIN_Timeout==0)  
-          {
-            if((PlaceId == 0x8001) && (MB_LINE_DIR_SELECT == BRANCH_TO_LEFT))
-            {
-              Run_Dir = DIR_BACKWARD;
-              MODE_BUS_HALL_Addr = BACKWARD_MODE_BUS_HALL_ADDR;
-            }
-            if(PlaceId == 0x8007)  
-            {
-              MB_LINE_DIR_SELECT = BRANCH_TO_LEFT; // 左
-            }
-
-            //PlaceId = 0;
-            AGV_RUN_Pro=AGV_STATUS_RFID_COMEIN;
-            AGV_RUN_SUB_Pro=0;   
-            break;
-          }
-        }   
-        */
-#endif
         BATT_LOW_LEVEL_1_Warning(); 
       }
     }
@@ -465,8 +380,8 @@ void AGV_RUN_Task(void)
       else
       {
         //
-        LED_BARRIER_Display(1000);//黄灯闪烁
-        SetBeepForever(500,1500);//警报音
+        LED_BARRIER_Display(1000); //黄灯闪烁
+        SetBeepForever(500,1500);  //警报音
         
         //1秒时间匀减速刹车，待测试**
         SLOW_DOWN_Task(&reset,700);   
@@ -482,131 +397,29 @@ void AGV_RUN_Task(void)
         //急停按钮按下，进入急停模式
         if(BUTTON_IM_STOP_Flag)
         {
-          AGV_RUN_Pro=AGV_STATUS_IM_STOP;
-          AGV_RUN_SUB_Pro=0;    
+          AGV_RUN_Pro = AGV_STATUS_IM_STOP;
+          AGV_RUN_SUB_Pro = 0;    
           break;
         }
         
         //低电压状态切换
-        if((BatteryVolt_LowFlag>=2)&&(AGV_Delay==0))
+        if((BatteryVolt_LowFlag >= 2) && (AGV_Delay == 0))
         {
           MOTO_IM_STOP();
-          AGV_RUN_Pro=AGV_STATUS_LOW_POWER;
-          AGV_RUN_SUB_Pro=0;
+          AGV_RUN_Pro = AGV_STATUS_LOW_POWER;
+          AGV_RUN_SUB_Pro = 0;
           break;
         }        
         
         //巡线按钮按下&&霍尔检测到磁条
-        //if((MOD_BUS_Reg.M_CONTROL_MODE==M_CONTROL_MODE_FOLLOW_LINE)
-        //   &&(MOD_BUS_Reg.AUTO_FOLLOW_ENABLE) 
-        //   &&(ON_LINE_Flag)
-        //     &&(BUTTON_FOLLOW_LINE_AND_PROGRAM_Flag)) 
-        if((ON_LINE_Flag)&&(AGV_Delay==0))
+        if((ON_LINE_Flag) && (AGV_Delay == 0))
         {
-          AGV_RUN_Pro=AGV_STATUS_IDLE;
-          AGV_RUN_SUB_Pro=0;
+          AGV_RUN_Pro = AGV_STATUS_IDLE;
+          AGV_RUN_SUB_Pro = 0;
           break;
         }           
         
         BATT_LOW_LEVEL_1_Warning(); 
-      }
-    }
-    break;
-  /*----------RFID等待模式----------*/  
-  case AGV_STATUS_RFID_COMEIN:
-    {
-      static u8 reset=0;
-      if(AGV_RUN_SUB_Pro==0)
-      {
-        reset = 1;
-        AGV_Delay=1500;
-        //SetBeep(2,200,500);  
-        LED_DISPLAY_Reset();
-        AGV_RUN_SUB_Pro+=1;
-      }
-      else
-      {
-        LED_RFID_Display(500);
-        
-        switch(AGV_RUN_SUB_Pro)
-        {
-        case 1:
-          {
-            if(AGV_Delay != 0)
-            {
-              SLOW_DOWN_Task(&reset,1000);  
-            }
-            else
-            {
-              AGV_Delay = 5000; // 5000
-              AGV_RUN_SUB_Pro+=1;
-            }
-          }
-          break;
-        case 2: // 等待 ns
-          {
-            if(AGV_Delay != 0)
-            {
-               
-            }
-            else
-            {
-              if((PlaceId == 0x0004) || (PlaceId == 0x0005))
-              {
-                AGV_Delay = 10000;
-                AGV_RUN_SUB_Pro+=1;                
-              }
-              else
-              {
-                printf("-- 180 --\n");
-                VehicleTurnRound(180);
-                AGV_Delay = 10000;
-                AGV_RUN_SUB_Pro+=1;
-              }
-              
-              PlaceId = 0;
-            }
-          }          
-          break;
-        case 3:
-          {
-            if(AGV_Delay != 0)
-            {
-              AGV_USER_PROGRAM_IN_DISPLACEMENT_Task(&reset); 
-            }
-            else
-            {
-              AGV_Delay = 5000;
-              AGV_RUN_SUB_Pro+=1;
-            }
-          }          
-          break;
-        case 4: // 等待 ns
-          {
-                     
-          }
-          break;
-        }
-        
-        
-        // 遥控ON按钮按下进入，遥控状态
-        if((REMOTE_SelectFlag)&&(BUTTON_IM_STOP_Flag==0))
-        {
-          AGV_RUN_Pro=AGV_STATUS_REMOTE;
-          AGV_RUN_SUB_Pro=0;
-          break;
-        }
-        
-        //60s后回到空闲
-        if(AGV_Delay==0)
-        { 
-          RFID_STOP_ANGIN_Timeout = 10000;
-          AGV_Delay=100;
-          LED_DISPLAY_Reset();
-          AGV_RUN_Pro=AGV_STATUS_IDLE;
-          AGV_RUN_SUB_Pro=0;  
-          break;
-        }        
       }
     }
     break;
@@ -634,12 +447,12 @@ void AGV_RUN_Task(void)
         }
         
         //进入空闲模式
-        if(REMOTE_SelectFlag==0)
+        if(REMOTE_SelectFlag == 0)
         {
-          AGV_Delay=1500;
+          AGV_Delay = 1500;
           LED_DISPLAY_Reset();
-          AGV_RUN_Pro=AGV_STATUS_IDLE;
-          AGV_RUN_SUB_Pro=0;  
+          AGV_RUN_Pro = AGV_STATUS_IDLE;
+          AGV_RUN_SUB_Pro = 0;  
           break;
         }         
         
@@ -650,36 +463,36 @@ void AGV_RUN_Task(void)
   /*----------低电压模式---------------*/     
   case AGV_STATUS_LOW_POWER:
     {
-      if(AGV_RUN_SUB_Pro==0)
+      if(AGV_RUN_SUB_Pro == 0)
       {
-        AGV_Delay=1500;
+        AGV_Delay = 1500;
         LED_DISPLAY_Reset();
-        AGV_RUN_SUB_Pro+=1;
+        AGV_RUN_SUB_Pro += 1;
       }
       else
       {
         LED_LOW_POWER_Display(500);
-        //SetBeepForever(300,700);
+
         if(AGV_Delay==0)
         {
-          AGV_Delay = 20000;//60s播放一次
+          AGV_Delay = 20000; //60s播放一次
           Play_Warning(BAT_LOW_20P);
         }
         
         //遥控ON按钮按下进入，遥控状态
-        if((REMOTE_SelectFlag)&&(BUTTON_IM_STOP_Flag==0))
+        if((REMOTE_SelectFlag) && (BUTTON_IM_STOP_Flag == 0))
         {
-          AGV_RUN_Pro=AGV_STATUS_REMOTE;
-          AGV_RUN_SUB_Pro=0;
+          AGV_RUN_Pro = AGV_STATUS_REMOTE;
+          AGV_RUN_SUB_Pro = 0;
           break;
         }
 
-        if(BatteryVolt_LowFlag<2)
+        if(BatteryVolt_LowFlag < 2)
         {
-          AGV_Delay=1500;
+          AGV_Delay = 1500;
           LED_DISPLAY_Reset();
-          AGV_RUN_Pro=AGV_STATUS_IDLE;
-          AGV_RUN_SUB_Pro=0;  
+          AGV_RUN_Pro = AGV_STATUS_IDLE;
+          AGV_RUN_SUB_Pro = 0;  
           break;
         }        
       }
@@ -693,14 +506,14 @@ void AGV_RUN_Task(void)
       if(AGV_RUN_SUB_Pro==0)
       {
         reset = 1;
-        if((TOUCH_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1)))!=0)
+        if((TOUCH_SENSOR_Flag & (1 << ((Run_Dir == DIR_FORWARD) ? 0 : 1))) != 0)
         {
           MOTO_IM_STOP();
-          slow_flag=0;
+          slow_flag = 0;
         }
         else 
         {
-          slow_flag=1;
+          slow_flag = 1;
         }
         LoopDetectThing_time_out = DEFAULT_PLAY_DETECT_THING_TIME_IN_MS;
         AGV_Delay = 2000;
@@ -717,18 +530,18 @@ void AGV_RUN_Task(void)
         }
         
         //遥控ON按钮按下进入，遥控状态
-        if((REMOTE_SelectFlag)&&(BUTTON_IM_STOP_Flag==0))
+        if((REMOTE_SelectFlag) && (BUTTON_IM_STOP_Flag == 0))
         {
-          AGV_RUN_Pro=AGV_STATUS_REMOTE;
-          AGV_RUN_SUB_Pro=0;
+          AGV_RUN_Pro = AGV_STATUS_REMOTE;
+          AGV_RUN_SUB_Pro = 0;
           break;
         } 
         
         //急停按钮按下，进入急停模式
         if(BUTTON_IM_STOP_Flag)
         {
-          AGV_RUN_Pro=AGV_STATUS_IM_STOP;
-          AGV_RUN_SUB_Pro=0;    
+          AGV_RUN_Pro = AGV_STATUS_IM_STOP;
+          AGV_RUN_SUB_Pro = 0;    
           break;
         }        
         
@@ -737,10 +550,10 @@ void AGV_RUN_Task(void)
             && ((LASER_SENSOR_Flag & (1<<((Run_Dir==DIR_FORWARD)?0:1)))==0)
             && (AGV_Delay==0))
         {
-          AGV_Delay=2400;
+          AGV_Delay = 2400;
           LED_DISPLAY_Reset();
-          AGV_RUN_Pro=AGV_STATUS_FOLLOWLINE;//AGV_STATUS_IDLE;
-          AGV_RUN_SUB_Pro=0;    
+          AGV_RUN_Pro = AGV_STATUS_IDLE; 
+          AGV_RUN_SUB_Pro = 0;    
           break;
         }
         
@@ -767,13 +580,13 @@ void AGV_RUN_Task(void)
         LED_IM_STOP_Display(500);
         
         //急停按钮松开，进入空闲模式
-        if(BUTTON_IM_STOP_Flag==0)
+        if(BUTTON_IM_STOP_Flag == 0)
         {
           SetBeep(3,300,500);
-          AGV_Delay=2400;
+          AGV_Delay = 2400;
           LED_DISPLAY_Reset();
-          AGV_RUN_Pro=AGV_STATUS_IDLE;
-          AGV_RUN_SUB_Pro=0;    
+          AGV_RUN_Pro = AGV_STATUS_IDLE;
+          AGV_RUN_SUB_Pro = 0;    
           break;
         }
         
@@ -788,24 +601,23 @@ void AGV_RUN_Task(void)
       {
         reset = 1;
         LED_DISPLAY_Reset();
-        AGV_RUN_SUB_Pro+=1;
-        AGV_Delay=2500;
+        CHARGE_FULL_Flag = 0;
+        AGV_RUN_SUB_Pro += 1;
+        AGV_Delay = 1000;
       }
       else
       { 
+        LED_CHARGE_Display(1000);
         switch(AGV_RUN_SUB_Pro)
         {
-        case 1:
+        case 1: // 刹车
           {
-            if(AGV_Delay != 0)
+            if(AGV_Delay == 0)
             {
-              SLOW_DOWN_Task(&reset, 1000); 
-            }
-            else
-            {
-              FollowLineEnable = 0;
-              AGV_RUN_SUB_Pro = 0;
-              AGV_RUN_Pro = AGV_STATUS_IDLE;            
+              AGV_Delay = 1500;
+              AGV_RUN_SUB_Pro += 1;
+              Play_Warning(START_CHARGE);
+              printf("-- CHARGE 1: START_CHARGE\n");
             }
           }
           break;
@@ -813,31 +625,35 @@ void AGV_RUN_Task(void)
           {
             if(AGV_Delay == 0)
             {
-              Set_BMS_CHARGE_MOS(BMS_CHARGE_MOS_OPEN);
-              AGV_Delay = 2000;
+              SET_DIDO_Relay(DO_CHARGE_Enable, 1);
+              AGV_Delay = 1000;
               AGV_RUN_SUB_Pro += 1;
+              printf("-- CHARGE 2: DO_CHARGE_Enable\n");
             }
           }
           break;      
         case 3:
           { 
-            if(AGV_Delay == 0)
+            if(AGV_Delay == 0) 
             {
-              SET_Charge(1);
-              AGV_Delay = 100 * 1000;
+              SET_Charge(CHARGE_ON);
+              AGV_Delay = 5 * (60 * 60) * 1000; // 100 * 1000 , 4 * (60 * 60) * 1000
               AGV_RUN_SUB_Pro += 1;
+              printf("-- CHARGE 3: ARM PULL OUT \n");
             }
           }
           break;
         case 4:
           {
             //检测电流,小于额定充电电流，结束充电
-            if(AGV_Delay == 0)
+            if((AGV_Delay == 0) || (FORCE_CHARGE_STOP_Flag) || (CHARGE_FULL_Flag))
             {
-              Set_BMS_CHARGE_MOS(BMS_CHARGE_MOS_CLOSE);
-              SET_Charge(0);
+              FORCE_CHARGE_STOP_Flag = 0;
+              CHARGE_FULL_Flag = 0;
+              SET_Charge(CHARGE_OFF);
               AGV_Delay = 1000;
               AGV_RUN_SUB_Pro += 1;
+              printf("-- CHARGE 4: ARM PULL IN \n");
             }            
           }
           break;
@@ -846,9 +662,12 @@ void AGV_RUN_Task(void)
             if(AGV_Delay==0)
             {              
               //断开充电继电器
-              AGV_Delay=4000;
-              AGV_RUN_SUB_Pro=0;
+              SET_DIDO_Relay(DO_CHARGE_Enable, 0);
+              AGV_Delay = 4000;
+              AGV_RUN_SUB_Pro = 0;
               AGV_RUN_Pro = AGV_STATUS_IDLE;
+              printf("-- CHARGE 5: DO_CHARGE_Disable\n");
+              Play_Warning(STOP_CHARGE);
             }        
           }
           break;
@@ -871,13 +690,13 @@ void BATT_LOW_LEVEL_1_Warning(void)
   }
   else return;  
   
-  if(BatteryVolt_LowFlag==1)
+  if(BatteryVolt_LowFlag == 1)
   {
     counter++;
-    if(counter>=300000)//5分钟
+    if(counter >= 300000) // 5分钟
     {
-      counter=0;
-      Play_Warning(BAT_LOW_20P);
+      counter = 0;
+      Play_Warning(BAT_LOW_30P);
       //SetBeep(5,300,700);//响5声
     }
   }
@@ -1165,6 +984,18 @@ void VehicleTurnRound(s16 value)
 }
 
 
-
+u8 StartFollowLine(void)
+{
+  if(FollowLineEnable == 0)
+  {
+    FollowLineEnable = 1;
+    RoadType = ROAD_TYPE_FORWARD;
+    Run_Dir = DIR_FORWARD;
+    MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
+    MB_LINE_DIR_SELECT = BRANCH_TO_RIGHT;
+    return 1;
+  }
+  return 0;
+}
 
 

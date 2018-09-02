@@ -47,7 +47,7 @@ int main(void)
     UART_Task();
     MODBUS_READ_HALL_SERSOR_TASK();
     //CHECK_BUTTON_TASK();
-    //CheckBatteryVolt_TASK();
+    CheckBatteryVolt_TASK();
     JOYSTICK_SCAN_TASK();
     CHECK_REMOTE_ENABLE_TASK();
     
@@ -63,6 +63,7 @@ int main(void)
     Check_DIDO_TASK();
     WK2124_TransTask();
     BMS_Task();
+    CHARGE_Task();
     
     TimeoutJump();
     FeedDog();     
@@ -73,12 +74,24 @@ int main(void)
       //static u8 sta=0;
       debug_show=0;
       
+      if(USART_BYTE == 'C')
+      {
+        printf("[CHARGE] Vol: %d, Cur:%d, Cap:%d, Tim:%d, Comm:%d\n", CHARGE_St.Voltage, \
+           CHARGE_St.Current, \
+           CHARGE_St.Cap,     \
+           CHARGE_St.Time,    \
+           CHARGE_St.RxNum);  
+      }        
+      
       if(USART_BYTE == 'T')
       {
-        USART_BYTE = 0;
-        printf("PACK_Vol = %d, PACK_Current = %d, PACK_Left = %d\n", PACK_ANALOG_Infor.PACK_Vol, \
-          PACK_ANALOG_Infor.PACK_Current, \
-          PACK_ANALOG_Infor.PACK_Left);
+        //USART_BYTE = 0;
+        printf("PACK_Vol = %d, PACK_Current = %d, PACK_Left = %d, Temp = %d [%d, %d]\n", PACK_ANALOG_Infor.PACK_Vol, \
+          *(s16*)&PACK_ANALOG_Infor.PACK_Current, \
+          PACK_ANALOG_Infor.PACK_Left, \
+          PACK_ANALOG_Infor.TEMP_Value[0], \
+          PACK_ANALOG_Infor.COMM_Num, \
+          PACK_WARN_Infor.COMM_Num);
       }         
 
       if(USART_BYTE == 'Q')
@@ -93,14 +106,12 @@ int main(void)
         static u16 run_timers = 0;
         if(cycle_s == 0)
         {
-          cycle_s = 600;
-          FollowLineEnable = 1;
-          RoadType = ROAD_TYPE_FORWARD;
-          Run_Dir = DIR_FORWARD;
-          MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
-          MB_LINE_DIR_SELECT = BRANCH_TO_RIGHT;
-          printf("Start FOLLOW %d times\n", ++run_timers);
-          Play_Warning(AUTO_FOLLOW_LINE);
+          if(StartFollowLine())
+          {
+            cycle_s = 600;
+            printf("Start FOLLOW %d times\n", ++run_timers);
+            Play_Warning(AUTO_FOLLOW_LINE);
+          }          
         }
         else
         {
@@ -112,13 +123,10 @@ int main(void)
       {
         USART_BYTE = 0;
 
-        FollowLineEnable = 1;
-        RoadType = ROAD_TYPE_FORWARD;
-        Run_Dir = DIR_FORWARD;
-        MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
-        MB_LINE_DIR_SELECT = BRANCH_TO_RIGHT;
-        printf("Start FOLLOW ONCE\n");
-        Play_Warning(AUTO_FOLLOW_LINE);
+        if(StartFollowLine())
+        {
+          printf("Start FOLLOW ONCE\n");
+        }
       }      
       
       if(USART_BYTE == 'b')
@@ -172,7 +180,7 @@ int main(void)
           sprintf(test_buffer,"Speed_mmps: [ %d %d ], L_001rpm: [ %d %d ] \n",
                   MONITOR_St[LEFT_MOTO_INDEX].real_mms, MONITOR_St[RIGHT_MOTO_INDEX].real_mms,
                   MONITOR_St[LEFT_MOTO_INDEX].real_rpm_reg, MONITOR_St[RIGHT_MOTO_INDEX].real_rpm_reg);
-          FillUartTxBufN((u8*)test_buffer,strlen(test_buffer),1);
+          FillUartTxBufN((u8*)test_buffer,strlen(test_buffer), 2);
         }
         else if(USART_BYTE == 'B')
         {
@@ -180,27 +188,8 @@ int main(void)
                   ReadMotoRpmTimes[LEFT_MOTO_INDEX] ,ReadMotoRpmTimes[RIGHT_MOTO_INDEX] ,
                   MONITOR_St[LEFT_MOTO_INDEX].counter ,MONITOR_St[RIGHT_MOTO_INDEX].counter , 
                   MODBUS_Monitor.read_success_num);// rx5
-          FillUartTxBufN((u8*)test_buffer,strlen(test_buffer),1);
+          FillUartTxBufN((u8*)test_buffer,strlen(test_buffer), 2);
         }
-        /*
-        else if(USART_BYTE == 'C')
-        {
-          u8 bff[32];
-          u8* bf;
-          USART_BYTE = 0;
-          memcpy(bff, UART5_Oprx.Buf, 32); 
-          
-          bf = bff;
-          sprintf(test_buffer,"%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X \n",
-                  bf[0], bf[1], bf[2], bf[3], bf[4], bf[5], bf[6], bf[7], bf[8], bf[9], bf[10], bf[11], bf[12], bf[13], bf[14], bf[15]);
-          FillUartTxBufN((u8*)test_buffer, strlen(test_buffer), 1);
-          
-          bf = bff + 16;
-          sprintf(test_buffer,"%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X \n",
-                  bf[0], bf[1], bf[2], bf[3], bf[4], bf[5], bf[6], bf[7], bf[8], bf[9], bf[10], bf[11], bf[12], bf[13], bf[14], bf[15]);
-          FillUartTxBufN((u8*)test_buffer, strlen(test_buffer), 1);
-        }
-        */
       }   
       if(USART_BYTE == 'h')
       {
@@ -253,7 +242,7 @@ int main(void)
       if(USART_BYTE == 'R')
       {
         //USART_BYTE = 0;
-        printf("RFID_ReadBlockSuccessTimes %d , rx = %d %d\n", RFID_ReadBlockSuccessTimes, rx2, rx3);
+        printf("RFID_ReadBlockSuccessTimes %d , rx = %d\n", RFID_ReadBlockSuccessTimes, rx3);
       }
       
       if(USART_BYTE == 'U')

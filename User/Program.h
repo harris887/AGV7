@@ -89,4 +89,9 @@ extern void INIT_SpeedLimted(void);
 extern void VehicleTurnRound(s16 value);
 extern u8 FollowLineEnable;
 extern s16 Run_Dir;
+extern u32 CHARGE_MinCycle;
+extern u8 FORCE_CHARGE_Flag;
+extern u8 FORCE_CHARGE_STOP_Flag;
+
+u8 StartFollowLine(void);
 #endif

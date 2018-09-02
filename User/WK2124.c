@@ -234,46 +234,7 @@ void WK2124_TransTask(void)
   static u8 rx_time[WK_CH_NUM] = {0, 0, 0, 0};
   u8 data[8],i,j;
   
-  /*
-  static u8 bms_trans_pro=0;
-  
-  switch(bms_trans_pro)
-  {
-  case 0:
-    {
-      if(BMS_TimeOutCounter==0)
-      {
-        Flush_BmsRx();
-        BMS_RS485_TX_ACTIVE();
-        BMS_TimeOutCounter = 2;
-        bms_trans_pro++;
-      }
-    }
-    break;
-  case 1:
-    {
-      if(BMS_TimeOutCounter==0)
-      {
-        u8 tx_len = BMS_ReadStatus();
-        BMS_TimeOutCounter = tx_len*2+2;
-        bms_trans_pro++;
-      }
-    }
-    break;
-  case 2:
-    {
-      if(BMS_TimeOutCounter==0)
-      {
-        BMS_RS485_RX_ACTIVE();
-        BMS_TimeOutCounter = DEFAULT_BMS_READ_CYCLE;
-        if(BMS_ResetCheck()) BMS_TimeOutCounter = DEFAULT_BMS_RESET_TIME;
-        bms_trans_pro = 0;
-      }
-    }
-    break;
-  default: bms_trans_pro = 0;
-  }  
-  */
+
   //---- RX ----
   if(WK2124_Timeout == 0)
   {
@@ -315,7 +276,7 @@ void WK2124_TransTask(void)
           
           case CH_BMS:
             {
-              //Handle_BmsRx(temp_buf, data[0]);
+              
             }
             break;
           }

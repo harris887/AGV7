@@ -43,7 +43,7 @@ const MOD_BUS_REG DEFAULT_MOD_BUS_Reg=
   0,//自动巡线使能
   //--------------------------------
   AUTO_FOLLOW_SPEED_CONTROL_MODE_DIGITAL,//0-车身电位器,1-MODBUS寄存器
-  45,//30%
+  45, // 30%
   DEFAULT_RFID_WAIT_TIME_IN_MS,
   DEFAULT_RFID_ONLINE_TIME_IN_MS,
   //--------------------------------
@@ -769,48 +769,68 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
   u16 cal_crc;
   switch(reg_addr)
   {
-  case 0x0003://设置自动巡线的使能
-    if(reg_value<=1)
+  case 0x0001: // 设置控制模式
+    if(reg_value == M_CONTROL_MODE_SOFTWARE_STOP)
     {
-      MOD_BUS_Reg.AUTO_FOLLOW_ENABLE=reg_value;
-      MOD_BUS_REG_FreshFlag=1;
-      return_code=return_OK;        
+      BUTTON_IM_STOP_Flag |= (1 << 2);
+      return_code = return_OK;    
+    }
+    else if(reg_value == M_CONTROL_MODE_FOLLOW_LINE)
+    {
+      StartFollowLine();
+      if(BUTTON_IM_STOP_Flag & (1 << 2)) BUTTON_IM_STOP_Flag &= ~(1 << 2);
+      return_code = illegal_data;
     }
     else
     {
-      return_code=illegal_data;
-    }
-    break;
-  case 0x0000://设置控制模式
-    //if((reg_value>=M_CONTROL_MODE_FOLLOW_LINE)&&(reg_value<=M_CONTROL_MODE_FOLLOW_COMMAND_IN_DISP))
-    if(reg_value<=M_CONTROL_MODE_FOLLOW_COMMAND_IN_DISP)
-    {
-      MOD_BUS_Reg.M_CONTROL_MODE=reg_value;
-      MOD_BUS_REG_FreshFlag=1;
-      return_code=return_OK;    
-    }
-    else
-    {
-      return_code=illegal_data;
+      return_code = illegal_data;
     }    
     break;
-  case 0x0002://设置从机地址
-    MOD_BUS_Reg.SLAVE_ADDR=reg_value;
-    MOD_BUS_REG_FreshFlag=1;
-    return_code=return_OK;
-    break;
-  case 0x0001://设置波特率
-    if((reg_value>=1)&&(reg_value<=8))
+  case 0x0002: // 设置波特率
+    if((reg_value >= 1) && (reg_value <= 8))
     {
-      MOD_BUS_Reg.COMM_BD=reg_value;
-      MOD_BUS_REG_FreshFlag=1;
-      return_code=return_OK;
+      MOD_BUS_Reg.COMM_BD = reg_value;
+      MOD_BUS_REG_FreshFlag = 1;
+      return_code = return_OK;
     }
     else
     {
-      return_code=illegal_data;
+      return_code = illegal_data;
     }
+    break;    
+  case 0x0003: // 设置从机地址
+    MOD_BUS_Reg.SLAVE_ADDR = reg_value;
+    MOD_BUS_REG_FreshFlag = 1;
+    return_code = return_OK;
     break;
+  case 0x0004: // 启动自动充电
+    {
+      if(reg_value == 1)
+      {
+        FORCE_CHARGE_Flag = 1;
+        FORCE_CHARGE_STOP_Flag = 0;
+        return_code=return_OK;
+      }
+      else
+      {
+        return_code=illegal_data;
+      }      
+    }
+    break;    
+  case 0x0005: // 停止自动充电
+    {
+      if(reg_value == 1)
+      {
+        FORCE_CHARGE_STOP_Flag = 1;
+        return_code=return_OK;
+      }
+      else
+      {
+        return_code=illegal_data;
+      }      
+    }
+    break;     
+  /*
   case 0x004B:
     {
       if(reg_value<=1)
@@ -964,6 +984,7 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
       }    
     }   
     break;  
+    */
   default:
     return_code=illegal_register;
   }
@@ -986,6 +1007,7 @@ u8 AckModBusWriteMultiReg(u16 reg_addr,u16 reg_num,u8* pData)
   u16 cal_crc;
   switch(reg_addr)
   {
+    /*
   case 0x0031://控制电机
     if(reg_num==2)
     {  
@@ -1069,26 +1091,7 @@ u8 AckModBusWriteMultiReg(u16 reg_addr,u16 reg_num,u8* pData)
     }
     break;
   case 0x3c:
-    {//位移控制命令
-      if(reg_num==4)
-      {
-        u32 dir,displacement;
-        dir=(((u32)pData[0])<<8)|(((u32)pData[1])<<0);
-        displacement=(((u32)pData[4])<<24)|(((u32)pData[5])<<16)|(((u32)pData[6])<<8)|(((u32)pData[7])<<0);
-        
-        if((dir<=1)&&(MOD_BUS_Reg.M_CONTROL_MODE==M_CONTROL_MODE_FOLLOW_COMMAND_IN_DISP))
-        {
-          //MOVEMENT_OPTION* pM=
-          //  &DISPLACEMENT_MOVEMENT_OPTION_List.buf[DISPLACEMENT_MOVEMENT_OPTION_List.In_index&LIST_LENGTH_MASK];
-          //pM->dir=dir;
-          //pM->value=displacement;
-          //DISPLACEMENT_MOVEMENT_OPTION_List.In_index+=1;
-
-          return_code=return_OK; 
-        }
-        else return_code=illegal_data;
-      }
-      else return_code=illegal_data;  
+    {//位移控制命令 
     }
     break;
   case 0x4d:
@@ -1112,7 +1115,8 @@ u8 AckModBusWriteMultiReg(u16 reg_addr,u16 reg_num,u8* pData)
       }
       else return_code=illegal_data;    
     }
-    break;    
+    break;
+  */    
   default:
     return_code=illegal_register;
   }

@@ -26,7 +26,6 @@ void SysTick_IrqHandler(void)
     NumOfSysTickInt++;
     if(RFID_ONLINE_Timeout!=0) RFID_ONLINE_Timeout--;
     if(Uart1RxTime!=0) Uart1RxTime--;
-    if(Uart4RxTime!=0) Uart4RxTime--;
     if(Uart2RxTime!=0) Uart2RxTime--;
     if(Uart3RxTime!=0) Uart3RxTime--;
     if(Uart4RxTime!=0) Uart4RxTime--;
@@ -59,6 +58,8 @@ void SysTick_IrqHandler(void)
     //if(MiningAgvTimeout) MiningAgvTimeout--;
     if(BMS_TimeOutCounter) BMS_TimeOutCounter--;
     if(BMS_RS485_RX_TX_Timeout) BMS_RS485_RX_TX_Timeout--;
+    if(CHARGE_MinCycle) CHARGE_MinCycle--;
+    if(CHARGE_COMM_Timout) CHARGE_COMM_Timout--;
     
     I_RollAd-=(I_RollAd>>8);
     I_RollAd+=AD_Roller;

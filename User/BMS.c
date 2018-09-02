@@ -11,7 +11,7 @@ u8 BMS_RX_BufIndex = 0;
 u8 BMS_RX_Pro = 0;
 u8 BMS_CURRENT_Cmd = 0;
 
-static u8 CHARGE_MOS_Control = BMS_CHARGE_MOS_CHANGE_FLAG | BMS_CHARGE_MOS_CLOSE;
+static u8 CHARGE_MOS_Control = 0;
 u32 GetBmsInforNum = 0;
 
 const char BMS_INFOR_ACK[] = "~2500460090520001080C140C140C0C0C110C0E0C140C240C25040B970B990B980BA5000060B00B5A030FA000000FA0EC32\r";
@@ -20,11 +20,13 @@ const char BMS_WARN_ACK[] = "~25004600503800010800000000000000000400000000000000
 PACK_ANALOG_INFOR PACK_ANALOG_Infor = 
 {
   .Refresh = 0,
+  .COMM_Num = 0,
 };
 
 PACK_WARN_INFOR PACK_WARN_Infor = 
 {
   .Refresh = 0,
+  .COMM_Num = 0,
 };
 
 u16 Get_BD_U16(u8** beam) 
@@ -145,7 +147,7 @@ void BMS_Task(void)
     if(CHARGE_MOS_Control & BMS_CHARGE_MOS_CHANGE_FLAG)
     {
       CHARGE_MOS_Control &= (~BMS_CHARGE_MOS_CHANGE_FLAG);
-      SendBmsCommand(DEFAULT_BMS_ADDR, BMS_CID2_BAT_CHARGE_MOS_CONTROL, CHARGE_MOS_Control);
+      //SendBmsCommand(DEFAULT_BMS_ADDR, BMS_CID2_BAT_CHARGE_MOS_CONTROL, CHARGE_MOS_Control);
     }
     else
     {
@@ -167,7 +169,7 @@ void BMS_Task(void)
 
 void Set_BMS_CHARGE_MOS(u8 status)
 {
-  CHARGE_MOS_Control = BMS_CHARGE_MOS_CHANGE_FLAG | status;
+  //CHARGE_MOS_Control = BMS_CHARGE_MOS_CHANGE_FLAG | status;
 }
 
 // 处理接收到的数据
@@ -230,6 +232,7 @@ void Handle_BmsRx(u8 data)
               PACK_ANALOG_Infor.BAT_Cap = Get_BD_U16(&ptr);  
               
               PACK_ANALOG_Infor.Refresh = 1;
+              PACK_ANALOG_Infor.COMM_Num += 1;
             }
             else if(BMS_CURRENT_Cmd == BMS_CID2_GET_PACK_WARNING)
             {
@@ -254,6 +257,7 @@ void Handle_BmsRx(u8 data)
               memcpy(PACK_WARN_Infor.WARN_Status, ptr, 9); 
               
               PACK_WARN_Infor.Refresh = 1;
+              PACK_WARN_Infor.COMM_Num += 1;
             }
           }
         }

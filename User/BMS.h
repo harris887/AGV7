@@ -46,6 +46,7 @@ typedef struct
   u16 BAT_Cap;
   //------------------
   u8 Refresh;
+  u32 COMM_Num;
 }PACK_ANALOG_INFOR;
 
 typedef struct
@@ -63,6 +64,7 @@ typedef struct
   u8 WARN_Status[9];
   //------------------
   u8 Refresh;
+  u32 COMM_Num;
 }PACK_WARN_INFOR;
 
 extern u8 BMS_RX_Pro;
@@ -77,4 +79,5 @@ extern void SendBmsCommand(u8 ADR, u8 CID2, u8 infor);
 extern void Set_BMS_CHARGE_MOS(u8 status);
 extern void Handle_BmsRx(u8 data);
 extern void BMS_Task(void);
+extern u16 Get_BD_U16(u8** beam); 
 #endif

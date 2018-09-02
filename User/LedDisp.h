@@ -42,4 +42,5 @@ extern void LED_IM_STOP_Display(u16 SPEED);
 extern void LED_FOLLOW_LINE_Display(u16 SPEED);
 extern void LED_BARRIER_Display(u16 SPEED);
 extern void LED_RFID_Display(u16 SPEED);
+extern void LED_CHARGE_Display(u16 SPEED);
 #endif

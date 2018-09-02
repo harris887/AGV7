@@ -13,12 +13,12 @@
 /******************************************************************************/
 u16 adc_data[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-u16 BatteryVoltSampleTimeOut=0;
-u32 I_BatteryVolt=0;
+u16 BatteryVoltSampleTimeOut = 4000;
+u32 I_BatteryVolt = 0;
 u16 I_Counter=0;
 u16 BatteryVolt_Filterd=BATTERY_30_PERCENT_AD_THRESHOLD;
 u16 BatteryVolt_StatusTimer=0;
-u8 BatteryVolt_LowFlag=0;//1-电池电压低，0-电池电压正常
+u8 BatteryVolt_LowFlag = 0;//1-电池电压低，0-电池电压正常
 u32 I_RollAd=0;
 
 void DMA1_Channel1_ForAdc1Init(void) 
@@ -136,110 +136,78 @@ void AD_DMA_IrqHandler(void)
 
 void CheckBatteryVolt_TASK(void)
 {
-  if(BatteryVoltSampleTimeOut==0)
+  if(BatteryVoltSampleTimeOut == 0)
   {
-    BatteryVoltSampleTimeOut=DEFAULT_BATTERY_VOLT_SAMPLE_TIME;
-    if(I_Counter < DEFAULT_BATTERY_VOLT_FILTER_LENGTH)
-    {
-      I_BatteryVolt+=AD_Batt;
-      I_Counter+=1;
-    }
-    else
-    {
-      I_BatteryVolt-=(I_BatteryVolt/DEFAULT_BATTERY_VOLT_FILTER_LENGTH);
-      I_BatteryVolt+=AD_Batt;
-      
-      BatteryVolt_Filterd=(I_BatteryVolt+DEFAULT_BATTERY_VOLT_FILTER_LENGTH-1)/DEFAULT_BATTERY_VOLT_FILTER_LENGTH;
-    
-      //计算电量的百分比
-      if(1)
-      {
-        u32 diff,range;
-        if(BatteryVolt_Filterd<BATTERY_00_PERCENT_AD_THRESHOLD)
-        {
-          diff=0;
-        }
-        else if(BatteryVolt_Filterd>BATTERY_100_PERCENT_AD_THRESHOLD)
-        {
-          diff=BATTERY_100_PERCENT_AD_THRESHOLD-BATTERY_00_PERCENT_AD_THRESHOLD;
-        }
-        else
-        {
-          diff=BatteryVolt_Filterd-BATTERY_00_PERCENT_AD_THRESHOLD;
-        }
-        range=BATTERY_100_PERCENT_AD_THRESHOLD-BATTERY_00_PERCENT_AD_THRESHOLD;
-        M_BAT_Precent=(diff*100)/range;
-      }
-    }
+    BatteryVoltSampleTimeOut = DEFAULT_BATTERY_VOLT_SAMPLE_TIME;
+    M_BAT_Precent = (u32)PACK_ANALOG_Infor.PACK_Left * (u32)100 / (u32)PACK_ANALOG_Infor.PACK_TotalCap;
     
     switch(BatteryVolt_LowFlag)
     {
     case 0://30%及以上
       {
-        if(BatteryVolt_Filterd<BATTERY_30_PERCENT_AD_THRESHOLD)
+        if(M_BAT_Precent < 30)
         {
-          BatteryVolt_StatusTimer+=1;
-          if(BatteryVolt_StatusTimer>=DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)
+          BatteryVolt_StatusTimer += 1;
+          if(BatteryVolt_StatusTimer >= DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)
           {
-            BatteryVolt_StatusTimer=0;
-            BatteryVolt_LowFlag=1;
+            BatteryVolt_StatusTimer = 0;
+            BatteryVolt_LowFlag = 1;
           }
         }
         else
         {
-          BatteryVolt_StatusTimer=0;
+          BatteryVolt_StatusTimer = 0;
         }      
       }
       break;
-    case 1://10%及以上,30%以下
+    case 1://20%及以上,30%以下
       {
-        if(BatteryVolt_Filterd>=BATTERY_30_PERCENT_AD_THRESHOLD)
+        if(M_BAT_Precent >= 30)
         {
-          BatteryVolt_StatusTimer+=1;
-          if(BatteryVolt_StatusTimer>=DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)
+          BatteryVolt_StatusTimer += 1;
+          if(BatteryVolt_StatusTimer >= DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)
           {
-            BatteryVolt_StatusTimer=0;
-            BatteryVolt_LowFlag=0;
+            BatteryVolt_StatusTimer = 0;
+            BatteryVolt_LowFlag = 0;
           }
         }
-        else if(BatteryVolt_Filterd<BATTERY_10_PERCENT_AD_THRESHOLD)
+        else if(M_BAT_Precent < 20)
         {
-          BatteryVolt_StatusTimer+=1;
-          if(BatteryVolt_StatusTimer>=DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)
+          BatteryVolt_StatusTimer += 1;
+          if(BatteryVolt_StatusTimer >= DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)
           {
-            BatteryVolt_StatusTimer=0;
-            BatteryVolt_LowFlag=2;
+            BatteryVolt_StatusTimer = 0;
+            BatteryVolt_LowFlag = 2;
           }
         }
         else
         {
-          BatteryVolt_StatusTimer=0;
+          BatteryVolt_StatusTimer = 0;
         }           
       }
       break;
-    case 2://10%以下
+    case 2: // 20%以下
       {
-        if(BatteryVolt_Filterd>=BATTERY_10_PERCENT_AD_THRESHOLD)
+        if(BatteryVolt_Filterd >= 20)
         {
-          BatteryVolt_StatusTimer+=1;
-          if(BatteryVolt_StatusTimer>=DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)
+          BatteryVolt_StatusTimer += 1;
+          if(BatteryVolt_StatusTimer >= DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)
           {
-            BatteryVolt_StatusTimer=0;
-            BatteryVolt_LowFlag=1;
+            BatteryVolt_StatusTimer = 0;
+            BatteryVolt_LowFlag = 1;
           }
         }
         else
         {
-          BatteryVolt_StatusTimer=0;
+          BatteryVolt_StatusTimer = 0;
         }      
       }
       break;
     default: 
       {
-        BatteryVolt_StatusTimer=0;
-        BatteryVolt_LowFlag=0;
+        BatteryVolt_StatusTimer = 0;
+        BatteryVolt_LowFlag = 0;
       }
     }    
-    
   }
 }

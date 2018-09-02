@@ -7,7 +7,7 @@
 
 
 
-#define FLASH_PAGE_SIZE ((u32)0x400)
+#define FLASH_PAGE_SIZE ((u32)0x800)
 #define Id_addr 0x1FFFF7E8
 #define ID_SIZE 12
 extern u8 stm32ID[ID_SIZE];

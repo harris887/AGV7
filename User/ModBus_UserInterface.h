@@ -45,9 +45,10 @@ extern FLASH_Status SaveFlashModBusData(MOD_BUS_REG* pMOD_BUS_Reg);
 extern u16 M_Status;
 extern u8 Send_Data_A8_array[256];
 
-#define M_CONTROL_MODE_FOLLOW_LINE      0
-#define M_CONTROL_MODE_FOLLOW_COMMAND_IN_SPEED   1  //速度模式
-#define M_CONTROL_MODE_FOLLOW_COMMAND_IN_DISP    2   //位移模式
+#define M_CONTROL_MODE_FOLLOW_LINE      0  // 巡线模式
+#define M_CONTROL_MODE_SOFTWARE_STOP    1  // 空闲/急停模式
+#define M_CONTROL_MODE_BACK_TO_ORIGN    2  // 返回起点 
+
 
 #define M_STATUS_NOMAL  0
 #define M_STATUS_STOP   1

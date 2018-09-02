@@ -29,35 +29,25 @@ All Rights Reserved
   #include "stdio.h"
 #endif 
 
+#define DEBUG_USART_ENUM  2
+#define DEBUG_USART       USART2  //UART5 USART1
+
+#define false 0
+#define true 1
 /******************************************************************************/
 /*--------------------宏定义--------------------*/
 
-/*串口发送缓冲区的长度*/
-#define USART_TX_BUF_LEN   40
-/*串口接收缓冲区的长度*/
-#define USART_RE_BUF_LEN   10
 
 /******************************************************************************/
 /*--------------------全局变量外包括--------------------*/
-/*发送缓冲区长度*/
-extern u8  Usart_Txbuffer[USART_TX_BUF_LEN];     
-/*发送缓冲区数据量*/
-extern u32 Usart_Tx_num;                   
-/*发送缓冲区索引*/
-extern u32 Usart_Tx_index;                 
+extern u8 USART_Byte[5];
+                
 
-/*接收数据缓冲区*/
-extern u8  Usart_Rebuffer[USART_RE_BUF_LEN];       
-/*接收缓冲区数据量*/
-extern u32 Usart_Re_num;                     
-/*接收缓冲区索引*/
-extern u32 Usart_Re_index;                   
-
+           
 /*上一个接受或者发送的字符*/
-extern u8 USART_BYTE;
+#define USART_BYTE USART_Byte[DEBUG_USART_ENUM - 1]
 
-extern u8 CurrentUart;
-extern u8 RS485_Timeout;
+
 /******************************************************************************/
 /*接口函数声明*/
 
@@ -86,18 +76,6 @@ extern void Usart1_Init(void);
 *****************************************************************/
 extern void Usart3_Init(void);
 
-/*****************************************************************
-函 数 名：    Usart_SendData_AskMode
-功能描述：    串口发送单个字符
-作    者：    HARRIS
-创建日期：    2009-9-29     
-参 数 表：    串口名称-目前只能是 USART1，USART3
-返 回 值：    无              
-全局变量：    无
-模块支持：    GPIO固件
-其    他：
-*****************************************************************/
-extern void Usart_SendData_AskMode(USART_TypeDef* USARTx ,u8 data);
 
 /*****************************************************************
 函 数 名：    putchar
@@ -116,10 +94,17 @@ extern void Usart_SendData_AskMode(USART_TypeDef* USARTx ,u8 data);
 *****************************************************************/
 extern int putchar(int ch);
 
-extern void USART_TX_PROT_TASK(void);
-extern void USART_RX_PROT(void);
-void SetBaterate(u32 bate);
-extern void ShowRollStatus(void);
+
+
+typedef enum
+{
+  RS485_IDEL = 0,
+  RS485_RX_ENABLE,
+  RS485_TX_INIT,
+  RS485_TX_ENABLE,
+  RS485_STATUS_NUM  
+}RS485_STATUS;
+
 typedef struct
 {
   u8 Intrrupt;
@@ -129,16 +114,8 @@ typedef struct
 }UART_OPTION;
 extern UART_OPTION UART_Optx;
 extern UART_OPTION UART_Oprx;
-extern u8 USART_UpInforEnable;
-void UART1_ISR(void);
-void UART_Task(void);
-void FillUartTxBuf(u8 data);
-void Usart2_Init(void);
-void UART2_ISR(void);
-int printf_U2(u16 len );
-extern char printf_U2_buf[256];
-#define false 0
-#define true 1
+
+
 extern u16 Uart1RxTime;
 extern u16 Uart4RxTime;
 extern u16 Uart2RxTime;
@@ -148,11 +125,17 @@ extern UART_OPTION UART1_Optx;
 extern UART_OPTION UART1_Oprx;
 extern UART_OPTION UART2_Optx;
 extern UART_OPTION UART2_Oprx;
+extern UART_OPTION UART5_Oprx;
 extern u16 RS485_SLAVE_TX_2_RX_Delay;
 extern u8 MOTO_RS485_RX_TX_Timeout;
 extern u8 BMS_RS485_RX_TX_Timeout;
 extern const u16 RS485_SLAVE_TX_2_RX_DELAY_List[9];
 
+void Usart2_Init(void);
+void UART1_ISR(void);
+void UART2_ISR(void);
+void UART_Task(void);
+void FillUartTxBuf(u8 data);
 u8 Deal_UART_Infor(u8* pINFOR,u8 Length);
 u8 CheckSum(u8 *ptr,u8 length);
 void FillUartTxBufN(u8* pData,u8 num,u8 U1_2);
@@ -190,7 +173,7 @@ void Usart2_Init_op(u32 bd);
 extern u32 rx2;
 extern u32 rx3;
 extern u32 rx5;
-extern UART_OPTION UART5_Oprx;
+
 
 #endif
 

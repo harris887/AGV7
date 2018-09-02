@@ -287,3 +287,45 @@ void LED_RFID_Display(u16 SPEED)
     water_led_status=0;
   }
 }
+
+/*³äµç×´Ì¬£¬ÈýµÆÉÁË¸*/
+void LED_CHARGE_Display(u16 SPEED)
+{
+  static u32 NumOfSysTickIntBk;
+  static u16 water_led_timer = 0;
+  static u16 water_led_status = 0;
+  if(NumOfSysTickInt != NumOfSysTickIntBk)
+  {
+    NumOfSysTickIntBk = NumOfSysTickInt;
+    if(water_led_timer)
+    {
+      water_led_timer--;
+      return;
+    }
+  }
+  else return;
+  
+  switch(water_led_status)
+  {
+  case 0:
+    {
+      water_led_status = 1;
+      water_led_timer = SPEED;
+      SET_DIDO_Relay(DO_LED_Red, 1);
+      SET_DIDO_Relay(DO_LED_Yellow, 1);
+      SET_DIDO_Relay(DO_LED_Green, 1); 
+    }
+    break;
+  case 1:
+    {
+      water_led_status = 0;
+      water_led_timer = SPEED;
+      SET_DIDO_Relay(DO_LED_Red, 0);
+      SET_DIDO_Relay(DO_LED_Yellow, 0);
+      SET_DIDO_Relay(DO_LED_Green, 0); 
+    }
+    break;  
+  default:
+    water_led_status = 0;
+  }
+}
