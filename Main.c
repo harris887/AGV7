@@ -84,6 +84,7 @@ int main(void)
     //if(0)
     if(debug_show)
     {
+      static u8 FollowLineLoop = 0;
       static s8 o_index = 0;
       //static u8 sta=0;
       debug_show=0;
@@ -117,6 +118,19 @@ int main(void)
       }      
       
       if(USART_BYTE == 's')
+      {
+        USART_BYTE = 0;
+        FollowLineLoop = 1;
+        printf("FollowLineLoop_1\n");
+      }
+      if(USART_BYTE == 't')
+      {
+        USART_BYTE = 0;
+        FollowLineLoop = 0;
+        printf("FollowLineLoop_0\n");
+      }
+      
+      if(FollowLineLoop != 0)  
       {
         static u16 cycle_s = 0; // 600
         if(cycle_s == 0)
