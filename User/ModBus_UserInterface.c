@@ -4,7 +4,7 @@
 
 
 //本设备的寄存器
-#define MOD_BUS_REG_START_ADDR      0x0000
+#define MOD_BUS_REG_START_ADDR      0x0001
 #define DEFAULT_MODE_BUS_AGV_ADDR   0x0001
 #define MOD_BUS_REG_NUM         ((sizeof(MOD_BUS_REG)>>1)-2)//0x000C
 
@@ -27,7 +27,7 @@ u8 Potentiometer_Position_aready_read_flag=0;
 
 MOD_BUS_REG MOD_BUS_Reg;
 MOD_BUS_REG MOD_BUS_Reg_Backup;
-u8 MOD_BUS_REG_FreshFlag=0;
+u8 MOD_BUS_REG_FreshFlag = 0;
 #define MOD_BUS_BD_LIST_LENGTH  9
 const u32 MOD_BUS_BD_LIST[MOD_BUS_BD_LIST_LENGTH]=
 {
@@ -37,7 +37,7 @@ const u32 MOD_BUS_BD_LIST[MOD_BUS_BD_LIST_LENGTH]=
 }; 
 const MOD_BUS_REG DEFAULT_MOD_BUS_Reg=
 {
-  M_CONTROL_MODE_FOLLOW_LINE,
+  M_CONTROL_MODE_IDLE,
   8,
   DEFAULT_MODE_BUS_AGV_ADDR,
   0,//自动巡线使能
@@ -45,18 +45,18 @@ const MOD_BUS_REG DEFAULT_MOD_BUS_Reg=
   AUTO_FOLLOW_SPEED_CONTROL_MODE_DIGITAL,//0-车身电位器,1-MODBUS寄存器
   45, // 30%
   DEFAULT_RFID_WAIT_TIME_IN_MS,
-  DEFAULT_RFID_ONLINE_TIME_IN_MS,
+  DEFAULT_FOLLOW_LOOP_TIME_IN_MS,
   //--------------------------------
-  0,
+  //0,
 
   MAGIC_WORD,
 };
 
 ////////////////////////////////
-u16 M_Status=M_STATUS_STOP;
-u16 M_BAT_Precent=100;//电量百分比
-u16 M_LightSensorStatus[6]={0,0,0,0,0,0};
-U_M_CONTROL_OPTION U_M_CONTROL_Op={M_CMD_STOP,0,0,0,0};
+u16 M_Status = M_STATUS_STOP;
+u16 M_BAT_Precent = 100;//电量百分比
+u16 M_LightSensorStatus[6] = {0, 0, 0, 0, 0, 0};
+U_M_CONTROL_OPTION U_M_CONTROL_Op={M_CMD_STOP, 0, 0, 0, 0};
 
 
 /*******************************************************************
@@ -282,7 +282,8 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
 {
   u16 index=0;
   u16 loop;
-  if(((reg_addr+reg_num)<=(MOD_BUS_REG_START_ADDR+MOD_BUS_REG_NUM))&&(reg_num<=MOD_BUS_REG_NUM))
+  if(((reg_addr + reg_num) <= (MOD_BUS_REG_START_ADDR + 3)) // MOD_BUS_REG_NUM
+     && (reg_num <= 3))
   {
     u16* pBuf=&MOD_BUS_Reg.M_CONTROL_MODE;
     u16 cal_crc;
@@ -302,6 +303,43 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
   }
+  else if((reg_addr == 0x09) && (reg_num == 1))
+  {//读取车体溫度
+    u16 cal_crc;
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
+    //for(loop = 0; loop < reg_num; loop++)
+    {
+      Send_Data_A8_array[index++] = PACK_ANALOG_Infor.TEMP_Value[0] >> 8;
+      Send_Data_A8_array[index++] = PACK_ANALOG_Infor.TEMP_Value[0] & 0xff;
+    }
+    cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
+    Send_Data_A8_array[index++]=cal_crc&0xFF;
+    Send_Data_A8_array[index++]=cal_crc>>8;
+    FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
+    return 1;
+  }    
+  else if((reg_addr == 0x10) && (reg_num == 1))
+  {//读取车体电量
+    u16 cal_crc;
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
+    //for(loop = 0; loop < reg_num; loop++)
+    {
+      Send_Data_A8_array[index++] = M_BAT_Precent >> 8;
+      Send_Data_A8_array[index++] = M_BAT_Precent & 0xff;
+    }
+    cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
+    Send_Data_A8_array[index++]=cal_crc&0xFF;
+    Send_Data_A8_array[index++]=cal_crc>>8;
+    FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
+    return 1;
+  }  
+  /*
   else if((reg_addr==0x10)&&(reg_num==6))
   {//读取RFID
     u16 cal_crc;
@@ -350,29 +388,30 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
   }
-  else if((reg_addr==0x21)&&(reg_num==1))
+  */
+  else if((reg_addr == 0x20) && (reg_num == 1))
   {//读取车体状态
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
     Send_Data_A8_array[index++]=CMD_ModBus_Read;
     Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
-    if(BUTTON_IM_STOP_Flag) 
+    
+    if(AGV_RUN_Pro == AGV_STATUS_CHARGE)
     {
-      M_Status=M_STATUS_IM_STOP; 
+      M_Status = M_STATUS_CHARGE; 
+    }
+    else if(BUTTON_IM_STOP_Flag) 
+    {
+      M_Status = M_STATUS_IM_STOP; 
+    }
+    else if(AGV_RUN_Pro == AGV_STATUS_FOLLOWLINE)
+    {
+      M_Status = M_STATUS_NOMAL;
     }
     else
     {
-      //if((LEFT_MOTO_TIM_ENUM->CCR1==ZERO_SPEED_PWM_COUNTER)
-      //  &&(RIGHT_MOTO_TIM_ENUM->CCR2==ZERO_SPEED_PWM_COUNTER))
-      if(0)
-      {
-        M_Status=M_STATUS_STOP;
-      }
-      else
-      {
-        M_Status=M_STATUS_NOMAL;
-      }
+      M_Status = M_STATUS_STOP;
     }
     
     //for(loop=0;loop<reg_num;loop++)
@@ -386,31 +425,15 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
   }
-  else if((reg_addr==0x22)&&(reg_num==1))
-  {//读取车体电量
-    u16 cal_crc;
-    Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
-    Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
-    Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
-    //for(loop=0;loop<reg_num;loop++)
-    {
-      Send_Data_A8_array[index++]=M_BAT_Precent>>8;
-      Send_Data_A8_array[index++]=M_BAT_Precent&0xff;
-    }
-    cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
-    Send_Data_A8_array[index++]=cal_crc&0xFF;
-    Send_Data_A8_array[index++]=cal_crc>>8;
-    FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
-    return 1;
-  }
-  else if((reg_addr==0x23)&&(reg_num==6))
+  else if((reg_addr == 0x21) && (reg_num == 6))
   {//读取臂章传感器
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
     Send_Data_A8_array[index++]=CMD_ModBus_Read;
     Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
+    M_LightSensorStatus[0] = (TOUCH_SENSOR_Flag & (1 << 0)) >> 0;
+    M_LightSensorStatus[1] = (TOUCH_SENSOR_Flag & (1 << 1)) >> 1;
     for(loop=0;loop<reg_num;loop++)
     {
       Send_Data_A8_array[index++]=M_LightSensorStatus[loop]>>8;
@@ -421,7 +444,31 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     Send_Data_A8_array[index++]=cal_crc>>8;
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
-  }    
+  }   
+  else if((reg_addr == 0x30) && (reg_num == 6))
+  {//读取激光传感器状态
+    u16 cal_crc;
+    u16 value[6];
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = (reg_num << 1) >> 8;    
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF; 
+    value[0] = LASER_SENSOR_Flag & 0x1;
+    value[1] = LASER_Infor[0].distance;
+    value[2] = 0; 
+    value[3] = 0; value[4] = 0; value[5] = 0; 
+    for(loop = 0; loop < reg_num; loop++)
+    {
+      Send_Data_A8_array[index++] = value[loop] >> 8;
+      Send_Data_A8_array[index++] = value[loop] & 0xFF;
+    }
+    cal_crc = ModBus_CRC16_Calculate(Send_Data_A8_array, index);
+    Send_Data_A8_array[index++] = cal_crc & 0xFF;
+    Send_Data_A8_array[index++] = cal_crc >> 8;
+    FillUartTxBufN(Send_Data_A8_array, index, U_TX_INDEX);
+    return 1;
+  }  
+  /*
   else if((reg_addr==0x31)&&(reg_num==2))
   {//读取电机控制命令
     u16 cal_crc;
@@ -519,6 +566,8 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;    
   }
+  */
+  /*
   else if((reg_addr==0x4B)&&(reg_num==1))
   {
     u16 cal_crc;
@@ -557,31 +606,50 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;    
   }  
-  else if((reg_addr==0x4D)&&(reg_num==4))
+  */
+  else if((reg_addr == 0x50) && (reg_num == 2))
   {
     u16 cal_crc;
-    Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
-    Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
-    Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     
     //for(loop=0;loop<reg_num;loop++)
     {
-      Send_Data_A8_array[index++]=0;
-      Send_Data_A8_array[index++]=0;
-      Send_Data_A8_array[index++]=0;
-      Send_Data_A8_array[index++]=0;
-      Send_Data_A8_array[index++]=(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS>>24)&0xFF;
-      Send_Data_A8_array[index++]=(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS>>16)&0xFF;
-      Send_Data_A8_array[index++]=(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS>>8)&0xFF;
-      Send_Data_A8_array[index++]=(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS>>0)&0xFF;
+      Send_Data_A8_array[index++]=(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS >> 24) & 0xFF;
+      Send_Data_A8_array[index++]=(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS >> 16) & 0xFF;
+      Send_Data_A8_array[index++]=(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS >> 8) & 0xFF;
+      Send_Data_A8_array[index++]=(MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS >> 0) & 0xFF;
+    }
+    cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
+    Send_Data_A8_array[index++]=cal_crc & 0xFF;
+    Send_Data_A8_array[index++]=cal_crc >> 8;
+    FillUartTxBufN(Send_Data_A8_array,index, U_TX_INDEX);
+    return 1;    
+  }  
+  else if((reg_addr == 0x52) && (reg_num == 2))
+  {
+    u16 cal_crc;
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
+    
+    //for(loop=0;loop<reg_num;loop++)
+    {
+      Send_Data_A8_array[index++]=(MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS >> 24) & 0xFF;
+      Send_Data_A8_array[index++]=(MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS >> 16) & 0xFF;
+      Send_Data_A8_array[index++]=(MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS >> 8) & 0xFF;
+      Send_Data_A8_array[index++]=(MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS >> 0) & 0xFF;
     }
     cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
     Send_Data_A8_array[index++]=cal_crc&0xFF;
     Send_Data_A8_array[index++]=cal_crc>>8;
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;    
-  }   
+  }    
+  /*
   else if((reg_addr==0x51)&&(reg_num==1))
   {//读取RFID在线超时时间
     u16 cal_crc;
@@ -620,6 +688,8 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
   } 
+  */
+  /*
   else if((reg_addr==0x53)&&(reg_num==1))
   {//读取分叉
     u16 cal_crc;
@@ -677,6 +747,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
   }   
+  */
   else if((reg_addr==0x5a)&&(reg_num==3))
   {
     //读取前PID参数
@@ -772,14 +843,16 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
   case 0x0001: // 设置控制模式
     if(reg_value == M_CONTROL_MODE_SOFTWARE_STOP)
     {
+      MOD_BUS_Reg.M_CONTROL_MODE = M_CONTROL_MODE_SOFTWARE_STOP;
       BUTTON_IM_STOP_Flag |= (1 << 2);
       return_code = return_OK;    
     }
     else if(reg_value == M_CONTROL_MODE_FOLLOW_LINE)
     {
+      MOD_BUS_Reg.M_CONTROL_MODE = M_CONTROL_MODE_FOLLOW_LINE;
       StartFollowLine();
       if(BUTTON_IM_STOP_Flag & (1 << 2)) BUTTON_IM_STOP_Flag &= ~(1 << 2);
-      return_code = illegal_data;
+      return_code = return_OK;
     }
     else
     {
@@ -1094,29 +1167,35 @@ u8 AckModBusWriteMultiReg(u16 reg_addr,u16 reg_num,u8* pData)
     {//位移控制命令 
     }
     break;
-  case 0x4d:
+  */  
+  case 0x50:
     {
-      if(reg_num==4)
+      if(reg_num == 2)
       {
-        u32 temp;
-        if(pData[0]|pData[1]|pData[2]|pData[3])
+        u32 temp =(((u32)pData[0]) << 24) | (((u32)pData[1]) << 16) | (((u32)pData[2]) << 8) | (((u32)pData[3]) << 0);
+        if(temp != MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS)
         {
-          temp=0xFFFFFFFF;
-        }
-        else
-        {
-          temp=(((u32)pData[4])<<24)|(((u32)pData[5])<<16)|(((u32)pData[6])<<8)|(((u32)pData[7])<<0);
-        }
-        if(temp!=MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS)
-        {
-          MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS=temp;
-          MOD_BUS_REG_FreshFlag=1;
+          MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS = temp;
+          MOD_BUS_REG_FreshFlag = 1;
         }
       }
       else return_code=illegal_data;    
     }
     break;
-  */    
+  case 0x52:
+    {
+      if(reg_num == 2)
+      {
+        u32 temp =(((u32)pData[0]) << 24) | (((u32)pData[1]) << 16) | (((u32)pData[2]) << 8) | (((u32)pData[3]) << 0);
+        if(temp != MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS)
+        {
+          MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS = temp;
+          MOD_BUS_REG_FreshFlag = 1;
+        }
+      }
+      else return_code=illegal_data;    
+    }
+    break;    
   default:
     return_code=illegal_register;
   }

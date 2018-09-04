@@ -227,7 +227,7 @@ void MiningAgvSpecFlow(u8* reset)
 }
 */
 //--------------- CASE 1 ------------------------------------------//
-#define VIDEO_DELAY_S  5
+#define VIDEO_DELAY_S  (DEFAULT_RFID_WAIT_TIME_IN_MS / 1000)
 const RFID_ACTION FORWARD_RFID_Action[FUNC_1_RFID_CARD_NUM] = {
   
   {0x80FF, 0,},

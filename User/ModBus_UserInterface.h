@@ -2,7 +2,7 @@
 #define _ModBus_2_h_
 
 
-#define DEFAULT_RFID_ONLINE_TIME_IN_MS  3000
+#define DEFAULT_FOLLOW_LOOP_TIME_IN_MS          0
 #define U_TX_INDEX  2   //使用串口1发送
 
 #define AUTO_FOLLOW_SPEED_CONTROL_MODE_ANALOG   0 //电位器
@@ -19,14 +19,14 @@ typedef struct
   u16 AUTO_FOLLOW_SPEED_CONTROL_MODE;
   u16 AUTO_FOLLOW_SPEED;//0~100
   u32 RFID_WAIT_TIME_IN_MS;//
-  u16 RFID_ONLINE_TIME_IN_MS;
+  u32 FOLLOW_LOOP_TIME_IN_MS;
 
   
 //--------------------------------  
-  u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
+  //u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
   u32 MOD_REG_MAGIC_WORD;
 }MOD_BUS_REG;
-#define MAGIC_WORD  0x1A2B3C4A
+#define MAGIC_WORD  0x1A2B3C41
 extern const MOD_BUS_REG DEFAULT_MOD_BUS_Reg;
 extern MOD_BUS_REG MOD_BUS_Reg;
 #define MOD_BUS_BD_LIST_LENGTH  9
@@ -47,12 +47,14 @@ extern u8 Send_Data_A8_array[256];
 
 #define M_CONTROL_MODE_FOLLOW_LINE      0  // 巡线模式
 #define M_CONTROL_MODE_SOFTWARE_STOP    1  // 空闲/急停模式
-#define M_CONTROL_MODE_BACK_TO_ORIGN    2  // 返回起点 
+#define M_CONTROL_MODE_BACK_TO_ORIGN    2  // 返回起点
+#define M_CONTROL_MODE_IDLE             4
 
 
-#define M_STATUS_NOMAL  0
-#define M_STATUS_STOP   1
+#define M_STATUS_NOMAL    0
+#define M_STATUS_STOP     1
 #define M_STATUS_IM_STOP  2
+#define M_STATUS_CHARGE   3
 
 #define M_CMD_STOP  0
 #define M_CMD_FORWARD  1

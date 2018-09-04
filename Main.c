@@ -7,6 +7,7 @@
 #define MAIN_PRINTF_DEBUG   1
 
 char test_buffer[256];
+static u16 AUTO_FOLLOW_LINE_timers = 0;
 int main(void)
 {
   RCC_Configuration();
@@ -65,6 +66,19 @@ int main(void)
     BMS_Task();
     CHARGE_Task();
     
+    //-- ×Ô„ÓÑ²º½Ñ­­h --//
+    if(MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS != 0)
+    {
+      if(FOLLOW_LOOP_Timeout == 0)
+      {
+        if(StartFollowLine())
+        {
+          FOLLOW_LOOP_Timeout = MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS;
+          printf("+Start FOLLOW %d times\n", ++AUTO_FOLLOW_LINE_timers);
+        }         
+      }
+    }
+    
     TimeoutJump();
     FeedDog();     
     //if(0)
@@ -86,10 +100,12 @@ int main(void)
       if(USART_BYTE == 'T')
       {
         //USART_BYTE = 0;
-        printf("PACK_Vol = %d, PACK_Current = %d, PACK_Left = %d, Temp = %d [%d, %d]\n", PACK_ANALOG_Infor.PACK_Vol, \
+        printf("PACK_Vol = %d, PACK_Current = %d, PACK_Left = %d, PACK_Cap = %d, Temp = %d, M_BAT_Precent = %d [%d, %d]\n", PACK_ANALOG_Infor.PACK_Vol, \
           *(s16*)&PACK_ANALOG_Infor.PACK_Current, \
           PACK_ANALOG_Infor.PACK_Left, \
+          PACK_ANALOG_Infor.PACK_TotalCap, \
           PACK_ANALOG_Infor.TEMP_Value[0], \
+          M_BAT_Precent, \
           PACK_ANALOG_Infor.COMM_Num, \
           PACK_WARN_Infor.COMM_Num);
       }         
@@ -103,14 +119,12 @@ int main(void)
       if(USART_BYTE == 's')
       {
         static u16 cycle_s = 0; // 600
-        static u16 run_timers = 0;
         if(cycle_s == 0)
         {
           if(StartFollowLine())
           {
             cycle_s = 600;
-            printf("Start FOLLOW %d times\n", ++run_timers);
-            Play_Warning(AUTO_FOLLOW_LINE);
+            printf("++Start FOLLOW %d times\n", ++AUTO_FOLLOW_LINE_timers);
           }          
         }
         else

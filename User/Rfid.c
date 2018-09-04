@@ -26,8 +26,8 @@ u16 RFID_Type;
 u8 RFID_CARD_ID[4];
 u8 RFID_BLOCK_Data[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 const u8 READ_BLOCK_ONE[11]={0x7F ,0x09 ,0x14 ,0x01 ,0xFF ,0xFF ,0xFF ,0xFF ,0xFF ,0xFF ,0x1C};
-u16 RFID_ONLINE_Timeout=0;
-u16 RFID_ONLINE_Flag=0;
+//u16 RFID_ONLINE_Timeout=0;
+//u16 RFID_ONLINE_Flag=0;
 u16 PlaceId=0;
 
 void Analysis_Receive_From_RFID(u8 data)
@@ -114,8 +114,8 @@ void HandlerRfidCmd(u8* data ,u8 length)
         memset(RFID_BLOCK_Data,0,16);
         memcpy(RFID_BLOCK_Data,RFID_CARD_ID,4);
         RFID_COMEIN_Flag|=2;        
-        RFID_ONLINE_Timeout=MOD_BUS_Reg.RFID_ONLINE_TIME_IN_MS;
-        RFID_ONLINE_Flag=1;        
+        //RFID_ONLINE_Timeout=MOD_BUS_Reg.RFID_ONLINE_TIME_IN_MS;
+        //RFID_ONLINE_Flag=1;        
 #endif
       }
       break;
@@ -125,8 +125,8 @@ void HandlerRfidCmd(u8* data ,u8 length)
         {
           memcpy(RFID_BLOCK_Data,&data[10],16);
           RFID_COMEIN_Flag|=2;
-          RFID_ONLINE_Timeout=MOD_BUS_Reg.RFID_ONLINE_TIME_IN_MS;
-          RFID_ONLINE_Flag=1;
+          //RFID_ONLINE_Timeout=MOD_BUS_Reg.RFID_ONLINE_TIME_IN_MS;
+          //RFID_ONLINE_Flag=1;
         }
         else
         {
@@ -211,8 +211,10 @@ void READ_RFID_BLOCK_Task(void)
     }
   }
 
+  /*
   if((RFID_ONLINE_Timeout==0)&&(RFID_ONLINE_Flag!=0))
   {
     RFID_ONLINE_Flag=0;
   }
+  */
 }

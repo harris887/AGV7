@@ -1,7 +1,7 @@
 #ifndef program_h_
 #define program_h_
 
-#define DEFAULT_RFID_WAIT_TIME_IN_MS  2500 //5S  
+#define DEFAULT_RFID_WAIT_TIME_IN_MS          5000 
 #define DEFAULT_PLAY_DETECT_THING_TIME_IN_MS  5000
 extern u32 AGV_Delay;
 
@@ -92,6 +92,7 @@ extern s16 Run_Dir;
 extern u32 CHARGE_MinCycle;
 extern u8 FORCE_CHARGE_Flag;
 extern u8 FORCE_CHARGE_STOP_Flag;
+extern u32 FOLLOW_LOOP_Timeout;
 
 u8 StartFollowLine(void);
 #endif

@@ -188,7 +188,7 @@ void CheckBatteryVolt_TASK(void)
       break;
     case 2: // 20%ртоб
       {
-        if(BatteryVolt_Filterd >= 20)
+        if(M_BAT_Precent >= 20)
         {
           BatteryVolt_StatusTimer += 1;
           if(BatteryVolt_StatusTimer >= DEFAULT_BATTERY_VOLT_STATUS_HOLD_TIME)

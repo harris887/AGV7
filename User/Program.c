@@ -19,6 +19,7 @@ u8 FollowLineEnable = 0;
 u32 CHARGE_MinCycle = 0;
 u8 FORCE_CHARGE_Flag = 0;
 u8 FORCE_CHARGE_STOP_Flag = 0;
+u32 FOLLOW_LOOP_Timeout = 0;
 
 MOVEMENT_OPTION_LIST DISPLACEMENT_MOVEMENT_OPTION_List={0,0};
 MOVEMENT_OPTION_LIST ANGLE_MOVEMENT_OPTION_List={0,0};
@@ -203,7 +204,7 @@ void AGV_RUN_Task(void)
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_BRAKE) // 刹车
             {
               FollowLineReset = 1;
-              AGV_Delay = 1500;
+              AGV_Delay = 1800;
               AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_BRAKE);
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_TURN_ANGLE) // 转弯
@@ -215,7 +216,8 @@ void AGV_RUN_Task(void)
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_WAIT)       // 等待
             {
-              AGV_Delay = 1000 * pRFID_ACTION->ActionInfor[ActionIndex].value;      
+              //AGV_Delay = 1000 * pRFID_ACTION->ActionInfor[ActionIndex].value;    
+              AGV_Delay = MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS;
               AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_WAIT);
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_LINE_TYPE)
@@ -247,15 +249,19 @@ void AGV_RUN_Task(void)
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_FINISH)
             {
               FollowLineEnable = 0;
+              if(MOD_BUS_Reg.M_CONTROL_MODE == M_CONTROL_MODE_FOLLOW_LINE)
+              {
+                MOD_BUS_Reg.M_CONTROL_MODE = M_CONTROL_MODE_IDLE;
+              }
               if(BatteryVolt_LowFlag >= 2)
               {
-                AGV_RUN_Pro = AGV_STATUS_IDLE;
-                AGV_RUN_SUB_Pro = 0;   
+                AGV_RUN_Pro = AGV_STATUS_CHARGE;
+                AGV_RUN_SUB_Pro = 0;                  
               }
               else
               {
-                AGV_RUN_Pro = AGV_STATUS_CHARGE;
-                AGV_RUN_SUB_Pro = 0;                 
+                AGV_RUN_Pro = AGV_STATUS_IDLE;
+                AGV_RUN_SUB_Pro = 0;  
               }
             }
           }
@@ -264,7 +270,7 @@ void AGV_RUN_Task(void)
           {
             if(AGV_Delay != 0)
             {
-              SLOW_DOWN_Task(&FollowLineReset, 1200); // 1000 -> 1400 -> 1200
+              SLOW_DOWN_Task(&FollowLineReset, 1300); // 1000 -> 1400 -> 1200 -> 1300
             }
             else 
             {
@@ -621,7 +627,7 @@ void AGV_RUN_Task(void)
             }
           }
           break;
-        case 2: // 打开BMS的充电口
+        case 2: // 打开電池充电口
           {
             if(AGV_Delay == 0)
             {
@@ -651,7 +657,7 @@ void AGV_RUN_Task(void)
               FORCE_CHARGE_STOP_Flag = 0;
               CHARGE_FULL_Flag = 0;
               SET_Charge(CHARGE_OFF);
-              AGV_Delay = 1000;
+              AGV_Delay = 2200;
               AGV_RUN_SUB_Pro += 1;
               printf("-- CHARGE 4: ARM PULL IN \n");
             }            

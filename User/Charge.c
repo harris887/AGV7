@@ -178,7 +178,7 @@ void SET_Charge(u8 on_off)
 
 void CHARGE_Task(void)
 {
-  if(CHARGE_COMM_Timout == 0)
+  if((CHARGE_COMM_Timout == 0) && (AGV_RUN_Pro == AGV_STATUS_CHARGE))
   {
     CHARGE_COMM_Timout = 1000;
     
