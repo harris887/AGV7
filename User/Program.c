@@ -139,7 +139,7 @@ void AGV_RUN_Task(void)
           FollowLineReset = 1;
           ActionIndex = 0;
           MotoModifyFlag = 0;
-          LastRfid = 0;
+          //LastRfid = 0;
           IM_STOP_Ignore = 0;
           BARRIER_Ignore = 0;
           OFF_LINE_Ignore = 0;                
