@@ -1,7 +1,6 @@
 #include "user_inc.h"
 #include "string.h"
 
-#define BMS_PRINTF_DEBUG      0
 #define BMS_COMM_ENUM         4
 u16 BMS_TimeOutCounter = DEFAULT_BMS_READ_START_DELAY;
 #define BMS_RX_BUF_SIZE   256

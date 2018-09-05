@@ -7,6 +7,7 @@
 
 #define AUTO_FOLLOW_SPEED_CONTROL_MODE_ANALOG   0 //电位器
 #define AUTO_FOLLOW_SPEED_CONTROL_MODE_DIGITAL  1 //MODBUS寄存器
+#define UPDATE_PROGRAM_TAG                      0xC00D
 
 typedef struct
 {
@@ -20,13 +21,15 @@ typedef struct
   u16 AUTO_FOLLOW_SPEED;//0~100
   u32 RFID_WAIT_TIME_IN_MS;//
   u32 FOLLOW_LOOP_TIME_IN_MS;
+  u16 LOG_LEVEL_;
+
 
   
 //--------------------------------  
-  //u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
+  u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
   u32 MOD_REG_MAGIC_WORD;
 }MOD_BUS_REG;
-#define MAGIC_WORD  0x1A2B3C41
+#define MAGIC_WORD  0x1A2B3C42
 extern const MOD_BUS_REG DEFAULT_MOD_BUS_Reg;
 extern MOD_BUS_REG MOD_BUS_Reg;
 #define MOD_BUS_BD_LIST_LENGTH  9

@@ -2,7 +2,6 @@
 #include "string.h"
 #include "stdlib.h"
 
-#define HALL_SENSOR_PRINTF_DEBUG  1
 #define HALL_COMM_ENUM            CH_HALL //CH_HALL, 4 
 #define HALL_SENSOR_READ_ONCE_MS  100
 
@@ -193,7 +192,6 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
         temp_buf[6]=cal_crc&0xFF;
         temp_buf[7]=cal_crc>>8;   
         
-        //FillUartTxBufN((u8*)temp_buf, sizeof(MODBUS_READ_SENSOR_DATA1), HALL_COMM_ENUM);
         FillUartTxBuf_NEx((u8*)temp_buf, sizeof(MODBUS_READ_SENSOR_DATA1), HALL_COMM_ENUM);
         HallSensor_Timeout = (bits / 19) + 3; // 2
         ms_waste += (bits / 19) + 3;
@@ -234,9 +232,8 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
         {
           ON_LINE_Flag=0;
           ON_LINE_Counter=0;
-#if (HALL_SENSOR_PRINTF_DEBUG)          
-          printf("Off LINE!\n");
-#endif
+          
+          if(LOG_Level <= LEVEL_INFO) printf("Off LINE!\n");
         }
       }
       else
@@ -254,9 +251,7 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
           ON_LINE_Flag=1;
           ON_LINE_Counter=0;
           
-#if (HALL_SENSOR_PRINTF_DEBUG)
-          printf("On LINE!\n");
-#endif
+          if(LOG_Level <= LEVEL_INFO) printf("On LINE!\n");
         }
       }
       else

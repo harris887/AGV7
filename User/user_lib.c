@@ -3,6 +3,7 @@
 
 u8 JumpErrorFlag=0;
 
+/*
 u16 memcompare(u8* a,u8* b,u16 num)
 {
   u16 i,re;
@@ -14,6 +15,13 @@ u16 memcompare(u8* a,u8* b,u16 num)
   }
   return re;
 }
+
+void memcopy(u8* src,u8* dst,u16 num)
+{
+  u16 i;
+  for(i=0;i<num;i++) dst[i]=src[i];
+}
+*/
 
 typedef  void (*pFunction)(void);
 void JumpToAddr(u32 programAddr)
@@ -31,12 +39,6 @@ void JumpToAddr(u32 programAddr)
     {
       JumpErrorFlag=1;
     }
-}
-
-void memcopy(u8* src,u8* dst,u16 num)
-{
-  u16 i;
-  for(i=0;i<num;i++) dst[i]=src[i];
 }
 
 u8 Reload_FactoryProgram(u32 src_addr,u32 dst_addr,u32 byte_length)

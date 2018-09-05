@@ -1,8 +1,8 @@
 #include "user_inc.h"
 
-#define CHARGE_PRINTF_DEBUG         1
 #define DEFAULT_CHARGE_MODULE_ADDR  0x01
 #define CHARGE_COMM                 1
+
 
 const u8 CMD_CHARGE_START[8] = {0x01, 0x05 ,0x00 ,0x00 ,0x00 ,0x00 ,0xCD ,0xCA};  // Æô¶¯
 const u8 CMD_CHARGE_STOP[8] = {0x01, 0x05 ,0x00 ,0x00 ,0x00 ,0x01 ,0x0C ,0x0A};   // Í£Ö¹
@@ -22,6 +22,7 @@ MODBUS_SAMPLE MODBUS_Charge = {
 u32 CHARGE_COMM_Timout = 3500;
 static u8 SET_CHARGE_OnOff = 0;
 u8 CHARGE_FULL_Flag = 0;
+s32 CHARGE_COMM_Counter = 0;
 CHARGE_STATUS CHARGE_St = 
 {
   .Refresh = 0,
@@ -178,25 +179,41 @@ void SET_Charge(u8 on_off)
 
 void CHARGE_Task(void)
 {
-  if((CHARGE_COMM_Timout == 0) && (AGV_RUN_Pro == AGV_STATUS_CHARGE))
+  if(CHARGE_COMM_Timout == 0)
   {
     CHARGE_COMM_Timout = 1000;
     
-    if(SET_CHARGE_OnOff & 0x80)
+    if(AGV_RUN_Pro == AGV_STATUS_CHARGE)
     {
-      if(SET_CHARGE_OnOff & 0x01)
+      if(SET_CHARGE_OnOff & 0x80)
       {
-        FillUartTxBufN((u8*)CMD_CHARGE_START, sizeof(CMD_CHARGE_START), CHARGE_COMM);
+        if(SET_CHARGE_OnOff & 0x01)
+        {
+          FillUartTxBufN((u8*)CMD_CHARGE_START, sizeof(CMD_CHARGE_START), CHARGE_COMM);
+        }
+        else
+        {
+          FillUartTxBufN((u8*)CMD_CHARGE_STOP, sizeof(CMD_CHARGE_STOP), CHARGE_COMM);
+        }
+        SET_CHARGE_OnOff = 0;
       }
-      else
+      else //if 
       {
-        FillUartTxBufN((u8*)CMD_CHARGE_STOP, sizeof(CMD_CHARGE_STOP), CHARGE_COMM);
+        FillUartTxBufN((u8*)CMD_CHARGE_ANALOG, sizeof(CMD_CHARGE_ANALOG), CHARGE_COMM);
       }
-      SET_CHARGE_OnOff = 0;
+      
+      if(CHARGE_COMM_Counter > CHARGE_COMM_MIN_COUNTER)
+      {
+        CHARGE_COMM_Counter -= 1;
+        if(CHARGE_COMM_Counter == CHARGE_COMM_MIN_COUNTER)
+        {
+          if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE_COMM Error! --\n");
+        }
+      }
     }
-    else //if 
+    else
     {
-      FillUartTxBufN((u8*)CMD_CHARGE_ANALOG, sizeof(CMD_CHARGE_ANALOG), CHARGE_COMM);
+      CHARGE_COMM_Counter = 0;
     }
   }
   
@@ -204,6 +221,7 @@ void CHARGE_Task(void)
   {
     static u32 counter = 0;
     CHARGE_St.Refresh = 0;
+    CHARGE_COMM_Counter = 0;
     if(AGV_RUN_Pro == AGV_STATUS_CHARGE)
     {
       if(CHARGE_St.Current <= MIN_CHARGE_CURRENT_IN_0D01A)
@@ -215,9 +233,7 @@ void CHARGE_Task(void)
         else
         {
           CHARGE_FULL_Flag = 1;
-#if(CHARGE_PRINTF_DEBUG)
-          printf("-- CHARGE_FULL --\n");
-#endif
+          if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE_FULL --\n");
         }
       }
       else

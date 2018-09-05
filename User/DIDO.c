@@ -209,25 +209,25 @@ void Check_DIDO_TASK(void)
     }
   }
   
-  /*
+  /**/
   //----  ‰»Î¥Ú”°≤‚ ‘ ----
   if(1)
   {
-    static u8 st=0;
+    static u8 st = 0;
     u8 i;
     if(st != DIDO_INPUT_Status.LightStatus)
     {
-      for(i=0;i<8;i++)
+      for(i = 0; i < 8; i++)
       {
-        if((st&(1<<i))!=(DIDO_INPUT_Status.LightStatus&(1<<i)))
+        if((st & (1 << i)) != (DIDO_INPUT_Status.LightStatus & (1 << i)))
         {
-          printf("In_%d = %d\n",i,(st&(1<<i))?0:1);
+          if(LOG_Level <= LEVEL_INFO) printf("DI_%d = %d\n", i, (st & (1 << i)) ? 0 : 1);
         }
       }
       st = DIDO_INPUT_Status.LightStatus;
     }
   }
-  */
+  
 }
 
 

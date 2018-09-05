@@ -1,9 +1,10 @@
 #include "user_inc.h"
 #include "math.h"
+#include "string.h"
 
-#define INIT_PRINTF_DEBUG  0
 u8 JumpFlag=0;
 u16 JumpTimer=0;
+//u16 LOG_Level = LEVEL_VERBOSE;
 
 
 void RCC_Configuration(void)
@@ -233,31 +234,27 @@ LOAD_MOD_BUS_DATA:
     if(pMOD_BUS_Reg->MOD_REG_MAGIC_WORD!=MAGIC_WORD)
     {
       SaveFlashModBusData((void*)&DEFAULT_MOD_BUS_Reg);
-#if (INIT_PRINTF_DEBUG)
-      printf("LOAD DEFAULT MOD BUS REG TO FLASH!\r\n");
-#endif
+      if(LOG_Level <= LEVEL_INFO) printf("LOAD DEFAULT MOD BUS REG TO FLASH!\r\n");
+
       if(retry--)
       {
         goto LOAD_MOD_BUS_DATA;
       }
       else
       {
-#if (INIT_PRINTF_DEBUG)
-        printf("LOAD_MOD_BUS_DATA ERROR!\r\n");
-#endif
-        memcopy((void*)&DEFAULT_MOD_BUS_Reg,(void*)ptr,sizeof(MOD_BUS_REG));
+        if(LOG_Level <= LEVEL_INFO) printf("LOAD_MOD_BUS_DATA ERROR!\r\n");
+        memcpy((void*)ptr, (void*)&DEFAULT_MOD_BUS_Reg, sizeof(MOD_BUS_REG));
       }
     }
     else
     {
-#if (INIT_PRINTF_DEBUG)
-      printf("LOAD_MOD_BUS_DATA OK!\r\n");
-#endif
+      if(LOG_Level <= LEVEL_INFO) printf("LOAD_MOD_BUS_DATA OK!\r\n");
+
       //配置MODBUS 波特率
       if(pMOD_BUS_Reg->COMM_BD<MOD_BUS_BD_LIST_LENGTH)
       {
         Usart2_Init_op(MOD_BUS_BD_LIST[pMOD_BUS_Reg->COMM_BD]);
-        //printf("MOD BUS SPEED PARA %ld,N,8,1\r\n",MOD_BUS_BD_LIST[pMOD_BUS_Reg->COMM_BD]);
+        if(LOG_Level <= LEVEL_INFO) printf("MOD BUS SPEED PARA %ld,N,8,1\r\n",MOD_BUS_BD_LIST[pMOD_BUS_Reg->COMM_BD]);
       }
     }
     //默认值，20160608
@@ -287,9 +284,7 @@ void TimeoutJump(void)
   if((JumpFlag==1)&&(JumpTimer==0))
   {
     JumpFlag=0;
-#if (INIT_PRINTF_DEGUG)
-    printf("JUMP TO BOOT\r\n");
-#endif
+    if(LOG_Level <= LEVEL_INFO) printf("JUMP TO BOOT\r\n");
     USART_Cmd(USART1, DISABLE);
     USART_Cmd(USART3, DISABLE);
     SysTick_ITConfig(DISABLE);

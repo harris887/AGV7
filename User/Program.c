@@ -42,15 +42,26 @@ void AGV_RUN_Task(void)
   /*----------初始化模式---------------*/    
   case AGV_STATUS_INIT:
     {
-      if(AGV_Delay == 0)
+      if(AGV_RUN_SUB_Pro==0)
       {
-        //SetBeep(3,300,500);
-        Play_Warning(SELF_TEST_OK);
-        AGV_Delay = voice_all[SELF_TEST_OK].last_time + 2000;
-        
-        LED_DISPLAY_Reset();  
-        AGV_RUN_Pro = AGV_STATUS_IDLE;
-        AGV_RUN_SUB_Pro = 0;
+        if(AGV_Delay == 0)
+        {
+          Play_Warning(SELF_TEST_START);
+          AGV_Delay = voice_all[SELF_TEST_START].last_time + 60 * 1000;
+          LED_DISPLAY_Reset();  
+          AGV_RUN_SUB_Pro+=1;
+        }
+      }
+      else
+      {
+        LED_FOLLOW_LINE_Display(200);
+        if(AGV_Delay == 0)
+        {
+          Play_Warning(SELF_TEST_OK);
+          AGV_Delay = voice_all[SELF_TEST_OK].last_time + 2000;
+          AGV_RUN_Pro = AGV_STATUS_IDLE;
+          AGV_RUN_SUB_Pro = 0;
+        }
       }
     }
     break;
@@ -159,7 +170,7 @@ void AGV_RUN_Task(void)
             if(RFID_COMEIN_Flag & RFID_READ_INFOR_SUCCESS_MASK) 
             {
               RFID_COMEIN_Flag &= ~RFID_READ_INFOR_SUCCESS_MASK;
-              printf("-- RFID_COMEIN_Flag %04X--\n", PlaceId);
+              if(LOG_Level <= LEVEL_INFO) printf("-- RFID_COMEIN_Flag %04X--\n", PlaceId);
               if(LastRfid != PlaceId)
               {
                 if(RoadType == ROAD_TYPE_FORWARD) pRFID_ACTION = (RFID_ACTION*)FORWARD_RFID_Action;
@@ -176,14 +187,14 @@ void AGV_RUN_Task(void)
                     IM_STOP_Ignore = 1;
                     BARRIER_Ignore = 1;
                     OFF_LINE_Ignore = 1;
-                    printf("ActionNum = %d\n", pRFID_ACTION->ActionNum);
+                    if(LOG_Level <= LEVEL_INFO) printf("ActionNum = %d\n", pRFID_ACTION->ActionNum);
                     break;
                   }
                 }
               }
               else
               {
-                printf("BYPASS %04X\n", PlaceId);
+                if(LOG_Level <= LEVEL_INFO) printf("BYPASS %04X\n", PlaceId);
               }
             }            
           }
@@ -224,13 +235,13 @@ void AGV_RUN_Task(void)
             {
               RoadType = pRFID_ACTION->ActionInfor[ActionIndex].value;
               ActionIndex += 1;
-              printf("++RoadType = %d\n", RoadType);
+              if(LOG_Level <= LEVEL_INFO) printf("++RoadType = %d\n", RoadType);
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_BRANCH_DIR)
             {
               MB_LINE_DIR_SELECT = pRFID_ACTION->ActionInfor[ActionIndex].value; 
               ActionIndex += 1;
-              printf("++MB_LINE_DIR_SELECT = %d\n", MB_LINE_DIR_SELECT);
+              if(LOG_Level <= LEVEL_INFO) printf("++MB_LINE_DIR_SELECT = %d\n", MB_LINE_DIR_SELECT);
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_VEHICLE_DIR)
             {
@@ -244,7 +255,7 @@ void AGV_RUN_Task(void)
                 MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
               }
               ActionIndex += 1;
-              printf("++Run_Dir = %d\n", Run_Dir);
+              if(LOG_Level <= LEVEL_INFO) printf("++Run_Dir = %d\n", Run_Dir);
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_FINISH)
             {
@@ -332,7 +343,7 @@ void AGV_RUN_Task(void)
         {
           AGV_RUN_Pro=AGV_STATUS_IM_STOP;
           AGV_RUN_SUB_Pro=0;    
-          printf("-- BUTTON_IM_STOP_Flag --\n");
+          if(LOG_Level <= LEVEL_INFO) printf("-- BUTTON_IM_STOP_Flag --\n");
           break;
         }        
         
@@ -344,7 +355,7 @@ void AGV_RUN_Task(void)
           Play_Warning(DETECT_TING);
           AGV_RUN_Pro = AGV_STATUS_BARRIER;
           AGV_RUN_SUB_Pro = 0;    
-          printf("-- TOUCH_SENSOR_Flag --\n");
+          if(LOG_Level <= LEVEL_INFO) printf("-- TOUCH_SENSOR_Flag --\n");
           break;
         }        
         
@@ -354,7 +365,7 @@ void AGV_RUN_Task(void)
           AGV_RUN_Pro = AGV_STATUS_REMOTE;
           AGV_RUN_SUB_Pro = 0;
           FollowLineEnable = 0; // 结束巡线流程
-          printf("-- REMOTE_SelectFlag --\n");
+          if(LOG_Level <= LEVEL_INFO) printf("-- REMOTE_SelectFlag --\n");
           break;
         }
         
@@ -364,7 +375,7 @@ void AGV_RUN_Task(void)
           
           AGV_RUN_SUB_Pro = 0;  
           FollowLineEnable = 0; // 结束巡线流程
-          printf("-- OFF_LINE_Flag --\n");
+          if(LOG_Level <= LEVEL_INFO) printf("-- OFF_LINE_Flag --\n");
           break;
         }        
 
@@ -623,7 +634,7 @@ void AGV_RUN_Task(void)
               AGV_Delay = 1500;
               AGV_RUN_SUB_Pro += 1;
               Play_Warning(START_CHARGE);
-              printf("-- CHARGE 1: START_CHARGE\n");
+              if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE 1: START_CHARGE\n");
             }
           }
           break;
@@ -634,7 +645,7 @@ void AGV_RUN_Task(void)
               SET_DIDO_Relay(DO_CHARGE_Enable, 1);
               AGV_Delay = 1000;
               AGV_RUN_SUB_Pro += 1;
-              printf("-- CHARGE 2: DO_CHARGE_Enable\n");
+              if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE 2: DO_CHARGE_Enable\n");
             }
           }
           break;      
@@ -645,21 +656,24 @@ void AGV_RUN_Task(void)
               SET_Charge(CHARGE_ON);
               AGV_Delay = 5 * (60 * 60) * 1000; // 100 * 1000 , 4 * (60 * 60) * 1000
               AGV_RUN_SUB_Pro += 1;
-              printf("-- CHARGE 3: ARM PULL OUT \n");
+              if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE 3: ARM PULL OUT \n");
             }
           }
           break;
         case 4:
           {
             //检测电流,小于额定充电电流，结束充电
-            if((AGV_Delay == 0) || (FORCE_CHARGE_STOP_Flag) || (CHARGE_FULL_Flag))
+            if((AGV_Delay == 0) 
+               || (FORCE_CHARGE_STOP_Flag) \
+               || (CHARGE_FULL_Flag) \
+               || (CHARGE_COMM_Counter <= CHARGE_COMM_MIN_COUNTER))
             {
               FORCE_CHARGE_STOP_Flag = 0;
               CHARGE_FULL_Flag = 0;
               SET_Charge(CHARGE_OFF);
               AGV_Delay = 2200;
               AGV_RUN_SUB_Pro += 1;
-              printf("-- CHARGE 4: ARM PULL IN \n");
+              if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE 4: ARM PULL IN \n");
             }            
           }
           break;
@@ -672,7 +686,7 @@ void AGV_RUN_Task(void)
               AGV_Delay = 4000;
               AGV_RUN_SUB_Pro = 0;
               AGV_RUN_Pro = AGV_STATUS_IDLE;
-              printf("-- CHARGE 5: DO_CHARGE_Disable\n");
+              if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE 5: DO_CHARGE_Disable\n");
               Play_Warning(STOP_CHARGE);
             }        
           }

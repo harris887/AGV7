@@ -1,7 +1,6 @@
 #include "user_inc.h"
 #include "string.h"
 
-#define BUTTON_PRINTF_DEBUG 0
 u8 remote_value = 0;
 u8 remote_fresh = 0;
 

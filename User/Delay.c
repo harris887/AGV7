@@ -62,8 +62,8 @@ void SysTick_IrqHandler(void)
     if(CHARGE_COMM_Timout) CHARGE_COMM_Timout--;
     if(FOLLOW_LOOP_Timeout) FOLLOW_LOOP_Timeout--;
     
-    I_RollAd-=(I_RollAd>>8);
-    I_RollAd+=AD_Roller;
+    I_RollAd -= (I_RollAd >> 8);
+    I_RollAd += AD_Roller;
     ADC_SoftwareStartConvCmd(ADC1, ENABLE);
     
     

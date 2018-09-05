@@ -1,5 +1,6 @@
 #include "user_inc.h"
 #include "stdlib.h"
+#include "string.h"
 
 
 
@@ -46,8 +47,9 @@ const MOD_BUS_REG DEFAULT_MOD_BUS_Reg=
   45, // 30%
   DEFAULT_RFID_WAIT_TIME_IN_MS,
   DEFAULT_FOLLOW_LOOP_TIME_IN_MS,
+  LEVEL_VERBOSE,
   //--------------------------------
-  //0,
+  0,
 
   MAGIC_WORD,
 };
@@ -567,46 +569,45 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     return 1;    
   }
   */
-  /*
-  else if((reg_addr==0x4B)&&(reg_num==1))
+  /**/
+  else if((reg_addr == 0x4B) && (reg_num == 1))
   {
     u16 cal_crc;
-    Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
-    Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
-    Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     
-    //for(loop=0;loop<reg_num;loop++)
+    //for(loop = 0; loop < reg_num; loop++)
     {
-      Send_Data_A8_array[index++]=MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE>>8;
-      Send_Data_A8_array[index++]=MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE&0xff;
+      Send_Data_A8_array[index++] = MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE >> 8;
+      Send_Data_A8_array[index++] = MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE & 0xFF;
     }
     cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
-    Send_Data_A8_array[index++]=cal_crc&0xFF;
-    Send_Data_A8_array[index++]=cal_crc>>8;
-    FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
+    Send_Data_A8_array[index++]=cal_crc & 0xFF;
+    Send_Data_A8_array[index++]=cal_crc >> 8;
+    FillUartTxBufN(Send_Data_A8_array, index, U_TX_INDEX);
     return 1;    
   }
-  else if((reg_addr==0x4C)&&(reg_num==1))
+  else if((reg_addr == 0x4C) && (reg_num == 1))
   {
     u16 cal_crc;
-    Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
-    Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
-    Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = (reg_num <<1 ) >> 8;//byte length ,MSB
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     
-    //for(loop=0;loop<reg_num;loop++)
+    //for(loop = 0; loop < reg_num; loop++)
     {
-      Send_Data_A8_array[index++]=MOD_BUS_Reg.AUTO_FOLLOW_SPEED>>8;
-      Send_Data_A8_array[index++]=MOD_BUS_Reg.AUTO_FOLLOW_SPEED&0xff;
+      Send_Data_A8_array[index++] = MOD_BUS_Reg.AUTO_FOLLOW_SPEED >> 8;
+      Send_Data_A8_array[index++] = MOD_BUS_Reg.AUTO_FOLLOW_SPEED & 0xFF;
     }
     cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
-    Send_Data_A8_array[index++]=cal_crc&0xFF;
-    Send_Data_A8_array[index++]=cal_crc>>8;
-    FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
+    Send_Data_A8_array[index++]=cal_crc & 0xFF;
+    Send_Data_A8_array[index++]=cal_crc >> 8;
+    FillUartTxBufN(Send_Data_A8_array, index, U_TX_INDEX);
     return 1;    
   }  
-  */
   else if((reg_addr == 0x50) && (reg_num == 2))
   {
     u16 cal_crc;
@@ -791,6 +792,26 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
   }
+  else if((reg_addr == 0x60) && (reg_num == 1))
+  {//读取 log 等級
+    u16 cal_crc;
+    u16 value = LOG_Level;
+    Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
+    Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
+    
+    //for(loop=0;loop<reg_num;loop++)
+    {
+      Send_Data_A8_array[index++]=value>>8;
+      Send_Data_A8_array[index++]=value&0xff;
+    }
+    cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
+    Send_Data_A8_array[index++]=cal_crc&0xFF;
+    Send_Data_A8_array[index++]=cal_crc>>8;
+    FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
+    return 1;
+  }  
   else
   {//数据错误、超出范围 illegal_data;Return-Code=0x03
     u16 cal_crc;
@@ -862,8 +883,11 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
   case 0x0002: // 设置波特率
     if((reg_value >= 1) && (reg_value <= 8))
     {
-      MOD_BUS_Reg.COMM_BD = reg_value;
-      MOD_BUS_REG_FreshFlag = 1;
+      if(MOD_BUS_Reg.COMM_BD != reg_value)
+      {
+        MOD_BUS_Reg.COMM_BD = reg_value;
+        MOD_BUS_REG_FreshFlag = 1;
+      }
       return_code = return_OK;
     }
     else
@@ -872,8 +896,11 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
     }
     break;    
   case 0x0003: // 设置从机地址
-    MOD_BUS_Reg.SLAVE_ADDR = reg_value;
-    MOD_BUS_REG_FreshFlag = 1;
+    if(reg_value != MOD_BUS_Reg.SLAVE_ADDR)
+    {
+      MOD_BUS_Reg.SLAVE_ADDR = reg_value;
+      MOD_BUS_REG_FreshFlag = 1;
+    }
     return_code = return_OK;
     break;
   case 0x0004: // 启动自动充电
@@ -903,41 +930,41 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
       }      
     }
     break;     
-  /*
   case 0x004B:
     {
-      if(reg_value<=1)
+      if(reg_value <= 1)
       {
-        if(MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE!=reg_value)
+        if(MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE != reg_value)
         {
-          MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE=reg_value;
+          MOD_BUS_Reg.AUTO_FOLLOW_SPEED_CONTROL_MODE = reg_value;
           //MOD_BUS_REG_FreshFlag=1;
         }
-        return_code=return_OK;
+        return_code = return_OK;
       }
       else
       {
-        return_code=illegal_data;
+        return_code = illegal_data;
       }      
     }
     break;
   case 0x004c:
     {
-      if(reg_value<=100)
+      if(reg_value <= 100)
       {
-        if(MOD_BUS_Reg.AUTO_FOLLOW_SPEED!=reg_value)
+        if(MOD_BUS_Reg.AUTO_FOLLOW_SPEED != reg_value)
         {
-          MOD_BUS_Reg.AUTO_FOLLOW_SPEED=reg_value;
-          MOD_BUS_REG_FreshFlag=1;
+          MOD_BUS_Reg.AUTO_FOLLOW_SPEED = reg_value;
+          MOD_BUS_REG_FreshFlag = 1;
         }
-        return_code=return_OK;
+        return_code = return_OK;
       }
       else
       {
-        return_code=illegal_data;
+        return_code = illegal_data;
       }         
     }
     break;
+  /*
   case 0x0051:
     {
       if(MOD_BUS_Reg.RFID_ONLINE_TIME_IN_MS!=reg_value)
@@ -1058,8 +1085,39 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
     }   
     break;  
     */
+  case 0x0060:
+    {
+      if(reg_value < LEVEL_NUM)
+      {
+        if(LOG_Level != reg_value)
+        {
+          LOG_Level = reg_value;
+          MOD_BUS_REG_FreshFlag = 1;
+        }
+        return_code = return_OK;
+      }
+      else
+      {
+        return_code = illegal_data;
+      }         
+    }
+    break;   
+  case 0x0061:
+    {
+      if(reg_value == UPDATE_PROGRAM_TAG)
+      {
+        BKP_WriteBackupRegister(BKP_DR1, TO_BOOT_UPDATE_FLAG);
+        SetTimeoutJump(200);
+        return_code = return_OK;
+      }
+      else
+      {
+        return_code = illegal_data;
+      }         
+    }
+    break;     
   default:
-    return_code=illegal_register;
+    return_code = illegal_register;
   }
   
   //回复用户
@@ -1213,7 +1271,7 @@ u8 AckModBusWriteMultiReg(u16 reg_addr,u16 reg_num,u8* pData)
 
 void MOD_BUS_REG_Backup(void)
 {
-  memcopy((void*)&MOD_BUS_Reg,(void*)&MOD_BUS_Reg_Backup,sizeof(MOD_BUS_REG));  
+  memcpy((void*)&MOD_BUS_Reg_Backup, (void*)&MOD_BUS_Reg,sizeof(MOD_BUS_REG));  
 }
 
 #define MIN_FLASH_RECOVER_TIMER 1000  
@@ -1224,8 +1282,7 @@ void MOD_BUS_REG_MODIFY_Check(void)
   if(MOD_BUS_REG_FreshFlag==1)
   {
     MOD_BUS_REG_FreshFlag=0;
-    if(memcompare((void*)&MOD_BUS_Reg,(void*)&MOD_BUS_Reg_Backup,sizeof(MOD_BUS_REG))
-       !=sizeof(MOD_BUS_REG))
+    if(memcmp((void*)&MOD_BUS_Reg, (void*)&MOD_BUS_Reg_Backup, sizeof(MOD_BUS_REG)) != 0)
     {
       //修改波特率
       if(MOD_BUS_Reg.COMM_BD!=MOD_BUS_Reg_Backup.COMM_BD)
@@ -1235,7 +1292,7 @@ void MOD_BUS_REG_MODIFY_Check(void)
         {
           Usart2_Init_op(MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
           
-          //printf("MOD BUS SPEED PARA %ld,N,8,1\r\n",MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
+          if(LOG_Level <= LEVEL_INFO) printf("MOD BUS SPEED PARA %ld,N,8,1\r\n",MOD_BUS_BD_LIST[MOD_BUS_Reg.COMM_BD]);
         }
       }
       //其他在相应的函数中去读取，改变
@@ -1254,9 +1311,9 @@ void MOD_BUS_REG_MODIFY_Check(void)
       RecoverFlashFlag=0;
 #if(MODBUS_PARA_REFLUSH_FLASH_ENABLE)      
       SaveFlashModBusData((void*)&MOD_BUS_Reg);
-      printf("RECOVER MOD BUS Flash!\r\n");
+      if(LOG_Level <= LEVEL_INFO) printf("RECOVER MOD BUS Flash!\r\n");
 #else
-      printf("DEBUG_NO_REFRESH!\r\n");
+      if(LOG_Level <= LEVEL_INFO) printf("DEBUG_NO_REFRESH!\r\n");
 #endif      
     }
   }

@@ -139,10 +139,12 @@ static void CAN1_SendMsg(u8 *data,u16 len,u32 id)
     }
     if(count >= 2000) //255
     {
-        //CAN_DeInit(CAN1);
-        //CAN1_Init(g_can_defbound, CAN_Mode_Normal);
-        //Tran_Mailbox = CAN_Transmit(CAN1, &CAN_TxData);
-        printf("error can\r\n");
+      /*
+      CAN_DeInit(CAN1);
+      CAN1_Init(g_can_defbound, CAN_Mode_Normal);
+      Tran_Mailbox = CAN_Transmit(CAN1, &CAN_TxData);
+      */
+      if(LOG_Level <= LEVEL_ERROR) printf("ERROR: can\r\n");
     }    
 #endif
 }
@@ -264,7 +266,7 @@ void Laser_Task()
         if(LASER_Infor[i].heart_beat_num == LASER_Infor[i].heart_beat_num_bk)
         {
           LASER_Infor[i].state = 0;
-          printf("LASER %d OutSystem \n", i);
+          if(LOG_Level <= LEVEL_INFO) printf("LASER %d OutSystem \n", i);
         }
         else
         {
@@ -274,7 +276,7 @@ void Laser_Task()
             if(LASER_Infor[i].data_infor_num == LASER_Infor[i].data_infor_num_bk)
             {
               LASER_Infor[i].state &= ~0x2;
-              printf("LASER %d Idle \n", i);
+              if(LOG_Level <= LEVEL_INFO) printf("LASER %d Idle \n", i);
             }
             else
             {
@@ -287,7 +289,7 @@ void Laser_Task()
             {
               LASER_Infor[i].state |= 0x2;
               LASER_Infor[i].data_infor_num_bk = LASER_Infor[i].data_infor_num;
-              printf("LASER %d Working \n", i);
+              if(LOG_Level <= LEVEL_INFO) printf("LASER %d Working \n", i);
             }
           }
         }
@@ -299,7 +301,7 @@ void Laser_Task()
           LASER_Infor[i].state = 1;
           LASER_Infor[i].heart_beat_num_bk = LASER_Infor[i].heart_beat_num;
           LASER_Infor[i].data_infor_num_bk = LASER_Infor[i].data_infor_num;
-          printf("LASER %d InSystem \n", i);
+          if(LOG_Level <= LEVEL_INFO) printf("LASER %d InSystem \n", i);
         }
       }
     }
@@ -323,7 +325,7 @@ void Laser_Task()
           {
             if(LASER_Infor[i].state & 0x2)
             {
-              printf("Set_LASER %d OFF \n", i);
+              if(LOG_Level <= LEVEL_INFO) printf("Set_LASER %d OFF \n", i);
               Set_LASER(LASER_Infor[i].cmd_id, 0, 0, 0);
               pro = 7;
             }
@@ -335,7 +337,7 @@ void Laser_Task()
       {
         for(i = 0; i < LASER_NUM; i++)
         {
-          printf("Set_LASER %d OFF \n", i);
+          if(LOG_Level <= LEVEL_INFO) printf("Set_LASER %d OFF \n", i);
           Set_LASER(LASER_Infor[i].cmd_id, 0, 0, 0);
         }
         pro += 1;
@@ -343,7 +345,7 @@ void Laser_Task()
       break;
     case 2:
       {
-        printf("Set_LASER %d ON \n", LaserSelectTemp);
+        if(LOG_Level <= LEVEL_INFO) printf("Set_LASER %d ON \n", LaserSelectTemp);
         Set_LASER(LASER_Infor[LaserSelectTemp].cmd_id, 1, laser_width_cm, laser_deep_cm);
         pro += 1;
       }
@@ -384,8 +386,6 @@ void Laser_Task()
     {
       if((LASER_Infor[i].state & 0x2) && (LASER_Infor[i].is_things))
       {
-        //SetBeep(1, 100, 50);
-        //printf("Laser %d: angle = %d, distance = %d\n", i, LASER_Infor[i].angle, LASER_Infor[i].distance);
         LASER_SENSOR_Flag |= (1 << i); 
       }
       else

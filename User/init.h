@@ -70,9 +70,19 @@ void STORE_CAR_STATUS_Task(void);
 #define TO_BOOT_UPDATE_FLAG       0x4321
 #define BOOT_STANDARD_FLAG	  0x0000
 
+typedef enum
+{
+  LEVEL_VERBOSE = 0,     // 打开所有日志记录
+  LEVEL_DEBUG, // 细粒度信息事件对调试应用程序是非常有帮助的
+  LEVEL_INFO,  // 消息在粗粒度级别上突出强调应用程序的运行过程
+  LEVEL_WARN,  // 表明会出现潜在错误的情形
+  LEVEL_ERROR, // 指出虽然发生错误事件，但仍然不影响系统的继续运行
+  LEVEL_FATAL, // 每个严重的错误事件将会导致应用程序的退出
+  LEVEL_SILENCE, // 关闭所有日志记录
+  LEVEL_NUM
+}LOG_LEVEL;
 
-
-
+#define LOG_Level MOD_BUS_Reg.LOG_LEVEL_
 
 
 #endif

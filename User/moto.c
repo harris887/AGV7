@@ -4,7 +4,6 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-#define MOTO_PRINTF_DEBUG               1
 #define MOTO_COMM_PORT_ENUM             5   // 使用 USART5 发送
 #define MOTO_CONTROL_CYCLE              12  // 20ms 的RS485通信周期
 #define DEFAULT_MOTO_READ_RPM_TIME_OUT  100
@@ -71,10 +70,8 @@ void MOTO_Init(void)
   COFF_MMS_TO_D1RPM = 60.0 / (WHEEL_DIAMETER_IN_CM * 10.0 * PI * 0.1) ;
   //COFF_DISTANCE = (float)MOD_BUS_Reg.COFF_DISTANCE_1000TIME * 0.001;
   
-#if (MOTO_PRINTF_DEBUG)
-  printf("max_wheel_speed = %f , COFF_001RPM_TO_MMS = %f\n", max_wheel_speed, COFF_001RPM_TO_MMS);
-  printf("COFF_MMS_TO_D1RPM = %f , COFF_DISTANCE = %f\n", COFF_MMS_TO_D1RPM, COFF_DISTANCE);
-#endif
+  if(LOG_Level <= LEVEL_INFO) printf("max_wheel_speed = %f , COFF_001RPM_TO_MMS = %f\n", max_wheel_speed, COFF_001RPM_TO_MMS);
+  if(LOG_Level <= LEVEL_INFO) printf("COFF_MMS_TO_D1RPM = %f , COFF_DISTANCE = %f\n", COFF_MMS_TO_D1RPM, COFF_DISTANCE);
 }
 
 void SetD1Rpm(MOTO_INDEX_ENUM MOTO_SELECT,s16 d1rpm)
@@ -334,10 +331,6 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
     SetSpeedRate(LEFT_MOTO_INDEX, left_speed);
     SetSpeedRate(RIGHT_MOTO_INDEX, right_speed);
     
-    //PID Debug
-    //sprintf(temp_buff,"%d ,%d\n",(s32)hall_value-WONDER_MID_SENSOR_INDEX, \
-    //        -pid_out_global);
-    //FillUartTxBufN(temp_buff,strlen(temp_buff),1);
   }
 }
 

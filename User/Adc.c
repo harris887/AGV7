@@ -17,9 +17,11 @@ u16 BatteryVoltSampleTimeOut = 4000;
 u32 I_BatteryVolt = 0;
 u16 I_Counter=0;
 u16 BatteryVolt_Filterd=BATTERY_30_PERCENT_AD_THRESHOLD;
-u16 BatteryVolt_StatusTimer=0;
+u16 BatteryVolt_StatusTimer = 0;
 u8 BatteryVolt_LowFlag = 0;//1-电池电压低，0-电池电压正常
 u32 I_RollAd=0;
+u16 Temprature_StatusTimer = 0;
+u16 FAN_Status = 0;
 
 void DMA1_Channel1_ForAdc1Init(void) 
 { 
@@ -209,5 +211,49 @@ void CheckBatteryVolt_TASK(void)
         BatteryVolt_LowFlag = 0;
       }
     }    
+    
+    //--------- 温度检测 ---------//
+#define TEMPRATURE_THRESHOLD                      3000
+#define DEFAULT_TEMPRATURE_FAN_CONTROL_COUNTER    600   // 600 * 100ms = 60s
+    if(FAN_Status)
+    {
+      if(PACK_ANALOG_Infor.TEMP_Value[0] < TEMPRATURE_THRESHOLD) // 30.0度
+      {
+        if(Temprature_StatusTimer < DEFAULT_TEMPRATURE_FAN_CONTROL_COUNTER)
+        {
+          Temprature_StatusTimer += 1;
+        }
+        else
+        {
+          FAN_Status = 0;
+          SET_DIDO_Relay(DO_Fan_1, FAN_Status);
+          SET_DIDO_Relay(DO_Fan_2, FAN_Status);
+        }
+      }
+      else
+      {
+        Temprature_StatusTimer = 0;
+      }
+    }
+    else
+    {
+      if(PACK_ANALOG_Infor.TEMP_Value[0] >= TEMPRATURE_THRESHOLD) // 30.0度
+      {
+        if(Temprature_StatusTimer < DEFAULT_TEMPRATURE_FAN_CONTROL_COUNTER)
+        {
+          Temprature_StatusTimer += 1;
+        }
+        else
+        {
+          FAN_Status = 1;
+          SET_DIDO_Relay(DO_Fan_1, FAN_Status);
+          SET_DIDO_Relay(DO_Fan_2, FAN_Status);
+        }
+      }
+      else
+      {
+        Temprature_StatusTimer = 0;
+      }
+    }
   }
 }

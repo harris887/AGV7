@@ -1,10 +1,6 @@
 #include "user_inc.h"
 #include "string.h"
 
-#define JOYSTICK_PRINTF_DEBUG                 0
-
-
-
 u8 REMOTE_Pro=0;
 u8 REMOTE_ChannalIndex=0;
 u8 REMOTE_SINGLE_CHANNAL_Timtout=0;
@@ -320,10 +316,8 @@ void CHECK_REMOTE_ENABLE_TASK(void)
         {
           REMOTE_SelectFlag=true;//变为遥控模式
           SetBeep(3,100,200);
-          
-#if (JOYSTICK_PRINTF_DEBUG)          
-          printf("REMOTE MODE! \n");
-#endif
+                   
+          if(LOG_Level <= LEVEL_INFO) printf("REMOTE MODE! \n");
         }
       }
       fail_time=0;
@@ -346,10 +340,8 @@ void CHECK_REMOTE_ENABLE_TASK(void)
     {
       REMOTE_SelectFlag=false;//遥控模式失效
       SetBeep(1,300,200);
-      
-#if (JOYSTICK_PRINTF_DEBUG)  
-      printf("SELF PROGRAM MODE! \n");
-#endif
+       
+      if(LOG_Level <= LEVEL_INFO) printf("SELF PROGRAM MODE! \n");
     }
   }
 }

@@ -4,8 +4,6 @@
 #include "string.h"
 #include "stdlib.h"
 
-#define MAIN_PRINTF_DEBUG   1
-
 char test_buffer[256];
 static u16 AUTO_FOLLOW_LINE_timers = 0;
 int main(void)
@@ -13,7 +11,7 @@ int main(void)
   RCC_Configuration();
   NVIC_Configuration();
   GPIO_Configuration();
-  //FLASH_READOUT_Protect();//harris 20160522
+  FLASH_READOUT_Protect();//harris 20160522
   BackupAccessEnable();
   
   MovementListInit();
@@ -34,14 +32,9 @@ int main(void)
   LASER_INFOR_Init();
   CAN1_Init(CAN_BOUND_250, CAN_Mode_Normal);
   WK2124_Init();
-  
-  
-  
+ 
   //SetBeep(3,100,200);//test use
-  
-#if (MAIN_PRINTF_DEBUG)
-  printf("---- AGV7 Mining ! ----\n");
-#endif
+  if(LOG_Level <= LEVEL_INFO) printf("---- AGV7 Mining ! ----\n");
   
   while(1)
   {
@@ -56,7 +49,7 @@ int main(void)
     
     AGV_RUN_Task();
     READ_RFID_BLOCK_Task();
-    //MOD_BUS_REG_MODIFY_Check();
+    MOD_BUS_REG_MODIFY_Check();
     
     MOTO_SPEED_CONTROL_TASK();
     VOICE_PLAY_TASK();
@@ -69,12 +62,13 @@ int main(void)
     //-- ×Ô„ÓÑ²º½Ñ­­h --//
     if(MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS != 0)
     {
-      if(FOLLOW_LOOP_Timeout == 0)
+      if((FOLLOW_LOOP_Timeout == 0) 
+        && (AGV_RUN_Pro == AGV_STATUS_IDLE))
       {
         if(StartFollowLine())
         {
           FOLLOW_LOOP_Timeout = MOD_BUS_Reg.FOLLOW_LOOP_TIME_IN_MS;
-          printf("+Start FOLLOW %d times\n", ++AUTO_FOLLOW_LINE_timers);
+          if(LOG_Level <= LEVEL_INFO) printf("++++Start FOLLOW %d times\n", ++AUTO_FOLLOW_LINE_timers);
         }         
       }
     }
@@ -82,20 +76,20 @@ int main(void)
     TimeoutJump();
     FeedDog();     
     //if(0)
-    if(debug_show)
+    if((debug_show) && (LOG_Level <= LEVEL_DEBUG))
     {
       static u8 FollowLineLoop = 0;
       static s8 o_index = 0;
-      //static u8 sta=0;
       debug_show=0;
       
       if(USART_BYTE == 'C')
       {
-        printf("[CHARGE] Vol: %d, Cur:%d, Cap:%d, Tim:%d, Comm:%d\n", CHARGE_St.Voltage, \
+        printf("[CHARGE] Vol: %d, Cur:%d, Cap:%d, Tim:%d, Comm:%d Counter:%d\n", CHARGE_St.Voltage, \
            CHARGE_St.Current, \
            CHARGE_St.Cap,     \
            CHARGE_St.Time,    \
-           CHARGE_St.RxNum);  
+           CHARGE_St.RxNum,   \
+           CHARGE_COMM_Counter);  
       }        
       
       if(USART_BYTE == 'T')
@@ -135,11 +129,14 @@ int main(void)
         static u16 cycle_s = 0; // 600
         if(cycle_s == 0)
         {
-          if(StartFollowLine())
+          if(AGV_RUN_Pro == AGV_STATUS_IDLE)
           {
-            cycle_s = 600;
-            printf("++Start FOLLOW %d times\n", ++AUTO_FOLLOW_LINE_timers);
-          }          
+            if(StartFollowLine())
+            {
+              cycle_s = 600;
+              printf("++Start FOLLOW %d times\n", ++AUTO_FOLLOW_LINE_timers);
+            }          
+          }
         }
         else
         {
@@ -210,6 +207,12 @@ int main(void)
                   MONITOR_St[LEFT_MOTO_INDEX].real_rpm_reg, MONITOR_St[RIGHT_MOTO_INDEX].real_rpm_reg);
           FillUartTxBufN((u8*)test_buffer,strlen(test_buffer), 2);
         }
+        if(USART_BYTE == 'a')
+        {
+          printf("speed_roller_rate : %d\n", Get_ANALOG_SD_Speed() / 5);   
+        }
+        
+        
         else if(USART_BYTE == 'B')
         {
           sprintf(test_buffer,"RT: [ %d %d ] , RRT: [ %d %d ] , TOTAL: %d \n", // , %d
@@ -232,6 +235,7 @@ int main(void)
         }
         printf("MODE_BUS_HALL_Addr = %d\n", MODE_BUS_HALL_Addr);
       }
+      
       if(USART_BYTE == 'H')
       {
         //printf("485 data here!\n");
@@ -252,20 +256,6 @@ int main(void)
         v_index += 1;
         if(v_index >= VOICE_NUM) v_index = 0;
       }
-      if(0)
-      {
-        printf("batt_ad=%d , speed_ad=%d\n",adc_data[0],AD_Roller);
-      }
-      //printf("e=%d \n",hall_error_num);
-      //printf("%d ,%d ,%d \n",(s32)hall_value-WONDER_MID_SENSOR_INDEX \
-             ,pid_out_global,speed_step_g);
-      if(0)
-      {
-        printf("%x %x",GET_BUTTON_VT_STATUS(), GetVt() );
-      }
-
-
-      
       
       if(USART_BYTE == 'R')
       {
