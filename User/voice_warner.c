@@ -25,9 +25,9 @@ const voice_option voice_all[VOICE_NUM]=
   { START_CHARGE, 3 , 1500 },
   { STOP_CHARGE , 4 , 1500 },
   
-  { SELF_TEST_OK   , 23 , 1500},
-  { SELF_TEST_ERROR, 12 , 1500},
   { SELF_TEST_START, 11 , 1500},
+  { SELF_TEST_ERROR, 12 , 1500},
+  { SELF_TEST_OK   , 23 , 1500},
   
   { AUTO_FOLLOW_LINE , 21 , 1500},
   { REMOTE_MODE      , 22 , 1500},

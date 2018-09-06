@@ -1,7 +1,7 @@
 #ifndef _ModBus_2_h_
 #define _ModBus_2_h_
 
-
+#define DEFAULT_RFID_ONLINE_TIME_IN_MS          10000
 #define DEFAULT_FOLLOW_LOOP_TIME_IN_MS          0
 #define U_TX_INDEX  2   //使用串口1发送
 
@@ -22,11 +22,12 @@ typedef struct
   u32 RFID_WAIT_TIME_IN_MS;//
   u32 FOLLOW_LOOP_TIME_IN_MS;
   u16 LOG_LEVEL_;
+  u16 RFID_ONLINE_TIME_IN_MS;
 
 
   
 //--------------------------------  
-  u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
+  //u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
   u32 MOD_REG_MAGIC_WORD;
 }MOD_BUS_REG;
 #define MAGIC_WORD  0x1A2B3C42

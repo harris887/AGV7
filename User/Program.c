@@ -217,6 +217,7 @@ void AGV_RUN_Task(void)
               FollowLineReset = 1;
               AGV_Delay = 1800;
               AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_BRAKE);
+              if(LOG_Level <= LEVEL_INFO) printf("-- ACTION_BRAKE --\n");
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_TURN_ANGLE) // ×ªÍä
             {
@@ -224,12 +225,14 @@ void AGV_RUN_Task(void)
               VehicleTurnRound(pRFID_ACTION->ActionInfor[ActionIndex].value);
               AGV_Delay = 10000;      
               AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_TURN_ANGLE);
+              if(LOG_Level <= LEVEL_INFO) printf("-- ACTION_TURN_ANGLE --\n");
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_WAIT)       // µÈ´ý
             {
               //AGV_Delay = 1000 * pRFID_ACTION->ActionInfor[ActionIndex].value;    
               AGV_Delay = MOD_BUS_Reg.RFID_WAIT_TIME_IN_MS;
               AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_WAIT);
+              if(LOG_Level <= LEVEL_INFO) printf("-- ACTION_WAIT --\n");
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_SET_LINE_TYPE)
             {
