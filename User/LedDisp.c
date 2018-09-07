@@ -201,7 +201,7 @@ void LED_FOLLOW_LINE_Display(u16 SPEED)
     {
       water_led_status = 0;
       water_led_timer = SPEED;
-      SET_DIDO_Relay(DO_LED_Green, 1);
+      SET_DIDO_Relay(DO_LED_Green, 0);
     }
     break;  
   default:
