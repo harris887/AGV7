@@ -75,6 +75,7 @@ void AGV_RUN_Task(void)
         {
           remote_fresh = 0;
           Clear_FollowLineTempBaseSpeed();
+          Clear_FollowLineTempAcc();
           AGV_RUN_SUB_Pro+=1;
         }
       }
@@ -153,7 +154,9 @@ void AGV_RUN_Task(void)
           //LastRfid = 0;
           IM_STOP_Ignore = 0;
           BARRIER_Ignore = 0;
-          OFF_LINE_Ignore = 0;                
+          OFF_LINE_Ignore = 0; 
+          Clear_FollowLineTempBaseSpeed();
+          Clear_FollowLineTempAcc();
         }
       }
       else
@@ -214,8 +217,14 @@ void AGV_RUN_Task(void)
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_BRAKE) // 刹车
             {
+#if (0)
               FollowLineReset = 1;
               AGV_Delay = 1800;
+#else
+              Set_FollowLineTempBaseSpeed(0);
+              Set_FollowLineTempAcc(20);
+              AGV_Delay = 1300;
+#endif
               AGV_RUN_SUB_Pro = (ACTION_PRO_OFFSET + ACTION_BRAKE);
               if(LOG_Level <= LEVEL_INFO) printf("-- ACTION_BRAKE --\n");
             }
@@ -284,10 +293,21 @@ void AGV_RUN_Task(void)
           {
             if(AGV_Delay != 0)
             {
+#if (0)
               SLOW_DOWN_Task(&FollowLineReset, 1300); // 1000 -> 1400 -> 1200 -> 1300
+#else
+              NEW_FOLLOW_LINE_TASK(&FollowLineReset, Run_Dir);
+#endif
             }
             else 
             {
+#if (0)
+#else
+              Clear_FollowLineTempBaseSpeed();
+              Clear_FollowLineTempAcc();
+              MOTO_IM_STOP();
+              FollowLineReset = 1;
+#endif
               MotoModifyFlag = 1;
               ActionIndex += 1;
               AGV_RUN_SUB_Pro = 2;
@@ -726,44 +746,6 @@ void BATT_LOW_LEVEL_1_Warning(void)
   else
   {
     counter=0;
-  }
-}
-
-void ROUND_SpeedLimted(void)
-{
-  //转弯限速 ,待测试
-  if(Get_ANALOG_SD_Speed() > FOLLOW_LINE_ROUND_SPEED)
-  {
-    if(Run_Dir>0)
-    {
-      if(Current_ID==(ROUND_LOW_ID<<1))
-      {
-        Set_FollowLineTempBaseSpeed(FOLLOW_LINE_ROUND_SPEED);
-      }
-      else if(Current_ID==(ROUND_HIGH_ID<<1))
-      {
-        Clear_FollowLineTempBaseSpeed();
-      }
-      else if((Current_ID>(ROUND_LOW_ID<<1)) && (Current_ID<(ROUND_HIGH_ID<<1)))
-      {
-        Set_FollowLineTempBaseSpeed(FOLLOW_LINE_ROUND_SPEED);
-      }
-    }
-    else
-    {
-      if(Current_ID==(ROUND_LOW_ID<<1))
-      {
-        Clear_FollowLineTempBaseSpeed();
-      }
-      else if(Current_ID==(ROUND_HIGH_ID<<1))
-      {
-        Set_FollowLineTempBaseSpeed(FOLLOW_LINE_ROUND_SPEED);
-      }
-      else if((Current_ID>(ROUND_LOW_ID<<1)) && (Current_ID<(ROUND_HIGH_ID<<1)))
-      {
-        Set_FollowLineTempBaseSpeed(FOLLOW_LINE_ROUND_SPEED);
-      }
-    }
   }
 }
 

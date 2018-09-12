@@ -141,4 +141,7 @@ extern void SetD1Rpm(MOTO_INDEX_ENUM MOTO_SELECT,s16 d1rpm);
 extern u8 moto_enable_status[MOTO_NUM];
 extern float RoadLength[MOTO_NUM];
 extern u32 ReadMotoRpmTimes[MOTO_NUM];
+
+extern void Set_FollowLineTempAcc(s32 value);
+extern void Clear_FollowLineTempAcc(void);
 #endif

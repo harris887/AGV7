@@ -184,14 +184,16 @@ u8 SLOW_DOWN_Task(u8* reset,u16 time_in_ms)
 }
 
 //=========================================
-u8 FollowLineTempSpeed_ValidFlag=0;
-u16 FollowLineTempSpeed_Value = (FOLLOW_LINE_MAX_SPEED>>1);
+u8 FollowLineTempSpeed_ValidFlag = 0;
+u16 FollowLineTempSpeed_Value = 0;
+u8 FollowLineTempAcc_ValidFlag = 0;
+u16 FollowLineTempAcc_Value = 20;
 
 //设置临时的巡线速度/PWM
 void Set_FollowLineTempBaseSpeed(s32 value)
 {
-  FollowLineTempSpeed_ValidFlag=1;
-  FollowLineTempSpeed_Value=value;
+  FollowLineTempSpeed_ValidFlag = 1;
+  FollowLineTempSpeed_Value = value;
 }
 
 u16 Get_FollowLineTempBaseSpeed(void)
@@ -214,6 +216,27 @@ s32 Get_ANALOG_SD_Speed(void)
   RollValue = lmax(RollValue,MIN_SPEED_AD_ADJUST);
   value = (FOLLOW_LINE_MAX_SPEED * (MAX_SPEED_AD_ADJUST - RollValue)) \
               /(MAX_SPEED_AD_ADJUST-MIN_SPEED_AD_ADJUST);
+  return value;
+}
+
+void Set_FollowLineTempAcc(s32 value)
+{
+  FollowLineTempAcc_ValidFlag = 1;
+  FollowLineTempAcc_Value = value;
+}
+
+void Clear_FollowLineTempAcc(void)
+{
+  FollowLineTempAcc_ValidFlag = 0;
+}
+
+s32 Get_FollowLineExpectAcc(void)
+{
+  s32 value;
+  if(FollowLineTempAcc_ValidFlag != 0)
+    value = FollowLineTempAcc_Value;
+  else
+    value = max_pwm_speed_up_100ms;
   return value;
 }
 
@@ -259,6 +282,7 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
     s32 left_speed=FOLLOW_LINE_MIN_SPEED;
     s32 right_speed=FOLLOW_LINE_MIN_SPEED;
     s32 expect_FollowLineBaseSpeed;
+    s32 acc;
     
     PID_TimeOut=100;  //100ms一个调整周期
     
@@ -275,7 +299,7 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
     expect_FollowLineBaseSpeed = Get_FollowLineExpectBaseSpeed();
     expect_FollowLineBaseSpeed = lmin(expect_FollowLineBaseSpeed,FOLLOW_LINE_MAX_SPEED);
     expect_FollowLineBaseSpeed = lmax(expect_FollowLineBaseSpeed,FOLLOW_LINE_MIN_SPEED);
-    
+    acc = Get_FollowLineExpectAcc();
     /*
     //车体不正时的速度限制
     if((hall_value>(WONDER_MID_SENSOR_INDEX+5))||(hall_value<(WONDER_MID_SENSOR_INDEX-5)))
@@ -284,21 +308,21 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
     }
     */
     
-    if((curr_FollowLineBaseSpeed + max_pwm_speed_up_100ms) < expect_FollowLineBaseSpeed)
+    if((curr_FollowLineBaseSpeed + acc) < expect_FollowLineBaseSpeed)
     {
-      curr_FollowLineBaseSpeed += max_pwm_speed_up_100ms;
+      curr_FollowLineBaseSpeed += acc;
     }
     else if(curr_FollowLineBaseSpeed < expect_FollowLineBaseSpeed)
     {
       curr_FollowLineBaseSpeed = expect_FollowLineBaseSpeed;
     }
-    else if((curr_FollowLineBaseSpeed - max_pwm_speed_up_100ms) < expect_FollowLineBaseSpeed)
+    else if((curr_FollowLineBaseSpeed - acc) < expect_FollowLineBaseSpeed)
     {
       curr_FollowLineBaseSpeed = expect_FollowLineBaseSpeed;
     }
     else
     {
-      curr_FollowLineBaseSpeed -= max_pwm_speed_up_100ms;
+      curr_FollowLineBaseSpeed -= acc;
     }
     
     
@@ -330,7 +354,6 @@ void NEW_FOLLOW_LINE_TASK(u8* pFollowLineReset, s16 dir)
 
     SetSpeedRate(LEFT_MOTO_INDEX, left_speed);
     SetSpeedRate(RIGHT_MOTO_INDEX, right_speed);
-    
   }
 }
 
