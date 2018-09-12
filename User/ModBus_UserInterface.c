@@ -88,10 +88,10 @@ void Analysis_Receive_From_A8(u8 data)
 	case 0x01:
         {	 
             Receive_Data_From_A8[index++] = data;
-            if(data == CMD_ModBus_Read) //执行读取单个或多个寄存器命令  0x04 
+            if(data == CMD_ModBus_ReadEx) //执行读取单个或多个寄存器命令  0x04 
             {
                 machine_state = 0x02; 
-                A8_Modbus.ModBus_CMD = CMD_ModBus_Read;
+                A8_Modbus.ModBus_CMD = CMD_ModBus_ReadEx;
                 read_receive_timer = 0;
             }
             else if(data == CMD_ModBus_Write)//执行写单个寄存器命令   0x06
@@ -178,7 +178,7 @@ void Analysis_Receive_From_A8(u8 data)
                 else	  
                 {
                     A8_Modbus.err_state = 0x04;
-                    AckModBusCrcError(CMD_ModBus_Read);
+                    AckModBusCrcError(CMD_ModBus_ReadEx);
                 }   
                 index = 0;  
                 read_receive_timer = 0;  
@@ -292,7 +292,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     u16 cal_crc;
     pBuf=&pBuf[reg_addr];
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     for(loop=0;loop<reg_num;loop++)
@@ -310,7 +310,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取车体溫度
     u16 cal_crc;
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     //for(loop = 0; loop < reg_num; loop++)
@@ -328,7 +328,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取车体电量
     u16 cal_crc;
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     //for(loop = 0; loop < reg_num; loop++)
@@ -347,7 +347,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取RFID
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     if((RFID_COMEIN_Flag&(2+4))==2)
@@ -377,7 +377,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取霍尔传感器
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     for(loop=0;loop<reg_num;loop++)
@@ -396,7 +396,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取车体状态
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     
@@ -432,7 +432,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取臂章传感器
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     M_LightSensorStatus[0] = (TOUCH_SENSOR_Flag & (1 << 0)) >> 0;
@@ -453,7 +453,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     u16 cal_crc;
     u16 value[6];
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;    
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF; 
     value[0] = LASER_SENSOR_Flag & 0x1;
@@ -477,7 +477,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     u16 value = 0;
     if(RFID_ONLINE_Flag) value = PlaceId & 0xFF;
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;    
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF; 
     for(loop = 0; loop < reg_num; loop++)
@@ -496,7 +496,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取电机控制命令
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     for(loop=0;loop<reg_num;loop++)
@@ -514,7 +514,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     //for(loop=0;loop<reg_num;loop++)
@@ -541,7 +541,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     L=*(u32*)(&LeftRoadLength);
     R=*(u32*)(&RightRoadLength);
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     //for(loop=0;loop<reg_num;loop++)
@@ -567,7 +567,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     //读取车体位移控制
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     //for(loop=0;loop<reg_num;loop++)
@@ -595,7 +595,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {
     u16 cal_crc;
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     
@@ -614,7 +614,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {
     u16 cal_crc;
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num <<1 ) >> 8;//byte length ,MSB
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     
@@ -633,7 +633,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {
     u16 cal_crc;
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     
@@ -654,7 +654,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {
     u16 cal_crc;
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     
@@ -675,7 +675,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取RFID在线超时时间
     u16 cal_crc;
     Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++] = CMD_ModBus_Read;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
     Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
     
@@ -695,7 +695,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取RFID在线状态
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     
@@ -716,7 +716,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取分叉
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     
@@ -735,7 +735,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取继电器状态
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     
@@ -754,7 +754,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//读取 面板按键 状态,20160801
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     
@@ -779,7 +779,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     PID_List[1]=(Pid.Ki*1000);
     PID_List[2]=(Pid.Kd*1000);
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     for(loop=0;loop<reg_num;loop++)
@@ -798,7 +798,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     u16 cal_crc;
     u16 value = Get_FollowLineTempBaseSpeed();
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     
@@ -818,7 +818,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     u16 cal_crc;
     u16 value = LOG_Level;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
     Send_Data_A8_array[index++]=(reg_num<<1)&0xFF;//byte length ,LSB
     
@@ -837,7 +837,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {//数据错误、超出范围 illegal_data;Return-Code=0x03
     u16 cal_crc;
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
-    Send_Data_A8_array[index++]=CMD_ModBus_Read;
+    Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     Send_Data_A8_array[index++]=illegal_register;
     cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
     Send_Data_A8_array[index++]=cal_crc&0xFF;
