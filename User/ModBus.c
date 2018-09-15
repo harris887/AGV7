@@ -35,6 +35,10 @@ u8 ON_LINE_Flag=0;
 static u8 ON_LINE_Counter=0;
 u8 MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR;
 
+
+HALL_DEBUG HALL_D_Rt = {0, 0};
+HALL_DEBUG HALL_D_Bk = {0, 0};
+u8 GetSensorMiddleIndex_Debug(SENSOR_STATUS_NEW* st);
 /*******************************************************************
 函数名称:void Analysis_Receive_From_ModeBusSlaveDev(u8 data)
 函数功能:接收霍尔传感器 命令解析函数 （状态机）
@@ -218,6 +222,9 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
   {
     HallStatusFresh=0;
     CheckHallOnListNumNew(HallValue,LINE_SENSOR_NUM,&SENSOR_STATUS_New);
+#if (1)
+    HALL_D_Rt.sensor_buf[HALL_D_Rt.index++] = GetSensorMiddleIndex_Debug(&SENSOR_STATUS_New);  
+#endif
     
     if(SENSOR_STATUS_New.black_sensor_serial_flag==0)
     {
@@ -228,11 +235,13 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
       if(SENSOR_STATUS_New.Segment_Num==0)
       {
         ON_LINE_Counter+=1;
-        if(ON_LINE_Counter>=3)
+        if(ON_LINE_Counter>=5) // 3 -> 5 
         {
           ON_LINE_Flag=0;
           ON_LINE_Counter=0;
-          
+#if (1)
+          memcpy((void*)&HALL_D_Bk, (void*)&HALL_D_Rt, sizeof(HALL_DEBUG));       
+#endif
           if(LOG_Level <= LEVEL_INFO) printf("Off LINE!\n");
         }
       }
@@ -325,14 +334,16 @@ u8 CheckHallOnListNumNew(u8* hall_list,u8 total_num,SENSOR_STATUS_NEW* St)
 /*磁条出现分叉的检测策略*/
 u8 GetSensorMiddleIndex(SENSOR_STATUS_NEW* st)
 {
+  static u8 last_index = WONDER_MID_SENSOR_INDEX; //
   u8 temp = WONDER_MID_SENSOR_INDEX;
   if(st->Segment_Num == 0)
   {
-    temp = WONDER_MID_SENSOR_INDEX;
+    temp = last_index;
   }
   else if(st->Segment_Num == 1)
   {
     temp = st->seg_list[0].middle_index;
+    last_index = temp;
   }
   else if(st->Segment_Num >= 2)
   {
@@ -344,9 +355,48 @@ u8 GetSensorMiddleIndex(SENSOR_STATUS_NEW* st)
     {
       temp=st->seg_list[0].middle_index;
     }
+    last_index = temp;
   }
   return temp;
 }
 
+u8 GetSensorMiddleIndex_Debug(SENSOR_STATUS_NEW* st)
+{
+  static u8 last_index = WONDER_MID_SENSOR_INDEX; //
+  u8 temp = WONDER_MID_SENSOR_INDEX;
+  if(st->Segment_Num == 0)
+  {
+    temp = last_index;
+  }
+  else if(st->Segment_Num == 1)
+  {
+    temp = st->seg_list[0].middle_index;
+    last_index = temp;
+  }
+  else if(st->Segment_Num >= 2)
+  {
+    if(MB_LINE_DIR_SELECT == BRANCH_TO_LEFT) //left
+    {
+      temp=st->seg_list[1].middle_index;
+    }
+    else // right
+    {
+      temp=st->seg_list[0].middle_index;
+    }
+    last_index = temp;
+  }
+  return temp;
+}
 
-
+void HALL_DEBUG_Print(void)
+{
+  u16 i;
+  u8 index = HALL_D_Bk.index;
+  printf("------------------\n");
+  for(i = 0; i < 256; i++)
+  {
+    if((i & 15) == 0) printf("\n");
+    printf("%d ", HALL_D_Bk.sensor_buf[index++]);
+  }
+  printf("\n------------------\n");
+}

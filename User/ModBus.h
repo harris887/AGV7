@@ -96,6 +96,13 @@ typedef struct
   u8 DataBuf[256];
 }MODBUS_SAMPLE;
 
+typedef struct
+{
+  u8 index;
+  u8 sensor_buf[256];
+}HALL_DEBUG;
+extern HALL_DEBUG HALL_D_Bk;
+
 extern struct  MODBUS  A8_Modbus;
 extern MODBUS_SAMPLE MODBUS_HallSensor;
 extern u8 Receive_Data_From_A8[256];
@@ -134,4 +141,5 @@ u8 GetSensorMiddleIndex(SENSOR_STATUS_NEW* st);
 extern u8 SelectDir;
 extern u16 MB_LINE_DIR_SELECT;
 extern u8 MODE_BUS_HALL_Addr;
+void HALL_DEBUG_Print(void);
 #endif

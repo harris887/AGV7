@@ -214,6 +214,7 @@ void AGV_RUN_Task(void)
               IM_STOP_Ignore = 0;
               BARRIER_Ignore = 0;
               OFF_LINE_Ignore = 0;
+              if(LOG_Level <= LEVEL_INFO) printf("-- ACTION_DONE --\n");
             }
             else if(pRFID_ACTION->ActionInfor[ActionIndex].ActionType == ACTION_BRAKE) // É²³µ
             {

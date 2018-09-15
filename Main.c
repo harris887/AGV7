@@ -6,6 +6,7 @@
 
 char test_buffer[256];
 static u16 AUTO_FOLLOW_LINE_timers = 0;
+
 int main(void)
 {
   RCC_Configuration();
@@ -35,7 +36,8 @@ int main(void)
  
   //SetBeep(3,100,200);//test use
   if(LOG_Level <= LEVEL_INFO) printf("---- AGV7 Mining ! ----\n");
-  
+  if(LOG_Level <= LEVEL_INFO) printf("Build Time: %s, %s\n", __DATE__, __TIME__);
+
   while(1)
   {
     UART_Task();
@@ -81,6 +83,11 @@ int main(void)
       static u8 FollowLineLoop = 0;
       static s8 o_index = 0;
       debug_show=0;
+      if(USART_BYTE == 'z')
+      {
+        USART_BYTE =0;
+        printf("Build Time: %s, %s\n", __DATE__, __TIME__);
+      }
       
       if(USART_BYTE == 'C')
       {
@@ -225,6 +232,8 @@ int main(void)
       if(USART_BYTE == 'h')
       {
         USART_BYTE = 0;
+        HALL_DEBUG_Print();
+        /*
         if(MODE_BUS_HALL_Addr == BACKWARD_MODE_BUS_HALL_ADDR)
         {
           MODE_BUS_HALL_Addr = DEFAULT_MODE_BUS_HALL_ADDR ;
@@ -234,6 +243,7 @@ int main(void)
           MODE_BUS_HALL_Addr = BACKWARD_MODE_BUS_HALL_ADDR;
         }
         printf("MODE_BUS_HALL_Addr = %d\n", MODE_BUS_HALL_Addr);
+        */
       }
       
       if(USART_BYTE == 'H')
