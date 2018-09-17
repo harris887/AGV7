@@ -23,7 +23,7 @@
 #include "ModBus_UserInterface.h"
 #include "RTC_Time.h"
 #include "Rfid.h"
-#include "UltraSonic.h"
+//#include "UltraSonic.h"
 #include "WK2124.h"
 #include "voice_warner.h"
 #include "can.h"

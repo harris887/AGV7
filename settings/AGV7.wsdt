@@ -29,7 +29,7 @@
     <Windows>
       
       
-    <Wnd0>
+    <Wnd2>
         <Tabs>
           <Tab>
             <Identity>TabID-11933-17193</Identity>
@@ -41,21 +41,21 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd0><Wnd1><Tabs><Tab><Identity>TabID-19504-31626</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab><Tab><Identity>TabID-25568-791</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd1></Windows>
+      <SelectedTab>0</SelectedTab></Wnd2><Wnd3><Tabs><Tab><Identity>TabID-19504-31626</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab><Tab><Identity>TabID-25568-791</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd3></Windows>
     <Editor>
       
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\ModBus.c</Filename><XPos>0</XPos><YPos>219</YPos><SelStart>6014</SelStart><SelEnd>6014</SelEnd></Tab><ActiveTab>0</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\ModBus.h</Filename><XPos>0</XPos><YPos>115</YPos><SelStart>3431</SelStart><SelEnd>3447</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\Main.c</Filename><XPos>0</XPos><YPos>216</YPos><SelStart>6274</SelStart><SelEnd>6290</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\Program.c</Filename><XPos>0</XPos><YPos>198</YPos><SelStart>8965</SelStart><SelEnd>8965</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\ModBus_UserInterface.c</Filename><XPos>0</XPos><YPos>24</YPos><SelStart>1113</SelStart><SelEnd>1141</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\Program.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>47</SelStart><SelEnd>47</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\moto.c</Filename><XPos>0</XPos><YPos>280</YPos><SelStart>8146</SelStart><SelEnd>8187</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Pane/><Sizes><Pane><X>700408</X><Y>1000000</Y></Pane><Pane><X>299591</X><Y>1000000</Y></Pane></Sizes><SplitMode>4</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\ModBus.c</Filename><XPos>0</XPos><YPos>75</YPos><SelStart>2044</SelStart><SelEnd>2044</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\ModBus.h</Filename><XPos>0</XPos><YPos>6</YPos><SelStart>749</SelStart><SelEnd>749</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\Main.c</Filename><XPos>0</XPos><YPos>216</YPos><SelStart>6446</SelStart><SelEnd>6446</SelEnd></Tab><ActiveTab>2</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\Program.c</Filename><XPos>0</XPos><YPos>198</YPos><SelStart>8965</SelStart><SelEnd>8965</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\ModBus_UserInterface.c</Filename><XPos>0</XPos><YPos>1262</YPos><SelStart>41553</SelStart><SelEnd>41553</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\Program.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>47</SelStart><SelEnd>47</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\moto.c</Filename><XPos>0</XPos><YPos>280</YPos><SelStart>8146</SelStart><SelEnd>8187</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\init.c</Filename><XPos>0</XPos><YPos>177</YPos><SelStart>5513</SelStart><SelEnd>5532</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\Rfid.c</Filename><XPos>0</XPos><YPos>100</YPos><SelStart>2523</SelStart><SelEnd>2542</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\Delay.c</Filename><XPos>0</XPos><YPos>48</YPos><SelStart>2148</SelStart><SelEnd>2167</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Pane><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\ModBus_UserInterface.h</Filename><XPos>0</XPos><YPos>63</YPos><SelStart>918</SelStart><SelEnd>918</SelEnd></Tab><ActiveTab>0</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>D:\study\AGV7_mining\program\AGV7\User\user_inc.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>470</SelStart><SelEnd>470</SelEnd></Tab></Pane><Sizes><Pane><X>628571</X><Y>1000000</Y></Pane><Pane><X>371428</X><Y>1000000</Y></Pane></Sizes><SplitMode>4</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-0445f4e8><key>iaridepm.enu1</key></Toolbar-0445f4e8></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>530</Bottom><Right>309</Right><x>-2</x><y>-2</y><xscreen>-2439486</xscreen><yscreen>-1146700</yscreen><sizeHorzCX>-1588207030</sizeHorzCX><sizeHorzCY>-1468245838</sizeHorzCY><sizeVertCX>202474</sizeVertCX><sizeVertCY>681178</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>206</Bottom><Right>1538</Right><x>-2</x><y>-2</y><xscreen>1540</xscreen><yscreen>208</yscreen><sizeHorzCX>1002604</sizeHorzCX><sizeHorzCY>266325</sizeHorzCY><sizeVertCX>108073</sizeVertCX><sizeVertCY>199744</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-044ff5f0><key>iaridepm.enu1</key></Toolbar-044ff5f0></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>530</Bottom><Right>309</Right><x>-2</x><y>-2</y><xscreen>-2439485</xscreen><yscreen>-1146699</yscreen><sizeHorzCX>-1588206379</sizeHorzCX><sizeHorzCY>-1468244557</sizeHorzCY><sizeVertCX>202474</sizeVertCX><sizeVertCY>681178</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>206</Bottom><Right>1538</Right><x>-2</x><y>-2</y><xscreen>1540</xscreen><yscreen>208</yscreen><sizeHorzCX>1002604</sizeHorzCX><sizeHorzCY>266325</sizeHorzCY><sizeVertCX>108073</sizeVertCX><sizeVertCY>199744</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 

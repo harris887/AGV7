@@ -166,14 +166,7 @@ void Analysis_Receive_From_A8(u8 data)
                    && ((cal_crc&0xff) == receive_CRC_L) )
                 {
                     A8_Modbus.err_state = 0x00;//CRC校验正确 
-                    if(Receive_Data_From_A8[3]<ULTRA_SONIC_REG_ADDR_OFFSET)
-                    {
-                      AckModBusReadReg(A8_Modbus.Read_Register_Add,A8_Modbus.Read_Register_Num);
-                    }
-                    else
-                    {
-                      //Transit_UltarSonic(Receive_Data_From_A8,8);
-                    }
+                    AckModBusReadReg(A8_Modbus.Read_Register_Add,A8_Modbus.Read_Register_Num);
                 }
                 else	  
                 {
@@ -201,14 +194,7 @@ void Analysis_Receive_From_A8(u8 data)
                    && ((cal_crc&0xff) == receive_CRC_L) )
                 {
                     A8_Modbus.err_state = 0x00;//CRC校验正确 		
-                    if(Receive_Data_From_A8[3]<ULTRA_SONIC_REG_ADDR_OFFSET)
-                    {
-                      AckModBusWriteOneReg(A8_Modbus.Write_Register_Add,A8_Modbus.Write_Register_Data_One);
-                    }
-                    else
-                    {
-                      //Transit_UltarSonic(Receive_Data_From_A8,8);
-                    }
+                    AckModBusWriteOneReg(A8_Modbus.Write_Register_Add,A8_Modbus.Write_Register_Data_One);
                 }
                 else	  
                 {
@@ -247,15 +233,8 @@ void Analysis_Receive_From_A8(u8 data)
                    ((cal_crc&0xff) == receive_CRC_L) )
                 {
                     A8_Modbus.err_state = 0x00;//CRC校验正确 	
-                    if(Receive_Data_From_A8[3]<ULTRA_SONIC_REG_ADDR_OFFSET)
-                    {
-                      A8_Modbus.Write_Register_Num = (Receive_Data_From_A8[4]*256 + Receive_Data_From_A8[5]);
-                      AckModBusWriteMultiReg(A8_Modbus.Write_Register_Add,A8_Modbus.Write_Register_Num,&Receive_Data_From_A8[6]);
-                    }
-                    else
-                    {
-                      //Transit_UltarSonic(Receive_Data_From_A8,index);
-                    }                    
+                    A8_Modbus.Write_Register_Num = (Receive_Data_From_A8[4]*256 + Receive_Data_From_A8[5]);
+                    AckModBusWriteMultiReg(A8_Modbus.Write_Register_Add,A8_Modbus.Write_Register_Num,&Receive_Data_From_A8[6]);                  
                 }
                 else	  
                 {
@@ -290,7 +269,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
   {
     u16* pBuf=&MOD_BUS_Reg.M_CONTROL_MODE;
     u16 cal_crc;
-    pBuf=&pBuf[reg_addr];
+    pBuf=&pBuf[reg_addr - MOD_BUS_REG_START_ADDR];
     Send_Data_A8_array[index++]=MOD_BUS_Reg.SLAVE_ADDR;
     Send_Data_A8_array[index++]=CMD_ModBus_ReadEx;
     //Send_Data_A8_array[index++]=(reg_num<<1)>>8;//byte length ,MSB
