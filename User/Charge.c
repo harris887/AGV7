@@ -23,6 +23,7 @@ u32 CHARGE_COMM_Timout = 3500;
 static u8 SET_CHARGE_OnOff = 0;
 u8 CHARGE_FULL_Flag = 0;
 s32 CHARGE_COMM_Counter = 0;
+u8 CHARGE_P100_Flag = 0;
 CHARGE_STATUS CHARGE_St = 
 {
   .Refresh = 0,
@@ -210,10 +211,26 @@ void CHARGE_Task(void)
           if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE_COMM Error! --\n");
         }
       }
+      if(M_BAT_Precent >= 100)
+      {
+        if(CHARGE_P100_Flag < CHARGE_P100_THRESHOLD) 
+        {
+          CHARGE_P100_Flag += 1;
+          if(CHARGE_P100_Flag >= CHARGE_P100_THRESHOLD)
+          {
+            if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE_FULL 100%--\n");
+          }
+        }
+      }
+      else
+      {
+        CHARGE_P100_Flag = 0;
+      }
     }
     else
     {
       CHARGE_COMM_Counter = 0;
+      CHARGE_P100_Flag = 0;
     }
   }
   

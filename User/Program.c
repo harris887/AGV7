@@ -690,7 +690,8 @@ void AGV_RUN_Task(void)
             if((AGV_Delay == 0) 
                || (FORCE_CHARGE_STOP_Flag) \
                || (CHARGE_FULL_Flag) \
-               || (CHARGE_COMM_Counter <= CHARGE_COMM_MIN_COUNTER))
+               || (CHARGE_COMM_Counter <= CHARGE_COMM_MIN_COUNTER)
+               || (CHARGE_P100_Flag >= CHARGE_P100_THRESHOLD)  )
             {
               FORCE_CHARGE_STOP_Flag = 0;
               CHARGE_FULL_Flag = 0;
