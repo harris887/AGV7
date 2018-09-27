@@ -113,12 +113,13 @@ void AGV_RUN_Task(void)
         }
 
         //µÍµçÑ¹×´Ì¬ÇÐ»»
-        if(((BatteryVolt_LowFlag >= 2) || (FORCE_CHARGE_Flag)) 
+        if(((BatteryVolt_LowFlag >= 2) || (FORCE_CHARGE_Flag) || (M_BAT_Precent < 50)) 
            && (ON_LINE_Flag) 
            && (FollowLineEnable == 0)
            && (CHARGE_MinCycle == 0))
         {
           if(FORCE_CHARGE_Flag) FORCE_CHARGE_Flag -= 1; // test charge 
+          FORCE_CHARGE_STOP_Flag = 0;
           CHARGE_MinCycle = DEFAULT_MIN_CHARGE_CYCLE_IN_S * 1000;
           AGV_RUN_Pro = AGV_STATUS_CHARGE;
           AGV_RUN_SUB_Pro = 0;
@@ -277,9 +278,10 @@ void AGV_RUN_Task(void)
               {
                 MOD_BUS_Reg.M_CONTROL_MODE = M_CONTROL_MODE_IDLE;
               }
-              if(BatteryVolt_LowFlag >= 2)
+              if((BatteryVolt_LowFlag >= 2) || (M_BAT_Precent < 50))
               {
                 AGV_RUN_Pro = AGV_STATUS_CHARGE;
+                FORCE_CHARGE_STOP_Flag = 0;
                 AGV_RUN_SUB_Pro = 0;                  
               }
               else
