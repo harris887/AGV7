@@ -3,7 +3,7 @@
 
 #include "user_inc.h"
 
-#define DEFAULT_MIN_CHARGE_CYCLE_IN_S  300
+#define DEFAULT_MIN_CHARGE_CYCLE_IN_S  60
 #define CHARGE_ON                      1
 #define CHARGE_OFF                     0
 #define MIN_CHARGE_CURRENT_IN_0D01A    200

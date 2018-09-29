@@ -180,6 +180,7 @@ void SET_Charge(u8 on_off)
 
 void CHARGE_Task(void)
 {
+  static u32 counter = 0;
   if(CHARGE_COMM_Timout == 0)
   {
     CHARGE_COMM_Timout = 1000;
@@ -234,13 +235,14 @@ void CHARGE_Task(void)
     }
   }
   
-  if(CHARGE_St.Refresh)
+  if(AGV_RUN_Pro == AGV_STATUS_CHARGE)
   {
-    static u32 counter = 0;
-    CHARGE_St.Refresh = 0;
-    CHARGE_COMM_Counter = 0;
-    if(AGV_RUN_Pro == AGV_STATUS_CHARGE)
+    if(CHARGE_St.Refresh)
     {
+      
+      CHARGE_St.Refresh = 0;
+      CHARGE_COMM_Counter = 0;
+    
       if(CHARGE_St.Current <= MIN_CHARGE_CURRENT_IN_0D01A)
       {
         if(counter < 120)
@@ -258,10 +260,10 @@ void CHARGE_Task(void)
         counter = 0;
       }
     }
-    else
-    {
-      CHARGE_FULL_Flag = 0;
-      counter = 0;
-    }
   }
+  else
+  {
+    CHARGE_FULL_Flag = 0;
+    counter = 0;
+  }  
 }

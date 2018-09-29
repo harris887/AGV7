@@ -944,6 +944,7 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
     {
       if(reg_value == 1)
       {
+        CHARGE_MinCycle = 3000;
         FORCE_CHARGE_Flag = 1;
         FORCE_CHARGE_STOP_Flag = 0;
         return_code=return_OK;
@@ -959,6 +960,7 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
       if(reg_value == 1)
       {
         FORCE_CHARGE_STOP_Flag = 1;
+        FORCE_CHARGE_Flag = 0;
         return_code=return_OK;
       }
       else

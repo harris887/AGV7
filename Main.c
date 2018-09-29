@@ -97,7 +97,18 @@ int main(void)
            CHARGE_St.Time,    \
            CHARGE_St.RxNum,   \
            CHARGE_COMM_Counter);  
-      }        
+      }     
+      
+      if(USART_BYTE == 'c')
+      {
+        printf("[CHARGE] case: %d, %d, %d, %d, %d ,%d\n", 
+           BatteryVolt_LowFlag, \
+           FORCE_CHARGE_Flag, \
+           M_BAT_Precent,     \
+           ON_LINE_Flag,    \
+           FollowLineEnable,   \
+           CHARGE_MinCycle);        
+      }
       
       if(USART_BYTE == 'T')
       {

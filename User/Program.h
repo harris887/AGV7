@@ -4,7 +4,7 @@
 #define DEFAULT_RFID_WAIT_TIME_IN_MS          10000 
 #define DEFAULT_PLAY_DETECT_THING_TIME_IN_MS  5000
 #define DEFAUTL_LASER_DISTANCE_CM             50
-#define DEFAUTL_LASER_WIDTH_CM                55
+#define DEFAUTL_LASER_WIDTH_CM                50
 
 extern u32 AGV_Delay;
 
