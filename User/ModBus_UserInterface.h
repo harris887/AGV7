@@ -14,7 +14,7 @@ typedef struct
   u16 M_CONTROL_MODE;
   u16 COMM_BD ;
   u16 SLAVE_ADDR;
-  u16 AUTO_FOLLOW_ENABLE;
+  u16 LASER_DISTANCE; //AUTO_FOLLOW_ENABLE
 //--------------------------------
   //自动模式下速度控制模式的选择，0-车身电位器，1-MODBUS寄存器中的值
   u16 AUTO_FOLLOW_SPEED_CONTROL_MODE;
@@ -23,14 +23,16 @@ typedef struct
   u32 FOLLOW_LOOP_TIME_IN_MS;
   u16 LOG_LEVEL_;
   u16 RFID_ONLINE_TIME_IN_MS;
+  
+  u16 LASER_WIDTH;
 
 
   
 //--------------------------------  
-  //u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
+  u16 EVEN_ODD_FILL;//保证是偶数，可能有，可能无
   u32 MOD_REG_MAGIC_WORD;
 }MOD_BUS_REG;
-#define MAGIC_WORD  0x1A2B3C43
+#define MAGIC_WORD  0x1A2B3C47
 extern const MOD_BUS_REG DEFAULT_MOD_BUS_Reg;
 extern MOD_BUS_REG MOD_BUS_Reg;
 #define MOD_BUS_BD_LIST_LENGTH  9

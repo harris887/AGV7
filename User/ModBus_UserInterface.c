@@ -6,7 +6,7 @@
 
 //本设备的寄存器
 #define MOD_BUS_REG_START_ADDR      0x0001
-#define DEFAULT_MODE_BUS_AGV_ADDR   0x0001
+#define DEFAULT_MODE_BUS_AGV_ADDR   0x000A
 #define MOD_BUS_REG_NUM         ((sizeof(MOD_BUS_REG)>>1)-2)//0x000C
 
 struct  MODBUS  A8_Modbus;
@@ -41,16 +41,17 @@ const MOD_BUS_REG DEFAULT_MOD_BUS_Reg=
   M_CONTROL_MODE_IDLE,
   8,
   DEFAULT_MODE_BUS_AGV_ADDR,
-  0,//自动巡线使能
+  DEFAUTL_LASER_DISTANCE_CM,
   //--------------------------------
   AUTO_FOLLOW_SPEED_CONTROL_MODE_DIGITAL,//0-车身电位器,1-MODBUS寄存器
   45, // 30%
   DEFAULT_RFID_WAIT_TIME_IN_MS,
   DEFAULT_FOLLOW_LOOP_TIME_IN_MS,
-  LEVEL_VERBOSE,
+  LEVEL_SILENCE,
   DEFAULT_RFID_ONLINE_TIME_IN_MS,
+  DEFAUTL_LASER_WIDTH_CM,
   //--------------------------------
-  //0,
+  0,
 
   MAGIC_WORD,
 };
@@ -284,7 +285,25 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     Send_Data_A8_array[index++]=cal_crc>>8;
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
-  }
+  }   
+  else if((reg_addr == 0x08) && (reg_num == 1))
+  {//读取雷达距离
+    u16 cal_crc;
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
+    //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
+    //for(loop = 0; loop < reg_num; loop++)
+    {
+      Send_Data_A8_array[index++] = MOD_BUS_Reg.LASER_DISTANCE >> 8;
+      Send_Data_A8_array[index++] = MOD_BUS_Reg.LASER_DISTANCE & 0xff;
+    }
+    cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
+    Send_Data_A8_array[index++]=cal_crc&0xFF;
+    Send_Data_A8_array[index++]=cal_crc>>8;
+    FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
+    return 1;
+  }   
   else if((reg_addr == 0x09) && (reg_num == 1))
   {//读取车体溫度
     u16 cal_crc;
@@ -302,7 +321,7 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     Send_Data_A8_array[index++]=cal_crc>>8;
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
-  }    
+  }      
   else if((reg_addr == 0x10) && (reg_num == 1))
   {//读取车体电量
     u16 cal_crc;
@@ -930,6 +949,23 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
       }      
     }
     break;     
+  case 0x0008:
+    {
+      if((reg_value >= 5) && (reg_value <= 1000))
+      {
+        if(MOD_BUS_Reg.LASER_DISTANCE != reg_value)
+        {
+          MOD_BUS_Reg.LASER_DISTANCE = reg_value;
+          MOD_BUS_REG_FreshFlag=1;
+        }
+        return_code = return_OK;
+      }
+      else
+      {
+        return_code = illegal_data;
+      }      
+    }
+    break;    
   case 0x004B:
     {
       if(reg_value <= 1)

@@ -14,8 +14,10 @@ u32 CAN_RX_IntNum = 0;
 u32 LaserTimeout = 0;
 u16 LaserBeepTimeout = DEFAULT_LASER_BEEP_TIMEOUT;
 u8 LaserSelect = 0; // LASER_NUM
-u16 laser_width_cm = 70;
-u16 laser_deep_cm = 100; // 200
+//u16 laser_width_cm = 70;
+#define laser_width_cm MOD_BUS_Reg.LASER_WIDTH
+//u16 laser_deep_cm = 40; // 200 100
+#define laser_deep_cm MOD_BUS_Reg.LASER_DISTANCE
 u16 LASER_SENSOR_Flag = 0;
 
 // CAN³õÊ¼»¯º¯Êý

@@ -1,8 +1,11 @@
 #ifndef program_h_
 #define program_h_
 
-#define DEFAULT_RFID_WAIT_TIME_IN_MS          5000 
+#define DEFAULT_RFID_WAIT_TIME_IN_MS          10000 
 #define DEFAULT_PLAY_DETECT_THING_TIME_IN_MS  5000
+#define DEFAUTL_LASER_DISTANCE_CM             50
+#define DEFAUTL_LASER_WIDTH_CM                55
+
 extern u32 AGV_Delay;
 
 #define DEFAULT_Vehicle_WIDTH_FLOAT   35.0    //³µΜεΏν¶Θ£¬51.0 ,56.0 , 45.0
