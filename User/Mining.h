@@ -35,11 +35,16 @@ typedef struct
   ACTION_INFOR ActionInfor[MAX_ACTION_NUM];
 }RFID_ACTION;
 
-#define RFID_CARD_NUM            14
-#define LAST_ID_NOT_CARE         0x00FF
+//#define RFID_CARD_NUM            14
+//#define LAST_ID_NOT_CARE         0x00FF
 #define BRAKE_DISTANCE_NOT_CARE  -1
 
+#define FUNC_1_ADD_MORE_CARD    1
+#if (! FUNC_1_ADD_MORE_CARD)
 #define FUNC_1_RFID_CARD_NUM     8
+#else
+#define FUNC_1_RFID_CARD_NUM     9
+#endif
 
 #define ROAD_TYPE_FORWARD   1
 #define ROAD_TYPE_BACKWARD  -1
@@ -49,7 +54,7 @@ typedef struct
 #define BRANCH_TO_RIGHT     2
 
 
-extern const RFID_INFOR RFID_Infor[RFID_CARD_NUM];
+//extern const RFID_INFOR RFID_Infor[RFID_CARD_NUM];
 extern u32 MiningAgvTimeout;
 extern s32 RoadType;
 

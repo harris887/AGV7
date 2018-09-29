@@ -29,13 +29,30 @@ const RFID_ACTION FORWARD_RFID_Action[FUNC_1_RFID_CARD_NUM] = {
                {ACTION_WAIT, VIDEO_DELAY_S},
                {ACTION_TURN_ANGLE, 180}, 
                {ACTION_WAIT, VIDEO_DELAY_S}, }},
-                                                     
+                                                
+#if (! FUNC_1_ADD_MORE_CARD)
   {0x8007, 6, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
                {ACTION_WAIT, VIDEO_DELAY_S},
                {ACTION_TURN_ANGLE, 180}, 
                {ACTION_WAIT, VIDEO_DELAY_S}, 
                {ACTION_SET_LINE_TYPE, ROAD_TYPE_BACKWARD}, 
                {ACTION_SET_BRANCH_DIR, BRANCH_TO_LEFT}, }},
+               
+#else
+  {0x8007, 4, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
+               {ACTION_WAIT, VIDEO_DELAY_S},
+               {ACTION_TURN_ANGLE, 180}, 
+               {ACTION_WAIT, VIDEO_DELAY_S}, }},
+               //{ACTION_SET_LINE_TYPE, ROAD_TYPE_BACKWARD}, 
+               //{ACTION_SET_BRANCH_DIR, BRANCH_TO_LEFT}, }},
+
+  {0x8008, 6, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
+               {ACTION_WAIT, VIDEO_DELAY_S},
+               {ACTION_TURN_ANGLE, 180}, 
+               {ACTION_WAIT, VIDEO_DELAY_S}, 
+               {ACTION_SET_LINE_TYPE, ROAD_TYPE_BACKWARD}, 
+               {ACTION_SET_BRANCH_DIR, BRANCH_TO_LEFT}, }},
+#endif
 };
 
 
@@ -61,6 +78,13 @@ const RFID_ACTION BACKWARD_RFID_Action[FUNC_1_RFID_CARD_NUM] = {
                                                      
   {0x0006, 2, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
                {ACTION_TURN_ANGLE, 180}, }},
-                                                     
+                        
+#if (! FUNC_1_ADD_MORE_CARD)
   {0x8007, 0, },
+#else
+  {0x8007, 2, {{ACTION_BRAKE, BRAKE_DISTANCE_NOT_CARE},
+               {ACTION_TURN_ANGLE, 180}, }},
+                        
+  {0x8008, 0, },
+#endif
 };

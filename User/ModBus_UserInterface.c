@@ -286,6 +286,24 @@ u8 AckModBusReadReg(u16 reg_addr,u16 reg_num)
     FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
     return 1;
   }   
+  else if((reg_addr == 0x07) && (reg_num == 1))
+  {//读取雷达宽度
+    u16 cal_crc;
+    Send_Data_A8_array[index++] = MOD_BUS_Reg.SLAVE_ADDR;
+    Send_Data_A8_array[index++] = CMD_ModBus_ReadEx;
+    //Send_Data_A8_array[index++] = (reg_num << 1) >> 8;//byte length ,MSB
+    Send_Data_A8_array[index++] = (reg_num << 1) & 0xFF;//byte length ,LSB
+    //for(loop = 0; loop < reg_num; loop++)
+    {
+      Send_Data_A8_array[index++] = MOD_BUS_Reg.LASER_WIDTH >> 8;
+      Send_Data_A8_array[index++] = MOD_BUS_Reg.LASER_WIDTH & 0xff;
+    }
+    cal_crc=ModBus_CRC16_Calculate(Send_Data_A8_array , index);
+    Send_Data_A8_array[index++]=cal_crc&0xFF;
+    Send_Data_A8_array[index++]=cal_crc>>8;
+    FillUartTxBufN(Send_Data_A8_array,index,U_TX_INDEX);
+    return 1;
+  }   
   else if((reg_addr == 0x08) && (reg_num == 1))
   {//读取雷达距离
     u16 cal_crc;
@@ -946,6 +964,23 @@ u8 AckModBusWriteOneReg(u16 reg_addr,u16 reg_value)
       else
       {
         return_code=illegal_data;
+      }      
+    }
+    break; 
+  case 0x0007:
+    {
+      if((reg_value >= 5) && (reg_value <= 1000))
+      {
+        if(MOD_BUS_Reg.LASER_WIDTH != reg_value)
+        {
+          MOD_BUS_Reg.LASER_WIDTH = reg_value;
+          MOD_BUS_REG_FreshFlag=1;
+        }
+        return_code = return_OK;
+      }
+      else
+      {
+        return_code = illegal_data;
       }      
     }
     break;     
