@@ -6,7 +6,7 @@
 
 //本设备的寄存器
 #define MOD_BUS_REG_START_ADDR      0x0001
-#define DEFAULT_MODE_BUS_AGV_ADDR   0x000A
+#define DEFAULT_MODE_BUS_AGV_ADDR   0x0001 // 0x000A -》 0x0001
 #define MOD_BUS_REG_NUM         ((sizeof(MOD_BUS_REG)>>1)-2)//0x000C
 
 struct  MODBUS  A8_Modbus;

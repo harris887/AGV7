@@ -78,7 +78,7 @@ void Analysis_Receive_From_Charge(u8 data,MODBUS_SAMPLE* pMODBUS)
         pMODBUS->read_receive_timer++;
         if(pMODBUS->read_receive_timer == 1 )
         {
-          pMODBUS->Read_Register_Num = pMODBUS->DataBuf[pMODBUS->BufIndex-1] - 1; // charge fix spec
+          pMODBUS->Read_Register_Num = pMODBUS->DataBuf[pMODBUS->BufIndex-1] - 0; // charge fix spec
           if(pMODBUS->Read_Register_Num <= 16)//长度限定
           {
             pMODBUS->MachineState = 0x03;
@@ -104,7 +104,7 @@ void Analysis_Receive_From_Charge(u8 data,MODBUS_SAMPLE* pMODBUS)
           pMODBUS->receive_CRC_H = pMODBUS->DataBuf[pMODBUS->BufIndex-1];
           if(((cal_crc>>8) == pMODBUS->receive_CRC_H) && ((cal_crc&0xFF) == pMODBUS->receive_CRC_L))
           {
-            u8* ptr = pMODBUS->DataBuf + 3;
+            u8* ptr = pMODBUS->DataBuf + 3; // 3 -》 4
             pMODBUS->err_state = 0x00;//CRC校验正确 
             pMODBUS->read_success_num += 1;
             //--------------//
