@@ -715,6 +715,7 @@ void AGV_RUN_Task(void)
               AGV_RUN_Pro = AGV_STATUS_IDLE;
               if(LOG_Level <= LEVEL_INFO) printf("-- CHARGE 5: DO_CHARGE_Disable\n");
               Play_Warning(STOP_CHARGE);
+              CHARGE_MinCycle = DEFAULT_MIN_CHARGE_CYCLE_IN_S * 1000;
             }        
           }
           break;

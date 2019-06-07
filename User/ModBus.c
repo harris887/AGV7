@@ -235,7 +235,7 @@ void MODBUS_READ_HALL_SERSOR_TASK(void)
       if(SENSOR_STATUS_New.Segment_Num==0)
       {
         ON_LINE_Counter+=1;
-        if(ON_LINE_Counter>=5) // 3 -> 5 
+        if(ON_LINE_Counter>=20) // 3 -> 5 -> 20
         {
           ON_LINE_Flag=0;
           ON_LINE_Counter=0;
